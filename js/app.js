@@ -2366,6 +2366,78 @@ ${contentHTML}</div>
         });
     }
 
+    // ── Donate Modal Handlers ────────────────────────────────
+    const btnDonate = $('#btnDonate');
+    const donateModal = $('#donateModal');
+    const btnCloseDonate = $('#btnCloseDonate');
+
+    if (btnDonate && donateModal && btnCloseDonate) {
+        btnDonate.addEventListener('click', () => {
+            donateModal.style.display = 'flex';
+        });
+
+        btnCloseDonate.addEventListener('click', () => {
+            donateModal.style.display = 'none';
+        });
+
+        donateModal.addEventListener('click', (e) => {
+            if (e.target === donateModal) {
+                donateModal.style.display = 'none';
+            }
+        });
+
+        // Copy actions for payment elements
+        donateModal.querySelectorAll('.btn-copy-payment').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-copy-target');
+                const targetEl = $('#' + targetId);
+                if (targetEl) {
+                    let text = targetEl.textContent.trim();
+                    if (targetId === 'valYoomoneyCard') {
+                        text = text.replace(/\s+/g, ''); // strip spaces for card numbers
+                    }
+                    
+                    const copyText = (str) => {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            return navigator.clipboard.writeText(str);
+                        } else {
+                            const textarea = document.createElement('textarea');
+                            textarea.value = str;
+                            textarea.style.position = 'fixed';
+                            textarea.style.opacity = '0';
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            try {
+                                document.execCommand('copy');
+                                document.body.removeChild(textarea);
+                                return Promise.resolve();
+                            } catch (e) {
+                                document.body.removeChild(textarea);
+                                return Promise.reject(e);
+                            }
+                        }
+                    };
+                    copyText(text).then(() => {
+                        const icon = btn.querySelector('i');
+                        btn.classList.add('copied');
+                        if (icon) {
+                            icon.className = 'fa fa-check';
+                        }
+                        
+                        setTimeout(() => {
+                            btn.classList.remove('copied');
+                            if (icon) {
+                                icon.className = 'fa fa-clone';
+                            }
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                }
+            });
+        });
+    }
+
     // Dynamic downloads of OCMOD files
     const btnDownloadZip = $('#btnDownloadZip');
     if (btnDownloadZip) {

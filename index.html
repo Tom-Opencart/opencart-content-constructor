@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.0.6">
+    <link rel="stylesheet" href="css/constructor.css?v=1.0.8">
 </head>
 <body>
 
@@ -116,6 +116,13 @@
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
                 <span class="block-btn-label">Оглавление</span>
+            </button>
+        </div>
+        <div class="panel-divider" style="height: 1px; background: #eee; margin: 15px 0;"></div>
+        <div class="panel-support">
+            <button class="block-btn donate-btn" id="btnDonate" title="Отблагодарить автора">
+                <span class="block-btn-icon"><i class="fa fa-heart"></i></span>
+                <span class="block-btn-label" style="font-weight: 600;">Отблагодарить</span>
             </button>
         </div>
     </aside>
@@ -230,7 +237,84 @@
     </div>
 </div>
 
+<!-- DONATE MODAL -->
+<div id="donateModal" class="modal-overlay" style="display: none;">
+    <div class="modal-window donate-modal-window">
+        <div class="modal-header">
+            <h2>Поддержать проект (Отблагодарить)</h2>
+            <button class="modal-close" id="btnCloseDonate">&times;</button>
+        </div>
+        <div class="modal-body donate-modal-body">
+            <div class="donate-intro">
+                <div class="donate-icon-wrapper">
+                    <i class="fa fa-heart donate-heart-pulse"></i>
+                </div>
+                <p class="donate-text">
+                    Большое спасибо за использование <strong>Content Constructor</strong>! Если этот инструмент сэкономил ваше время и помог в работе, вы можете поддержать автора. Это мотивирует развивать проект и добавлять новые функции!
+                </p>
+            </div>
+            
+            <div class="payment-methods">
+                <!-- Method 1: Yoomoney Card -->
+                <div class="payment-card">
+                    <div class="payment-card-icon card-color-yoomoney">
+                        <i class="fa fa-credit-card"></i>
+                    </div>
+                    <div class="payment-card-details">
+                        <span class="payment-label">ЮMoney карта</span>
+                        <div class="payment-value-container">
+                            <span class="payment-value" id="valYoomoneyCard">5599 0021 3241 5086</span>
+                            <button class="btn-copy-payment" data-copy-target="valYoomoneyCard" title="Копировать номер карты">
+                                <i class="fa fa-clone"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Method 2: Yoomoney Wallet -->
+                <div class="payment-card">
+                    <div class="payment-card-icon card-color-yoomoney-wallet">
+                        <i class="fa fa-money"></i>
+                    </div>
+                    <div class="payment-card-details">
+                        <span class="payment-label">ЮMoney кошелек</span>
+                        <div class="payment-value-container">
+                            <span class="payment-value" id="valYoomoneyWallet">4100112176183832</span>
+                            <button class="btn-copy-payment" data-copy-target="valYoomoneyWallet" title="Копировать номер кошелька">
+                                <i class="fa fa-clone"></i>
+                            </button>
+                        </div>
+                        <a href="https://yoomoney.ru/to/4100112176183832" target="_blank" class="payment-action-link">
+                            <i class="fa fa-external-link"></i> Перейти к переводу на ЮMoney
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Method 3: PayPal -->
+                <div class="payment-card">
+                    <div class="payment-card-icon card-color-paypal">
+                        <i class="fa fa-paypal"></i>
+                    </div>
+                    <div class="payment-card-details">
+                        <span class="payment-label">PayPal</span>
+                        <div class="payment-value-container">
+                            <span class="payment-value" id="valPaypal">tomopencart@gmail.com</span>
+                            <button class="btn-copy-payment" data-copy-target="valPaypal" title="Копировать email PayPal">
+                                <i class="fa fa-clone"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="donate-footer-note">
+                <i class="fa fa-info-circle"></i> Нажмите на кнопку копирования рядом с реквизитами для сохранения в буфер обмена.
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.0.7"></script>
+<script src="js/app.js?v=1.0.8"></script>
 </body>
 </html>

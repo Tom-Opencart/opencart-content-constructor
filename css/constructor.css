@@ -822,6 +822,210 @@ body.preview-hidden .workspace {
 }
 .modal-body .btn-download-xml:hover { background: #219653; }
 
+/* --- Donate button in panel left --- */
+.donate-btn {
+    background: #fff5f5 !important;
+    border-color: #feb2b2 !important;
+    color: #c53030 !important;
+}
+.donate-btn .block-btn-icon {
+    background: #fed7d7 !important;
+    color: #e53e3e !important;
+}
+.donate-btn:hover {
+    background: #fff0f0 !important;
+    border-color: #fc8181 !important;
+    color: #9b2c2c !important;
+}
+.donate-btn:hover .block-btn-icon {
+    background: #e53e3e !important;
+    color: #fff !important;
+}
+
+/* --- Donate Modal Custom Styles --- */
+.donate-modal-window {
+    width: 500px;
+    max-width: 95vw;
+}
+
+.donate-modal-body {
+    padding: 20px;
+}
+
+.donate-intro {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
+    border: 1px dashed #feb2b2;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+.donate-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(229, 62, 98, 0.12);
+    flex-shrink: 0;
+}
+
+.donate-heart-pulse {
+    font-size: 20px;
+    color: #e53e3e;
+    animation: heartPulse 1.4s infinite;
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+
+.donate-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4a5568;
+    margin: 0 !important;
+}
+
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.payment-card {
+    display: flex;
+    align-items: center;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.payment-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    border-color: #cbd5e0;
+}
+
+.payment-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.card-color-yoomoney {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+.card-color-yoomoney-wallet {
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+}
+
+.card-color-paypal {
+    background: linear-gradient(135deg, #0079c1 0%, #00457c 100%);
+}
+
+.payment-card-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.payment-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #718096;
+}
+
+.payment-value-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.payment-value {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a202c;
+    word-break: break-all;
+}
+
+.btn-copy-payment {
+    background: #edf2f7;
+    border: none;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-copy-payment:hover {
+    background: #e2e8f0;
+    color: #1a202c;
+}
+
+.btn-copy-payment.copied {
+    background: #c6f6d5;
+    color: #22543d;
+}
+
+.payment-action-link {
+    font-size: 11px;
+    color: #5446f8;
+    text-decoration: none;
+    margin-top: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+    font-weight: 600;
+}
+.payment-action-link:hover {
+    color: #3b2ebd;
+    text-decoration: underline;
+}
+
+.donate-footer-note {
+    font-size: 11px;
+    color: #718096;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f7fafc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #edf2f7;
+}
+
 /* --- Scrollbar --- */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
