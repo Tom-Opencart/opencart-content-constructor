@@ -160,79 +160,177 @@
 
 <!-- HELP MODAL -->
 <div id="helpModal" class="modal-overlay" style="display: none;">
-    <div class="modal-window">
+    <div class="modal-window help-modal-window">
         <div class="modal-header">
-            <h2>Интеграция с OpenCart 3</h2>
+            <h2><i class="fa fa-info-circle" style="color: #4a90d9;"></i> Руководство пользователя и интеграция</h2>
             <button class="modal-close" id="btnCloseHelp">&times;</button>
         </div>
-        <div class="modal-body">
-            <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-cogs"></i> Автоматическая установка в OpenCart 3 (Рекомендуется)</h3>
-            <p>Мы объединили все доработки в один удобный интеграционный ZIP-пакет. Он автоматически установит глобальный файл стилей на ваш сайт и добавит зелёную кнопку импорта в редактор Summernote.</p>
-            
-            <div class="download-box" style="background: #eef9f0; border-color: #c3e6cb; padding: 20px;">
-                <div class="download-box-text">
-                    <div class="download-box-title" style="font-size: 15px; color: #27ae60;">Интеграционный ZIP-архив (.ocmod.zip)</div>
-                    <div class="download-box-desc" style="font-size: 12px; color: #555; margin-top: 4px;">
-                        Включает модификатор <code>install.xml</code> и файл стилей <code>content-constructor.css</code> в папке <code>upload/</code>.
+        <div class="help-tabs-nav">
+            <button class="help-tab-btn active" data-help-tab="help-install"><i class="fa fa-cogs"></i> Установка в OpenCart</button>
+            <button class="help-tab-btn" data-help-tab="help-text"><i class="fa fa-font"></i> Оформление текста</button>
+            <button class="help-tab-btn" data-help-tab="help-blocks"><i class="fa fa-cubes"></i> Сложные блоки</button>
+            <button class="help-tab-btn" data-help-tab="help-images"><i class="fa fa-picture-o"></i> Ссылки и картинки</button>
+        </div>
+        <div class="modal-body help-modal-body">
+            <!-- TAB 1: INSTALLATION -->
+            <div class="help-tab-content active" id="help-install">
+                <h3 style="margin-top: 0; color: #27ae60;"><i class="fa fa-check-circle"></i> Автоматическая установка (Рекомендуется)</h3>
+                <p>
+                    Для интеграции конструктора с вашим сайтом на <strong>OpenCart 3</strong> скачайте готовый ZIP-архив. Он содержит все необходимые стили и добавляет удобную кнопку импорта в стандартный текстовый редактор Summernote в админке.
+                </p>
+                
+                <div class="download-box" style="background: #eef9f0; border-color: #c3e6cb; padding: 15px; margin: 12px 0;">
+                    <div class="download-box-text">
+                        <div class="download-box-title" style="font-size: 14px; color: #27ae60; font-weight: bold;">Интеграционный ZIP-архив (.ocmod.zip)</div>
+                        <div class="download-box-desc" style="font-size: 12px; color: #555; margin-top: 4px;">
+                            Содержит файл стилей <code>content-constructor.css</code> и модификатор <code>install.xml</code>.
+                        </div>
                     </div>
+                    <button class="btn-download-xml" id="btnDownloadZip" style="background: #27ae60; padding: 10px 16px; font-size: 12px;">
+                        <i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip
+                    </button>
                 </div>
-                <button class="btn-download-xml" id="btnDownloadZip" style="background: #27ae60; padding: 12px 20px; font-size: 13px;">
-                    <i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip
-                </button>
+
+                <p><strong>Пошаговая инструкция для новичков:</strong></p>
+                <ol class="help-steps-list">
+                    <li>Нажмите зелёную кнопку выше и скачайте файл <code>content_constructor.ocmod.zip</code>.</li>
+                    <li>Войдите в админ-панель вашего сайта OpenCart.</li>
+                    <li>Перейдите в раздел <strong>«Расширения» ➔ «Установка расширений»</strong> и загрузите скачанный файл.</li>
+                    <li>Перейдите в раздел <strong>«Расширения» ➔ «Менеджер модификаторов»</strong> и нажмите кнопку <strong>«Обновить»</strong> (синяя кнопка с круговыми стрелками в верхнем правом углу).</li>
+                    <li>После этого очистите кэш вашего браузера (кликните <code>Ctrl + F5</code> на странице с редактором Summernote), чтобы обновить кэш редактора.</li>
+                </ol>
+
+                <h3 style="color: #e67e22; margin-top: 20px;"><i class="fa fa-info-circle"></i> Ручная настройка стилей</h3>
+                <p>Если вы не хотите устанавливать плагин, вы можете подключить стили статьи вручную:</p>
+                <ul>
+                    <li>Нажмите кнопку <strong>Export CSS</strong> в шапке конструктора и скопируйте код.</li>
+                    <li>Вставьте его в поле «Пользовательские CSS стили» в настройках вашей темы OpenCart или в конец файла стилей вашего шаблона (обычно <code>catalog/view/theme/название_темы/stylesheet/stylesheet.css</code>).</li>
+                </ul>
             </div>
 
-            <p><strong>Инструкция по установке ZIP-архива:</strong></p>
-            <ol>
-                <li>Скачайте архив по кнопке выше. Он получит имя <code>content_constructor.ocmod.zip</code>.</li>
-                <li>Перейдите в админке OpenCart в раздел: <strong>Расширения -> Установка расширений</strong>.</li>
-                <li>Загрузите скачанный ZIP-архив.</li>
-                <li>Перейдите в <strong>Менеджер модификаторов</strong> и нажмите кнопку <strong>«Обновить»</strong> в правом верхнем углу.</li>
-                <li>После этого очистите кэш вашего браузера (кликните <code>Ctrl + F5</code> на странице с редактором Summernote), чтобы обновить кэш редактора.</li>
-            </ol>
+            <!-- TAB 2: TEXT FORMATTING -->
+            <div class="help-tab-content" id="help-text" style="display: none;">
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-edit"></i> Простое форматирование текста</h3>
+                <p>
+                    В полях ввода текстовых блоков (Параграфы, Спойлеры, Вкладки) вы можете форматировать текст с помощью простых Markdown-символов. Конструктор автоматически превратит их в красивый HTML.
+                </p>
+                
+                <table class="help-table-guide">
+                    <thead>
+                        <tr>
+                            <th>Что вы пишете в поле</th>
+                            <th>Результат на сайте</th>
+                            <th>Для чего используется</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>**Ваш жирный текст**</code></td>
+                            <td><strong>Ваш жирный текст</strong></td>
+                            <td>Выделение важных мыслей</td>
+                        </tr>
+                        <tr>
+                            <td><code>*Курсивный текст*</code></td>
+                            <td><em>Курсивный текст</em></td>
+                            <td>Сноски, цитирование терминов</td>
+                        </tr>
+                        <tr>
+                            <td><code>[Название ссылки](https://site.ru)</code></td>
+                            <td><a href="#" style="color:#5446f8;text-decoration:underline;">Название ссылки</a></td>
+                            <td>Ссылка на любой внешний сайт или страницу</td>
+                        </tr>
+                        <tr>
+                            <td><code>- Пункт 1<br>- Пункт 2</code></td>
+                            <td><ul><li>Пункт 1</li><li>Пункт 2</li></ul></td>
+                            <td>Обычный маркированный список списком внутри текста</td>
+                        </tr>
+                        <tr>
+                            <td><code>1. Первый пункт<br>2. Второй пункт</code></td>
+                            <td><ol><li>Первый пункт</li><li>Второй пункт</li></ol></td>
+                            <td>Нумерованный список по шагам</td>
+                        </tr>
+                    </tbody>
+                </table>
 
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;" />
+                <h3 style="color: #4a90d9; margin-top: 20px;"><i class="fa fa-list-alt"></i> Списки параметров (Списки определений)</h3>
+                <p>
+                    Идеально подходит для перечисления характеристик или терминов в формате «Параметр :: Значение». Вставьте двоеточия <code>::</code> между параметром и его описанием:
+                </p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Пример ввода:</strong><br>
+                        <code>Время работы :: До 18 часов в активном режиме</code><br>
+                        <code>Дисплей :: Сенсорный OLED-экран Retina</code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>Результат на сайте:</strong><br>
+                        <dl class="preview-dl" style="margin: 5px 0 0 0;">
+                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Время работы</dt>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">До 18 часов в активном режиме</dd>
+                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Дисплей</dt>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">Сенсорный OLED-экран Retina</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
 
-            <h3 style="color: #e67e22;"><i class="fa fa-info-circle"></i> Ручные способы настройки</h3>
-            <p>Если вы предпочитаете ручную установку или хотите использовать кастомные настройки, воспользуйтесь инструкциями ниже:</p>
-            
-            <details style="margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
-                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">1. Как подключить стили статьи вручную</summary>
-                <div style="margin-top: 10px; font-size: 13px;">
-                    <p><strong>Правило:</strong> Стили не нужно загружать в каждую статью по отдельности! Подключите их один раз глобально:</p>
+            <!-- TAB 3: COMPLEX BLOCKS -->
+            <div class="help-tab-content" id="help-blocks" style="display: none;">
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-columns"></i> Сетка (Разметка на несколько колонок)</h3>
+                <p>
+                    Позволяет разместить контент (например, картинку слева и текст справа) в несколько колонок.
+                </p>
+                <ol class="help-steps-list">
+                    <li>Добавьте блок <strong>«Сетка»</strong> в конструктор.</li>
+                    <li>В настройках блока выберите шаблон колонок (например, <strong>«6 + 6»</strong> для двух равных колонок, или <strong>«4 + 4 + 4»</strong> для трех).</li>
+                    <li>Перетаскивайте другие блоки (Параграфы, Картинки, Цитаты) из левой панели прямо внутрь появившихся пустых серых полей колонок.</li>
+                    <li>В экспортируемом коде используется сетка Bootstrap 3, которая автоматически адаптируется под экраны телефонов (колонки выстраиваются вертикально).</li>
+                </ol>
+
+                <h3 style="color: #4a90d9; margin-top: 20px;"><i class="fa fa-folder-open-o"></i> Спойлеры и Вкладки (Tabs)</h3>
+                <p>Помогают скрыть длинные тексты, чтобы статья выглядела аккуратно:</p>
+                <ul>
+                    <li><strong>Спойлер (Аккордеон):</strong> Скрывает текст под заголовком. Разворачивается при клике на стрелочку. Отлично подходит для раздела «Часто задаваемые вопросы (FAQ)».</li>
+                    <li><strong>Вкладки:</strong> Группируют контент по вкладкам. Пользователь может переключаться между ними в один клик (например: «Характеристики», «Описание», «Комплектация»).</li>
+                </ul>
+            </div>
+
+            <!-- TAB 4: IMAGES AND LINKS -->
+            <div class="help-tab-content" id="help-images" style="display: none;">
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-picture-o"></i> Работа с изображениями</h3>
+                <p>
+                    Поскольку изображения хранятся на вашем сервере OpenCart, следуйте этим рекомендациям:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Относительный путь:</strong> В поле пути к картинке вводите адрес относительно корня сайта, например: <code>image/catalog/articles/my-photo.jpg</code>.
+                    </li>
+                    <li>
+                        <strong>Временный просмотр:</strong> Чтобы картинка отображалась в превью во время сборки, вы можете:
+                        <ol style="margin-top: 5px; padding-left: 15px;">
+                            <li>Ввести в шапке конструктора домен вашего сайта (например, <code>https://myshop.ru/</code>), и он автоматически подставится в превью.</li>
+                            <li>Или нажать кнопку «Выбрать локальный файл» и загрузить картинку с компьютера (она отобразится в превью временно, но при экспорте останется правильный относительный путь).</li>
+                        </ol>
+                    </li>
+                </ul>
+
+                <h3 style="color: #27ae60; margin-top: 20px;"><i class="fa fa-window-restore"></i> Всплывающие статьи OpenCart (agree)</h3>
+                <p>
+                    В OpenCart есть функция показа информационных статей (например, «Условия соглашения» или «Политика конфиденциальности») во всплывающем окне (попапе). Вы можете привязать такой попап к любому слову в тексте!
+                </p>
+                <div class="help-example-box">
+                    <p>Для создания такой ссылки используйте формат:</p>
+                    <code>[Ваш текст соглашения](agree:ID)</code>
+                    <p style="margin-top: 6px; font-size: 12px; color: #555;">
+                        Где вместо <code>ID</code> укажите числовой номер информационной статьи из админки OpenCart (Статьи ➔ ID).
+                    </p>
+                    <p><strong>Примеры:</strong></p>
                     <ul>
-                        <li><strong>Вариант А:</strong> Скопируйте CSS (кнопка <strong>Export CSS</strong> в шапке) и вставьте в настройки вашего шаблона (Custom CSS) в админке OpenCart.</li>
-                        <li><strong>Вариант Б:</strong> Допишите скопированный CSS в конец файла стилей темы (обычно <code>catalog/view/theme/YOUR_THEME/stylesheet/stylesheet.css</code>).</li>
+                        <li><code>[политикой конфиденциальности](agree:3)</code> ➔ откроет статью с ID = 3.</li>
+                        <li><code>[условиями доставки](agree:6)</code> ➔ откроет статью с ID = 6.</li>
                     </ul>
                 </div>
-            </details>
-
-            <details style="margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
-                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">2. Отдельные XML-файлы модификаторов</summary>
-                <div style="margin-top: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
-                        <span>Модификатор кнопки импорта в Summernote (admin/footer.twig)</span>
-                        <button class="btn btn-sm btn-ghost" id="btnDownloadImportXml" style="padding: 4px 8px; font-size: 11px;"><i class="fa fa-download"></i> Скачать XML</button>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
-                        <span>Модификатор подключения стилей в head (catalog/header.twig)</span>
-                        <button class="btn btn-sm btn-ghost" id="btnDownloadStylesXml" style="padding: 4px 8px; font-size: 11px;"><i class="fa fa-download"></i> Скачать XML</button>
-                    </div>
-                </div>
-            </details>
-
-            <details style="border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
-                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">3. Как повесить всплывающее окно (agree) на слово в тексте?</summary>
-                <div style="margin-top: 10px; font-size: 13px;">
-                    <p>Для добавления всплывающего соглашения OpenCart к слову или фразе внутри текста выделите фрагмент в поле редактора, укажите ID статьи и нажмите кнопку <strong>agree</strong>. Также можно использовать стандартный синтаксис markdown-ссылок:</p>
-                    <code style="display: block; background: #eee; padding: 6px 10px; border-radius: 4px; font-family: monospace; margin-bottom: 10px;">[Ваш текст](agree:ID)</code>
-                    <p>Где вместо <code>ID</code> укажите номер информационной статьи из OpenCart. Например:</p>
-                    <ul>
-                        <li><code>[политикой конфиденциальности](agree:3)</code> — откроет в попапе статью с ID = 3.</li>
-                        <li><code>[условиями соглашения](agree:5)</code> — откроет в попапе статью с ID = 5.</li>
-                    </ul>
-                    <p>При клике на такую ссылку в превью отобразится отладочное сообщение, а на живом сайте OpenCart она автоматически преобразуется в стандартное всплывающее окно.</p>
-                </div>
-            </details>
+            </div>
         </div>
     </div>
 </div>

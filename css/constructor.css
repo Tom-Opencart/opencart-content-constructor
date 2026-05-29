@@ -1031,3 +1031,104 @@ body.preview-hidden .workspace {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+/* --- Help Modal Tabs & Structure --- */
+.help-modal-window {
+    width: 680px;
+    max-width: 95vw;
+}
+
+.help-tabs-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 0 10px;
+    overflow-x: auto;
+}
+
+.help-tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.help-tab-btn:hover {
+    color: #4a90d9;
+    background: #f0f4ff;
+}
+
+.help-tab-btn.active {
+    color: #4a90d9;
+    border-bottom-color: #4a90d9;
+    background: #fff;
+}
+
+.help-modal-body {
+    padding: 20px 24px;
+    height: 480px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.help-steps-list {
+    margin-bottom: 16px;
+    padding-left: 20px;
+}
+
+.help-steps-list li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.help-table-guide {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 12.5px;
+}
+
+.help-table-guide th, 
+.help-table-guide td {
+    border: 1px solid #e2e8f0;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.help-table-guide th {
+    background: #f7fafc;
+    font-weight: 700;
+    color: #4a5568;
+}
+
+.help-example-box {
+    background: #f7fafc;
+    border: 1px solid #edf2f7;
+    border-radius: 6px;
+    padding: 12px;
+    margin: 10px 0;
+}
+
+.help-example-input {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.help-example-output {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 8px 10px;
+    border-radius: 4px;
+}

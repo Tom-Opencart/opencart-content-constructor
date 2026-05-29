@@ -2364,6 +2364,32 @@ ${contentHTML}</div>
                 helpModal.style.display = 'none';
             }
         });
+
+        // Help Modal Tab Switcher
+        const helpTabsNav = helpModal.querySelector('.help-tabs-nav');
+        if (helpTabsNav) {
+            const tabBtns = helpTabsNav.querySelectorAll('.help-tab-btn');
+            const tabContents = helpModal.querySelectorAll('.help-tab-content');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetTab = btn.getAttribute('data-help-tab');
+                    
+                    // Toggle active buttons
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Toggle active contents
+                    tabContents.forEach(content => {
+                        if (content.id === targetTab) {
+                            content.style.display = 'block';
+                        } else {
+                            content.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
     }
 
     // ── Donate Modal Handlers ────────────────────────────────
