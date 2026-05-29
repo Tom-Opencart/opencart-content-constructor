@@ -1308,14 +1308,14 @@ ${contentHTML}</div>
 
 @font-face {
     font-family: 'Venryn';
-    src: url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn.woff2') format('woff2');
+    src: url('fonts/Venryn.woff2') format('woff2'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn-Bold.woff2') format('woff2');
+    src: url('fonts/Venryn-Bold.woff2') format('woff2'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn-Bold.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -1794,13 +1794,20 @@ ${contentHTML}</div>
 </modification>`;
 
             zip.file("install.xml", installXmlContent);
-
-            // 2. Add style sheet file in the upload directory
-            const cssContent = getExportedCSS();
             zip.file("upload/catalog/view/theme/default/stylesheet/content-constructor.css", cssContent);
 
-            // 3. Generate zip and download
-            zip.generateAsync({ type: "blob" }).then((blob) => {
+            btnDownloadZip.disabled = true;
+            btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
+
+            const font1Promise = fetch('css/Venryn.woff2').then(res => res.arrayBuffer());
+            const font2Promise = fetch('css/Venryn-Bold.woff2').then(res => res.arrayBuffer());
+
+            Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
+                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/Venryn.woff2", font1Data);
+                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/Venryn-Bold.woff2", font2Data);
+
+                return zip.generateAsync({ type: "blob" });
+            }).then((blob) => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -1809,9 +1816,14 @@ ${contentHTML}</div>
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
+                
+                btnDownloadZip.disabled = false;
+                btnDownloadZip.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip';
             }).catch((err) => {
-                console.error('Ошибка создания архива:', err);
+                console.error('Ошибка генерации архива:', err);
                 alert('Не удалось сгенерировать ZIP-архив.');
+                btnDownloadZip.disabled = false;
+                btnDownloadZip.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip';
             });
         });
     }
