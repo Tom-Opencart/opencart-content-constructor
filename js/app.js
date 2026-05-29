@@ -1680,9 +1680,9 @@
 
     // ── Fullscreen Preview Toggle ────────────────────────────
     const btnToggleFullscreen = $('#btnToggleFullscreen');
-    const btnHidePreview = $('#btnHidePreview');
-    const btnShowPreview = $('#btnShowPreview');
-    const previewPanel = $('#previewPanel');
+    const btnHidePreview  = $('#btnHidePreview');
+    const btnRevealPreview = $('#btnRevealPreview');
+    const previewPanel    = $('#previewPanel');
     function resetPreviewFullscreen() {
         if (!previewPanel || !btnToggleFullscreen) return;
 
@@ -1753,6 +1753,10 @@
             const isHidden = document.body.classList.contains('preview-hidden');
             setPreviewHidden(!isHidden);
         });
+    }
+
+    if (btnRevealPreview) {
+        btnRevealPreview.addEventListener('click', () => setPreviewHidden(false));
     }
 
     // ── Open in New Window ───────────────────────────────────
