@@ -616,11 +616,11 @@
                 }
                 
                 let html = '';
-                if (isPlaceholder && isWorkspace) {
+                if (isWorkspace) {
                     html = `
                     <div class="img-preview-wrapper">
                         <img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%; display: block;" src="${imgUrl}" loading="lazy">
-                        <button type="button" class="img-ai-sticker-btn" data-block-id="${block.id}" title="Сгенерировать изображение с помощью ИИ">
+                        <button type="button" class="img-ai-sticker-btn" data-block-id="${block.id}" title="Сгенерировать / заменить изображение с помощью ИИ">
                             <i class="fa fa-magic"></i>
                         </button>
                     </div>`;
@@ -3407,16 +3407,47 @@ ${blockHtml}`;
                         btnCopyAIPrompt.disabled = false;
                         btnCopyAIPrompt.innerHTML = originalHTML;
                     }, 2000);
-                    
-                    setTimeout(() => {
-                        alert("Промт успешно скопирован в буфер обмена!\n\nЧто делать дальше:\n1. Откройте чат-бот с ИИ (ChatGPT, Gemini или Claude) и вставьте туда скопированный промт.\n2. Допишите ваши пожелания по изменению блока и отправьте сообщение.\n3. Нейросеть вернет вам изменённый HTML-код (вместе со стилями CSS).\n4. Скопируйте полученный код от ИИ, вернитесь в конструктор, добавьте блок «HTML-код» (самая нижняя кнопка </> в левой панели) и вставьте код туда через кнопку редактирования.");
-                    }, 100);
                 }).catch(err => {
                     console.error('Failed to copy prompt:', err);
                     alert('Не удалось скопировать текст в буфер обмена.');
                 });
             }
         });
+
+        // ── "Insert AI Response" button: creates an HTML block, opens editor, focuses textarea ──
+        const btnInsertAIResponse = $('#btnInsertAIResponse');
+        if (btnInsertAIResponse) {
+            btnInsertAIResponse.addEventListener('click', () => {
+                // Close prompt modal
+                aiPromptModal.style.display = 'none';
+                currentPromptBlock = null;
+
+                // Create a new HTML block
+                const htmlBlock = { id: uuid(), type: 'html', data: BLOCK_TYPES.html.defaults() };
+                htmlBlock.data.html = '<!-- Вставьте сюда HTML-код, полученный от нейросети (ChatGPT, Gemini, Claude) -->';
+                blocks.push(htmlBlock);
+                renderBlocks();
+                updatePreview();
+
+                // Find the new block's card and open its editor
+                setTimeout(() => {
+                    const newCard = blocksContainer.querySelector(`.block-card[data-id="${htmlBlock.id}"]`);
+                    if (newCard) {
+                        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        toggleEdit(htmlBlock, newCard);
+
+                        // Focus the code textarea inside the edit form
+                        setTimeout(() => {
+                            const textarea = newCard.querySelector('.edit-form textarea');
+                            if (textarea) {
+                                textarea.focus();
+                                textarea.select();
+                            }
+                        }, 100);
+                    }
+                }, 100);
+            });
+        }
     }
 
     // ── Export Article ZIP Handler ──────────────────────────
