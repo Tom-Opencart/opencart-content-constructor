@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Constructor — Конструктор контента</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/constructor.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <h1 class="header-title">Content Constructor</h1>
+    </div>
+    <div class="header-center">
+        <input type="text" id="articleTitle" class="header-title-input" placeholder="Название статьи..." value="">
+        <input type="text" id="articleSlug" class="header-slug-input" placeholder="slug-fajla" value="">
+        <input type="text" id="articleDomain" class="header-domain-input" placeholder="Домен для превью (например: https://arschi.ru/)" value="">
+    </div>
+    <div class="header-right">
+        <button id="btnHelp" class="btn btn-secondary" title="Инструкция по интеграции с OpenCart">
+            <span class="btn-icon"><i class="fa fa-question-circle"></i></span> Справка
+        </button>
+        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать чистый HTML для OpenCart" style="background: #27ae60;">
+            <span class="btn-icon"><i class="fa fa-clipboard"></i></span> Копировать код
+        </button>
+        <button id="btnExportTXT" class="btn btn-primary" title="Скачать чистый HTML-код в TXT для импорта" style="background: #e67e22; border-color: #d35400;">
+            <span class="btn-icon"><i class="fa fa-file-text-o"></i></span> Скачать TXT
+        </button>
+        <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML файл">
+            <span class="btn-icon">&#60;/&#62;</span> Export HTML
+        </button>
+        <button id="btnExportCSS" class="btn btn-secondary" title="Скачать CSS файл">
+            <span class="btn-icon">{ }</span> Export CSS
+        </button>
+    </div>
+</header>
+
+<div class="main">
+
+    <!-- LEFT PANEL: Block palette -->
+    <aside class="panel-left" id="blockPalette">
+        <div class="panel-title">Блоки</div>
+        <div class="block-buttons">
+            <button class="block-btn" data-block-type="heading" title="Заголовок H1-H3">
+                <span class="block-btn-icon">H</span>
+                <span class="block-btn-label">Заголовок</span>
+            </button>
+            <button class="block-btn" data-block-type="paragraph" title="Параграф">
+                <span class="block-btn-icon">P</span>
+                <span class="block-btn-label">Параграф</span>
+            </button>
+            <button class="block-btn" data-block-type="quote" title="Цитата">
+                <span class="block-btn-icon">"</span>
+                <span class="block-btn-label">Цитата</span>
+            </button>
+            <button class="block-btn" data-block-type="table" title="Таблица">
+                <span class="block-btn-icon">&#9638;</span>
+                <span class="block-btn-label">Таблица</span>
+            </button>
+            <button class="block-btn" data-block-type="ordered-list" title="Нумерованный список">
+                <span class="block-btn-icon">1.</span>
+                <span class="block-btn-label">Список (нум.)</span>
+            </button>
+            <button class="block-btn" data-block-type="unordered-list" title="Маркированный список">
+                <span class="block-btn-icon">&bull;</span>
+                <span class="block-btn-label">Список (маркер.)</span>
+            </button>
+            <button class="block-btn" data-block-type="image" title="Изображение">
+                <span class="block-btn-icon">&#9636;</span>
+                <span class="block-btn-label">Изображение</span>
+            </button>
+            <button class="block-btn" data-block-type="link" title="Ссылка">
+                <span class="block-btn-icon">&#128279;</span>
+                <span class="block-btn-label">Ссылка</span>
+            </button>
+            <button class="block-btn" data-block-type="popup" title="Всплывающее окно OpenCart">
+                <span class="block-btn-icon"><i class="fa fa-window-restore"></i></span>
+                <span class="block-btn-label">Попап окно</span>
+            </button>
+            <button class="block-btn" data-block-type="spoiler" title="Спойлер / Аккордеон">
+                <span class="block-btn-icon">+&minus;</span>
+                <span class="block-btn-label">Спойлер</span>
+            </button>
+            <button class="block-btn" data-block-type="tabs" title="Вкладки">
+                <span class="block-btn-icon">&#9654;</span>
+                <span class="block-btn-label">Вкладки</span>
+            </button>
+            <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
+                <span class="block-btn-icon">&#9776;</span>
+                <span class="block-btn-label">Оглавление</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- CENTER: Workspace -->
+    <main class="workspace" id="workspace">
+        <div class="workspace-empty" id="workspaceEmpty">
+            <p>Добавьте блоки из панели слева</p>
+        </div>
+        <div class="blocks-container" id="blocksContainer"></div>
+    </main>
+
+    <!-- RIGHT: Live preview -->
+    <aside class="panel-right" id="previewPanel">
+        <div class="panel-title-container">
+            <div class="panel-title" style="margin-bottom: 0;">Превью</div>
+            <div style="display: flex; gap: 4px;">
+                <button id="btnOpenNewWindow" class="panel-action-btn" title="Открыть в новом окне" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
+                    <i class="fa fa-external-link"></i>
+                </button>
+                <button id="btnToggleFullscreen" class="panel-action-btn" title="Развернуть на весь экран" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
+                    <i class="fa fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        <div class="preview-content" id="previewContent">
+            <p class="preview-empty">Превью появится после добавления блоков</p>
+        </div>
+    </aside>
+
+</div>
+
+<!-- HELP MODAL -->
+<div id="helpModal" class="modal-overlay" style="display: none;">
+    <div class="modal-window">
+        <div class="modal-header">
+            <h2>Интеграция с OpenCart 3</h2>
+            <button class="modal-close" id="btnCloseHelp">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-cogs"></i> Автоматическая установка в OpenCart 3 (Рекомендуется)</h3>
+            <p>Мы объединили все доработки в один удобный интеграционный ZIP-пакет. Он автоматически установит глобальный файл стилей на ваш сайт и добавит зелёную кнопку импорта в редактор Summernote.</p>
+            
+            <div class="download-box" style="background: #eef9f0; border-color: #c3e6cb; padding: 20px;">
+                <div class="download-box-text">
+                    <div class="download-box-title" style="font-size: 15px; color: #27ae60;">Интеграционный ZIP-архив (.ocmod.zip)</div>
+                    <div class="download-box-desc" style="font-size: 12px; color: #555; margin-top: 4px;">
+                        Включает модификатор <code>install.xml</code> и файл стилей <code>content-constructor.css</code> в папке <code>upload/</code>.
+                    </div>
+                </div>
+                <button class="btn-download-xml" id="btnDownloadZip" style="background: #27ae60; padding: 12px 20px; font-size: 13px;">
+                    <i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip
+                </button>
+            </div>
+
+            <p><strong>Инструкция по установке ZIP-архива:</strong></p>
+            <ol>
+                <li>Скачайте архив по кнопке выше. Он получит имя <code>content_constructor.ocmod.zip</code>.</li>
+                <li>Перейдите в админке OpenCart в раздел: <strong>Расширения -> Установка расширений</strong>.</li>
+                <li>Загрузите скачанный ZIP-архив.</li>
+                <li>Перейдите в <strong>Менеджер модификаторов</strong> и нажмите кнопку <strong>«Обновить»</strong> в правом верхнем углу.</li>
+                <li>После этого очистите кэш вашего браузера (кликните <code>Ctrl + F5</code> на странице редактирования статьи), чтобы обновить кэш редактора Summernote.</li>
+            </ol>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;" />
+
+            <h3 style="color: #e67e22;"><i class="fa fa-info-circle"></i> Ручные способы настройки</h3>
+            <p>Если вы предпочитаете ручную установку или хотите использовать кастомные настройки, воспользуйтесь инструкциями ниже:</p>
+            
+            <details style="margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
+                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">1. Как подключить стили статьи вручную</summary>
+                <div style="margin-top: 10px; font-size: 13px;">
+                    <p><strong>Правило:</strong> Стили не нужно загружать в каждую статью по отдельности! Подключите их один раз глобально:</p>
+                    <ul>
+                        <li><strong>Вариант А:</strong> Скопируйте CSS (кнопка <strong>Export CSS</strong> в шапке) и вставьте в настройки вашего шаблона (Custom CSS) в админке OpenCart.</li>
+                        <li><strong>Вариант Б:</strong> Допишите скопированный CSS в конец файла стилей темы (обычно <code>catalog/view/theme/YOUR_THEME/stylesheet/stylesheet.css</code>).</li>
+                    </ul>
+                </div>
+            </details>
+
+            <details style="border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
+                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">2. Отдельные XML-файлы модификаторов</summary>
+                <div style="margin-top: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
+                        <span>Модификатор кнопки импорта в Summernote (admin/footer.twig)</span>
+                        <button class="btn btn-sm btn-ghost" id="btnDownloadImportXml" style="padding: 4px 8px; font-size: 11px;"><i class="fa fa-download"></i> Скачать XML</button>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
+                        <span>Модификатор подключения стилей в head (catalog/header.twig)</span>
+                        <button class="btn btn-sm btn-ghost" id="btnDownloadStylesXml" style="padding: 4px 8px; font-size: 11px;"><i class="fa fa-download"></i> Скачать XML</button>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

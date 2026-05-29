@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>OpenCart Content Constructor - Global Stylesheet</name>
+    <code>content_constructor_styles</code>
+    <version>1.0</version>
+    <author>Tom</author>
+    <link>https://opencartforum.com.ru/</link>
+    <file path="catalog/view/template/common/header.twig">
+        <operation>
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[
+<link href="catalog/view/theme/default/stylesheet/content-constructor.css" rel="stylesheet" />
+            ]]></add>
+        </operation>
+    </file>
+</modification>

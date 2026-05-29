@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>OpenCart Content Constructor - Summernote Import</name>
+    <code>content_constructor_import</code>
+    <version>1.0</version>
+    <author>Tom</author>
+    <link>https://opencartforum.com.ru/</link>
+    <file path="admin/view/template/common/footer.twig">
+        <operation>
+            <search><![CDATA[</body>]]></search>
+            <add position="before"><![CDATA[
+<script type="text/javascript"><!--
+(function($) {
+  if (typeof $.fn.summernote !== 'undefined') {
+    var originalSummernote = $.fn.summernote;
+    $.fn.summernote = function(options) {
+      if (typeof options === 'object') {
+        options.buttons = options.buttons || {};
+        options.buttons.import_constructor = function(context) {
+          var ui = $.summernote.ui;
+          var $note = context.$note;
+          var button = ui.button({
+            contents: '<i class="fa fa-file-text-o" style="color: #27ae60; font-weight: bold;" />',
+            tooltip: 'Импортировать из Конструктора (.txt / .html)',
+            click: function () {
+              var fileInput = $('<input type="file" accept=".txt,.html" style="display:none">');
+              $('body').append(fileInput);
+              fileInput.click();
+              fileInput.on('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                  var contents = evt.target.result;
+                  if (contents.indexOf('<body') !== -1) {
+                    var match = contents.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                    if (match && match[1]) {
+                      contents = match[1];
+                    }
+                  }
+                  contents = contents.trim();
+                  if (confirm('Очистить редактор перед импортом?\nНажмите "ОК" для полной замены текста.\nНажмите "Отмена" для вставки в текущую позицию курсора.')) {
+                    $note.summernote('code', contents);
+                  } else {
+                    $note.summernote('pasteHTML', contents);
+                  }
+                };
+                reader.readAsText(file);
+                fileInput.remove();
+              });
+            }
+          });
+          return button.render();
+        };
+        if (options.toolbar) {
+          for (var i = 0; i < options.toolbar.length; i++) {
+            if (options.toolbar[i][0] === 'insert') {
+              if (options.toolbar[i][1].indexOf('import_constructor') === -1) {
+                options.toolbar[i][1].push('import_constructor');
+              }
+              break;
+            }
+          }
+        }
+      }
+      return originalSummernote.apply(this, arguments);
+    };
+  }
+})(jQuery);
+//--></script>
+            ]]></add>
+        </operation>
+    </file>
+</modification>
