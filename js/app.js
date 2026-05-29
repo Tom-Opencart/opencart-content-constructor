@@ -1680,9 +1680,10 @@
 
     // ── Fullscreen Preview Toggle ────────────────────────────
     const btnToggleFullscreen = $('#btnToggleFullscreen');
-    const btnHidePreview  = $('#btnHidePreview');
+    const btnHidePreview   = $('#btnHidePreview');
     const btnRevealPreview = $('#btnRevealPreview');
-    const previewPanel    = $('#previewPanel');
+    const btnShowPreview   = $('#btnShowPreview');
+    const previewPanel     = $('#previewPanel');
     function resetPreviewFullscreen() {
         if (!previewPanel || !btnToggleFullscreen) return;
 
@@ -1757,6 +1758,13 @@
 
     if (btnRevealPreview) {
         btnRevealPreview.addEventListener('click', () => setPreviewHidden(false));
+    }
+
+    if (btnShowPreview) {
+        btnShowPreview.addEventListener('click', () => {
+            const isHidden = document.body.classList.contains('preview-hidden');
+            setPreviewHidden(!isHidden);
+        });
     }
 
     // ── Open in New Window ───────────────────────────────────
