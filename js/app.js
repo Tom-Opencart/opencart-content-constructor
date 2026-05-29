@@ -98,12 +98,12 @@
         return html;
     }
 
-    function renderArticleParts(mode) {
+    function renderArticlePartsForBlocks(blocksList, mode) {
         let tocHTML = '';
         let contentHTML = '';
 
-        blocks.forEach(block => {
-            const html = renderBlockContent(block, mode, blocks);
+        blocksList.forEach(block => {
+            const html = renderBlockContent(block, mode, blocksList);
 
             if (block.type === 'toc') {
                 tocHTML += html + '\n';
@@ -113,6 +113,10 @@
         });
 
         return { tocHTML, contentHTML };
+    }
+
+    function renderArticleParts(mode) {
+        return renderArticlePartsForBlocks(blocks, mode);
     }
 
     function renderGridWorkspace(block) {
@@ -228,7 +232,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'https://placehold.co/900x600/e8f0fe/334155?text=Apple+Watch',
+                                    src: 'image/catalog/content-constructor/apple-watch.png',
                                     localSrc: '',
                                     alt: 'Apple Watch на руке',
                                     caption: 'Пример: изображение слева'
@@ -264,7 +268,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'https://placehold.co/600x420/f0fdf4/166534?text=Activity',
+                                    src: 'image/catalog/content-constructor/activity.png',
                                     localSrc: '',
                                     alt: 'Активность Apple Watch',
                                     caption: 'Активность'
@@ -280,7 +284,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'https://placehold.co/600x420/fef2f2/991b1b?text=Health',
+                                    src: 'image/catalog/content-constructor/health.png',
                                     localSrc: '',
                                     alt: 'Здоровье Apple Watch',
                                     caption: 'Здоровье'
@@ -296,7 +300,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'https://placehold.co/600x420/fff7ed/9a3412?text=Notifications',
+                                    src: 'image/catalog/content-constructor/notifications.png',
                                     localSrc: '',
                                     alt: 'Уведомления Apple Watch',
                                     caption: 'Уведомления'
@@ -505,15 +509,19 @@
                         <select data-field="srcType" class="img-src-type-select">
                             <option value="path" ${block.data.srcType==='path'?'selected':''}>Путь в OpenCart / Ссылка</option>
                             <option value="local" ${block.data.srcType==='local'?'selected':''}>Загрузить локальный файл (для превью)</option>
+                            <option value="ai" ${block.data.srcType==='ai'?'selected':''}>Сгенерировать через ИИ</option>
                         </select>
                     </div>
                     
-                    <div class="img-src-path-group" style="display: ${block.data.srcType==='local'?'none':'block'}">
+                    <div class="img-src-path-group" style="display: ${block.data.srcType==='path'||!block.data.srcType?'block':'none'}">
                         <div class="form-group">
                             <label>Путь к изображению в OpenCart</label>
                             <input type="text" data-field="src" value="${escapeHtml(block.data.src)}" placeholder="image/catalog/folder/image.jpg">
                             <small style="color:#777;font-size:11px;margin-top:2px;display:block;">
                                 В превью отобразится с использованием домена из шапки: <b>${domainVal || 'не указан'}</b>
+                            </small>
+                            <small style="color:#e67e22;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
+                                <i class="fa fa-info-circle"></i> Загрузите файл на свой сайт через FTP / менеджер картинок по пути: <b>image/catalog/content-constructor/имя_файла</b>
                             </small>
                         </div>
                     </div>
@@ -526,6 +534,26 @@
                             <div class="img-local-thumb" style="margin-top:6px;">
                                 ${block.data.localSrc ? `<img src="${block.data.localSrc}" style="max-height:80px;border-radius:4px;display:block;">` : ''}
                             </div>
+                            <small style="color:#27ae60;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
+                                <i class="fa fa-info-circle"></i> Относительный путь заполнен автоматически. При скачивании ZIP статьи картинка будет сохранена в архив.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="img-src-ai-group" style="display: ${block.data.srcType==='ai'?'block':'none'}">
+                        <div class="form-group">
+                            <label>Промт для генерации картинки</label>
+                            <textarea class="img-ai-prompt-input" rows="3" style="width:100%; box-sizing:border-box; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:12.5px;" placeholder="Например: Apple Watch Series 10 на запястье, реалистичное фото, вид сбоку"></textarea>
+                            <div style="margin-top: 6px; display: flex; gap: 8px; align-items: center;">
+                                <select class="img-ai-provider-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd; font-size:12px;">
+                                    <option value="openai">OpenAI (DALL-E 3)</option>
+                                    <option value="gemini">Gemini (Imagen 3)</option>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-primary btn-generate-img-ai" style="padding: 6px 12px; background: #5446f8; border-color: #5446f8; color:#fff; font-size:12px; font-weight:600; cursor:pointer; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
+                                    <i class="fa fa-magic"></i> Сгенерировать
+                                </button>
+                            </div>
+                            <div class="img-ai-generation-status" style="margin-top: 6px; font-size: 11px; color: #777;"></div>
                         </div>
                     </div>
 
@@ -535,11 +563,10 @@
                     </div>`;
             },
             toHTML(block) {
-                let imgUrl = '';
-                if (block.data.srcType === 'local') {
+                // If relative path exists, always export that for OpenCart database safety (avoids massive base64)
+                let imgUrl = block.data.src || '';
+                if (!imgUrl && (block.data.srcType === 'local' || block.data.srcType === 'ai')) {
                     imgUrl = block.data.localSrc || '';
-                } else {
-                    imgUrl = block.data.src || '';
                 }
                 
                 // If both are empty, use SVG placeholder
@@ -555,17 +582,26 @@
             },
             preview(block) {
                 let imgUrl = '';
-                if (block.data.srcType === 'local') {
+                if (block.data.srcType === 'local' || block.data.srcType === 'ai') {
                     imgUrl = block.data.localSrc || '';
-                } else {
+                }
+                
+                // Fallback to relative path if local preview is empty, or if in path mode
+                if (!imgUrl) {
                     imgUrl = block.data.src || '';
                     if (imgUrl && !imgUrl.startsWith('http://') && !imgUrl.startsWith('https://') && !imgUrl.startsWith('data:')) {
                         const domainInputEl = document.getElementById('articleDomain');
                         const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
-                        if (domainVal) {
+                        if (domainVal && domainVal !== 'https://example.ru/') {
                             const base = domainVal.endsWith('/') ? domainVal : domainVal + '/';
                             const path = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
                             imgUrl = base + path;
+                        } else {
+                            // Offline/Local preview fallback for prepackaged images
+                            if (imgUrl.startsWith('image/catalog/content-constructor/')) {
+                                const filename = imgUrl.substring('image/catalog/content-constructor/'.length);
+                                imgUrl = 'image/' + filename;
+                            }
                         }
                     }
                 }
@@ -861,6 +897,24 @@
             },
             toHTML(block, allBlocks) { return generateTOC(allBlocks); },
             preview(block, allBlocks) { return generateTOC(allBlocks); },
+        },
+
+        html: {
+            label: 'HTML-код',
+            defaults: () => ({ html: '<div class="alert alert-info">Вставьте сюда ваш HTML-код от ИИ</div>' }),
+            editForm(block) {
+                return `
+                    <div class="form-group">
+                        <label>Собственный HTML-код (от ИИ или кастомный):</label>
+                        <textarea data-field="html" rows="12" style="font-family: monospace; font-size: 12px; background: #fafafa; box-sizing: border-box; width: 100%;">${escapeHtml(block.data.html)}</textarea>
+                    </div>`;
+            },
+            toHTML(block) {
+                return block.data.html || '';
+            },
+            preview(block) {
+                return block.data.html || '';
+            }
         },
     };
 
@@ -1260,6 +1314,7 @@
                     <span class="drag-handle" title="Перетащить">&#9776;</span>
                     <span class="block-type-label">${def.label}</span>
                     <div class="block-actions">
+                        <button class="block-action-btn" data-action="prompt" title="Создать промт для ИИ" style="color: #5446f8;"><i class="fa fa-magic"></i></button>
                         <button class="block-action-btn" data-action="edit" title="Редактировать">&#9998;</button>
                         <button class="block-action-btn" data-action="duplicate" title="Дублировать">&#10697;</button>
                         <button class="block-action-btn delete" data-action="delete" title="Удалить">&#10005;</button>
@@ -1304,6 +1359,7 @@
             card.querySelector('[data-action="delete"]').addEventListener('click', () => removeBlock(block.id));
             card.querySelector('[data-action="duplicate"]').addEventListener('click', () => duplicateBlock(block.id));
             card.querySelector('[data-action="edit"]').addEventListener('click', () => toggleEdit(block, card));
+            card.querySelector('[data-action="prompt"]').addEventListener('click', () => showAIPromptModal(block));
 
             if (block.type === 'grid') {
                 bindGridWorkspaceEvents(block, card);
@@ -1510,9 +1566,18 @@
                     const base64 = evt.target.result;
                     block.data.localSrc = base64;
                     
+                    const filename = file.name;
+                    const pathVal = 'image/catalog/content-constructor/' + filename;
+                    block.data.src = pathVal;
+
                     const hiddenInput = form.querySelector('[data-field="localSrc"]');
                     if (hiddenInput) {
                         hiddenInput.value = base64;
+                    }
+
+                    const pathInput = form.querySelector('[data-field="src"]');
+                    if (pathInput) {
+                        pathInput.value = pathVal;
                     }
                     
                     let thumb = form.querySelector('.img-local-thumb');
@@ -1529,6 +1594,144 @@
             });
         });
 
+        // AI image generation handler
+        form.querySelectorAll('.btn-generate-img-ai').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const promptInput = form.querySelector('.img-ai-prompt-input');
+                const promptText = promptInput ? promptInput.value.trim() : '';
+                const providerSelect = form.querySelector('.img-ai-provider-select');
+                const provider = providerSelect ? providerSelect.value : 'openai';
+                const statusDiv = form.querySelector('.img-ai-generation-status');
+                
+                if (!promptText) {
+                    alert('Пожалуйста, напишите описание картинки.');
+                    return;
+                }
+                
+                let key = '';
+                if (provider === 'openai') {
+                    key = localStorage.getItem('aiOpenAIKey') || '';
+                    if (!key) {
+                        alert('Пожалуйста, укажите ваш OpenAI API Key в Настройках ИИ (кнопка в шапке конструктора).');
+                        return;
+                    }
+                } else {
+                    key = localStorage.getItem('aiGeminiKey') || '';
+                    if (!key) {
+                        alert('Пожалуйста, укажите ваш Gemini API Key в Настройках ИИ (кнопка в шапке конструктора).');
+                        return;
+                    }
+                }
+                
+                if (statusDiv) statusDiv.textContent = 'Генерация изображения через ИИ... Пожалуйста, подождите.';
+                btn.disabled = true;
+                
+                if (provider === 'openai') {
+                    fetch('https://api.openai.com/v1/images/generations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + key
+                        },
+                        body: JSON.stringify({
+                            model: 'dall-e-3',
+                            prompt: promptText,
+                            n: 1,
+                            size: '1024x1024',
+                            response_format: 'b64_json'
+                        })
+                    })
+                    .then(res => {
+                        if (!res.ok) return res.json().then(err => { throw err; });
+                        return res.json();
+                    })
+                    .then(json => {
+                        const b64 = json.data[0].b64_json;
+                        const dataUrl = 'data:image/png;base64,' + b64;
+                        
+                        block.data.localSrc = dataUrl;
+                        
+                        const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
+                        const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
+                        const pathVal = 'image/catalog/content-constructor/' + filename;
+                        block.data.src = pathVal;
+                        
+                        const pathInput = form.querySelector('[data-field="src"]');
+                        if (pathInput) pathInput.value = pathVal;
+                        
+                        let thumb = form.querySelector('.img-local-thumb');
+                        if (!thumb) {
+                            thumb = document.createElement('div');
+                            thumb.className = 'img-local-thumb';
+                            thumb.style.marginTop = '6px';
+                            btn.parentNode.parentNode.appendChild(thumb);
+                        }
+                        thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
+                        
+                        if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
+                        btn.disabled = false;
+                        updatePreview();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        const errMsg = err.error && err.error.message ? err.error.message : 'Ошибка при генерации';
+                        if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
+                        btn.disabled = false;
+                    });
+                } else {
+                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${key}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            prompt: promptText,
+                            numberOfImages: 1,
+                            aspectRatio: '1:1',
+                            outputMimeType: 'image/png'
+                        })
+                    })
+                    .then(res => {
+                        if (!res.ok) return res.json().then(err => { throw err; });
+                        return res.json();
+                    })
+                    .then(json => {
+                        const b64 = json.generatedImages[0].image.imageBytes;
+                        const dataUrl = 'data:image/png;base64,' + b64;
+                        
+                        block.data.localSrc = dataUrl;
+                        
+                        const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
+                        const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
+                        const pathVal = 'image/catalog/content-constructor/' + filename;
+                        block.data.src = pathVal;
+                        
+                        const pathInput = form.querySelector('[data-field="src"]');
+                        if (pathInput) pathInput.value = pathVal;
+                        
+                        let thumb = form.querySelector('.img-local-thumb');
+                        if (!thumb) {
+                            thumb = document.createElement('div');
+                            thumb.className = 'img-local-thumb';
+                            thumb.style.marginTop = '6px';
+                            btn.parentNode.parentNode.appendChild(thumb);
+                        }
+                        thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
+                        
+                        if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
+                        btn.disabled = false;
+                        updatePreview();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        const errMsg = err.error && err.error.message ? err.error.message : 'Ошибка при генерации';
+                        if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
+                        btn.disabled = false;
+                    });
+                }
+            });
+        });
+
         // Image source type change handler
         form.querySelectorAll('.img-src-type-select').forEach(select => {
             select.addEventListener('change', () => {
@@ -1537,11 +1740,12 @@
                 
                 const pathGroup = form.querySelector('.img-src-path-group');
                 const localGroup = form.querySelector('.img-src-local-group');
+                const aiGroup = form.querySelector('.img-src-ai-group');
                 
-                if (pathGroup && localGroup) {
-                    pathGroup.style.display = type === 'path' ? 'block' : 'none';
-                    localGroup.style.display = type === 'local' ? 'block' : 'none';
-                }
+                if (pathGroup) pathGroup.style.display = type === 'path' ? 'block' : 'none';
+                if (localGroup) localGroup.style.display = type === 'local' ? 'block' : 'none';
+                if (aiGroup) aiGroup.style.display = type === 'ai' ? 'block' : 'none';
+                
                 updatePreview();
             });
         });
@@ -2571,10 +2775,18 @@ ${contentHTML}</div>
 
             const font1Promise = fetch('css/VenrynSans-Regular.woff?v=1.0.3').then(res => res.arrayBuffer());
             const font2Promise = fetch('css/VenrynSans-SemiBold.woff?v=1.0.3').then(res => res.arrayBuffer());
+            const img1Promise = fetch('image/apple-watch.png').then(res => res.arrayBuffer());
+            const img2Promise = fetch('image/activity.png').then(res => res.arrayBuffer());
+            const img3Promise = fetch('image/health.png').then(res => res.arrayBuffer());
+            const img4Promise = fetch('image/notifications.png').then(res => res.arrayBuffer());
 
-            Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
+            Promise.all([font1Promise, font2Promise, img1Promise, img2Promise, img3Promise, img4Promise]).then(([font1Data, font2Data, img1Data, img2Data, img3Data, img4Data]) => {
                 zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", font1Data);
                 zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-SemiBold.woff", font2Data);
+                zip.file("upload/image/catalog/content-constructor/apple-watch.png", img1Data);
+                zip.file("upload/image/catalog/content-constructor/activity.png", img2Data);
+                zip.file("upload/image/catalog/content-constructor/health.png", img3Data);
+                zip.file("upload/image/catalog/content-constructor/notifications.png", img4Data);
 
                 return zip.generateAsync({ type: "blob" });
             }).then((blob) => {
@@ -2699,6 +2911,335 @@ ${contentHTML}</div>
     </file>
 </modification>`;
             downloadFile(xmlContent, 'content_styles.ocmod.xml', 'text/xml');
+        });
+    }
+
+    // ── Clipboard Helper ────────────────────────────────────
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                return Promise.resolve();
+            } catch (e) {
+                document.body.removeChild(textarea);
+                return Promise.reject(e);
+            }
+        }
+    }
+
+    // ── Image Block Collection Helper ────────────────────────
+    function collectAllImageBlocks(blocksList) {
+        let imageBlocks = [];
+        blocksList.forEach(block => {
+            if (block.type === 'image') {
+                imageBlocks.push(block);
+            } else if (block.type === 'grid' && block.data && block.data.columns) {
+                block.data.columns.forEach(col => {
+                    if (col.blocks) {
+                        imageBlocks.push(...collectAllImageBlocks(col.blocks));
+                    }
+                });
+            }
+        });
+        return imageBlocks;
+    }
+
+    // ── Image Extension Helpers ─────────────────────────────
+    function getExtensionFromMime(mime) {
+        if (mime.includes('png')) return 'png';
+        if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
+        if (mime.includes('gif')) return 'gif';
+        if (mime.includes('webp')) return 'webp';
+        if (mime.includes('svg')) return 'svg';
+        return 'png';
+    }
+
+    function getExtensionFromPath(path) {
+        const parts = path.split('.');
+        if (parts.length > 1) {
+            const ext = parts.pop().toLowerCase();
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
+                return ext === 'jpeg' ? 'jpg' : ext;
+            }
+        }
+        return 'png';
+    }
+
+    // ── Settings Modal Handlers (AI Keys) ───────────────────
+    const btnSettings = $('#btnSettings');
+    const settingsModal = $('#settingsModal');
+    const btnCloseSettings = $('#btnCloseSettings');
+    const btnSaveSettings = $('#btnSaveSettings');
+    const aiOpenAIKeyInput = $('#aiOpenAIKey');
+    const aiGeminiKeyInput = $('#aiGeminiKey');
+
+    if (btnSettings && settingsModal && btnCloseSettings && btnSaveSettings) {
+        btnSettings.addEventListener('click', () => {
+            if (aiOpenAIKeyInput) {
+                aiOpenAIKeyInput.value = localStorage.getItem('aiOpenAIKey') || '';
+            }
+            if (aiGeminiKeyInput) {
+                aiGeminiKeyInput.value = localStorage.getItem('aiGeminiKey') || '';
+            }
+            settingsModal.style.display = 'flex';
+        });
+
+        btnCloseSettings.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+
+        btnSaveSettings.addEventListener('click', () => {
+            const openAIKey = aiOpenAIKeyInput ? aiOpenAIKeyInput.value.trim() : '';
+            const geminiKey = aiGeminiKeyInput ? aiGeminiKeyInput.value.trim() : '';
+            
+            localStorage.setItem('aiOpenAIKey', openAIKey);
+            localStorage.setItem('aiGeminiKey', geminiKey);
+            
+            alert('Настройки успешно сохранены!');
+            settingsModal.style.display = 'none';
+        });
+    }
+
+    // ── AI Prompt Modal Handlers ────────────────────────────
+    const aiPromptModal = $('#aiPromptModal');
+    const btnCloseAIPrompt = $('#btnCloseAIPrompt');
+    const btnCopyAIPrompt = $('#btnCopyAIPrompt');
+    const aiWishesInput = $('#aiWishesInput');
+    const aiPromptTextarea = $('#aiPromptTextarea');
+    let currentPromptBlock = null;
+
+    function showAIPromptModal(block) {
+        currentPromptBlock = block;
+        if (aiWishesInput) {
+            aiWishesInput.value = '';
+        }
+        updateGeneratedPrompt();
+        if (aiPromptModal) {
+            aiPromptModal.style.display = 'flex';
+        }
+    }
+
+    function updateGeneratedPrompt() {
+        if (!currentPromptBlock) return;
+        const wishes = (aiWishesInput && aiWishesInput.value.trim()) || '[Здесь вставьте ваши пожелания по изменению стиля, цветов или структуры...]';
+        const blockHtml = renderBlockContent(currentPromptBlock, 'toHTML', blocks);
+        
+        const prompt = `Ты — эксперт по верстке и дизайну в OpenCart. Твоя задача — модифицировать HTML-код предложенного блока в соответствии с пожеланиями.
+
+Пожелания к изменению:
+${wishes}
+
+Правила ответа:
+1. Верни ТОЛЬКО чистый HTML-код измененного блока. Не пиши никаких пояснений, введений, объяснений или Markdown-разметки (не оборачивай код в блоки \`\`\`html ... \`\`\`). Только HTML-код.
+2. Стилизуй блок с помощью CSS. Можешь использовать встроенные стили (атрибут style) либо вставить тег <style> в самом начале кода блока. Все CSS-правила должны использовать уникальные классы или идентификаторы, специфичные для этого блока, чтобы стили не переопределяли внешние стили сайта.
+3. Сохраняй исходную структуру, тексты и ссылки (включая id и href), если пожелания не требуют их изменения.
+4. Верстка должна быть адаптивной и корректно смотреться на мобильных устройствах.
+
+Исходный HTML-код блока:
+${blockHtml}`;
+
+        if (aiPromptTextarea) {
+            aiPromptTextarea.value = prompt;
+        }
+    }
+
+    if (aiPromptModal && btnCloseAIPrompt && btnCopyAIPrompt) {
+        btnCloseAIPrompt.addEventListener('click', () => {
+            aiPromptModal.style.display = 'none';
+            currentPromptBlock = null;
+        });
+
+        aiPromptModal.addEventListener('click', (e) => {
+            if (e.target === aiPromptModal) {
+                aiPromptModal.style.display = 'none';
+                currentPromptBlock = null;
+            }
+        });
+
+        if (aiWishesInput) {
+            aiWishesInput.addEventListener('input', updateGeneratedPrompt);
+        }
+
+        // Quick wishes tags
+        aiPromptModal.querySelectorAll('.wish-tag-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const wishText = btn.getAttribute('data-wish');
+                if (aiWishesInput) {
+                    const currentVal = aiWishesInput.value.trim();
+                    if (currentVal) {
+                        aiWishesInput.value = currentVal + ', ' + wishText;
+                    } else {
+                        aiWishesInput.value = wishText;
+                    }
+                    updateGeneratedPrompt();
+                }
+            });
+        });
+
+        btnCopyAIPrompt.addEventListener('click', () => {
+            if (aiPromptTextarea) {
+                const text = aiPromptTextarea.value;
+                copyTextToClipboard(text).then(() => {
+                    const originalHTML = btnCopyAIPrompt.innerHTML;
+                    btnCopyAIPrompt.disabled = true;
+                    btnCopyAIPrompt.innerHTML = '<i class="fa fa-check"></i> Скопировано!';
+                    setTimeout(() => {
+                        btnCopyAIPrompt.disabled = false;
+                        btnCopyAIPrompt.innerHTML = originalHTML;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy prompt:', err);
+                    alert('Не удалось скопировать текст в буфер обмена.');
+                });
+            }
+        });
+    }
+
+    // ── Export Article ZIP Handler ──────────────────────────
+    const btnExportZIP = $('#btnExportZIP');
+    if (btnExportZIP) {
+        btnExportZIP.addEventListener('click', () => {
+            if (typeof JSZip === 'undefined') {
+                alert('Библиотека JSZip не загружена. Проверьте подключение к интернету.');
+                return;
+            }
+
+            const title = titleInput ? titleInput.value : 'Статья';
+            const slug = slugInput ? slugInput.value.trim() : slugify(title) || 'article';
+
+            btnExportZIP.disabled = true;
+            btnExportZIP.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
+
+            const copiedBlocks = JSON.parse(JSON.stringify(blocks));
+            const imageBlocks = collectAllImageBlocks(copiedBlocks);
+            const zipPromises = [];
+
+            const zip = new JSZip();
+
+            imageBlocks.forEach((imgBlock, idx) => {
+                let imgPromise = null;
+                let ext = 'png';
+                
+                if (imgBlock.data.srcType === 'local' || imgBlock.data.srcType === 'ai') {
+                    const b64Data = imgBlock.data.localSrc;
+                    if (b64Data && b64Data.startsWith('data:')) {
+                        const mimeMatch = b64Data.match(/^data:(image\/[a-z+]+);base64,/);
+                        if (mimeMatch) {
+                            ext = getExtensionFromMime(mimeMatch[1]);
+                        }
+                        const rawB64 = b64Data.substring(b64Data.indexOf(';base64,') + 8);
+                        imgPromise = Promise.resolve({
+                            data: rawB64,
+                            isBase64: true,
+                            ext: ext
+                        });
+                    }
+                }
+                
+                if (!imgPromise && imgBlock.data.src) {
+                    const srcPath = imgBlock.data.src;
+                    ext = getExtensionFromPath(srcPath);
+                    
+                    let url = srcPath;
+                    if (url.startsWith('image/catalog/content-constructor/')) {
+                        const filename = url.substring('image/catalog/content-constructor/'.length);
+                        url = 'image/' + filename;
+                    }
+                    
+                    imgPromise = fetch(url)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Fetch failed');
+                            return res.arrayBuffer();
+                        })
+                        .then(buf => {
+                            return {
+                                data: buf,
+                                isBase64: false,
+                                ext: ext
+                            };
+                        })
+                        .catch(err => {
+                            console.warn('Could not fetch image for ZIP packaging:', url, err);
+                            return null;
+                        });
+                }
+                
+                if (imgPromise) {
+                    const newFilename = `${slug}-img-${idx + 1}`;
+                    zipPromises.push(
+                        imgPromise.then(res => {
+                            if (res) {
+                                const finalExt = res.ext || ext;
+                                const zipPath = `image/catalog/content-constructor/${newFilename}.${finalExt}`;
+                                
+                                imgBlock.data.src = zipPath;
+                                imgBlock.data.srcType = 'path';
+                                
+                                return {
+                                    path: zipPath,
+                                    data: res.data,
+                                    isBase64: res.isBase64
+                                };
+                            }
+                            return null;
+                        })
+                    );
+                }
+            });
+
+            Promise.all(zipPromises).then(imagesToAdd => {
+                imagesToAdd.forEach(img => {
+                    if (img) {
+                        if (img.isBase64) {
+                            zip.file(img.path, img.data, { base64: true });
+                        } else {
+                            zip.file(img.path, img.data);
+                        }
+                    }
+                });
+
+                // Generate clean HTML
+                const { tocHTML, contentHTML } = renderArticlePartsForBlocks(copiedBlocks, 'toHTML');
+                const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
+
+                // Add HTML to zip
+                zip.file(`content-${slug}.html`, cleanHTML);
+
+                return zip.generateAsync({ type: "blob" });
+            }).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `article-${slug}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                btnExportZIP.disabled = false;
+                btnExportZIP.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать ZIP статьи';
+            }).catch(err => {
+                console.error('Ошибка при экспорте ZIP статьи:', err);
+                alert('Не удалось экспортировать статью в ZIP-архив.');
+                btnExportZIP.disabled = false;
+                btnExportZIP.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать ZIP статьи';
+            });
         });
     }
 

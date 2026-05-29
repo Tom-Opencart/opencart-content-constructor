@@ -1162,3 +1162,24 @@ body.preview-hidden .workspace {
     padding: 8px 10px;
     border-radius: 4px;
 }
+
+/* --- AI Prompt Tags Styling --- */
+.wish-tag-btn {
+    background: #f0f4ff;
+    border: 1px dashed #adc6ff;
+    color: #1d39c4;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    outline: none;
+}
+
+.wish-tag-btn:hover {
+    background: #e6f7ff;
+    border-color: #91d5ff;
+    color: #0050b3;
+    transform: translateY(-1px);
+}
+

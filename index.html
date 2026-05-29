@@ -37,6 +37,9 @@
         </div>
     </div>
     <div class="header-right">
+        <button id="btnSettings" class="btn btn-secondary" title="Настройки ИИ ассистента">
+            <span class="btn-icon"><i class="fa fa-cog"></i></span> Настройки ИИ
+        </button>
         <button id="btnHelp" class="btn btn-secondary" title="Инструкция по интеграции с OpenCart">
             <span class="btn-icon"><i class="fa fa-question-circle"></i></span> Справка
         </button>
@@ -46,6 +49,9 @@
         </button>
         <button id="btnExportTXT" class="btn btn-primary" title="Скачать чистый HTML-код в TXT для импорта" style="background: #e67e22; border-color: #d35400;">
             <span class="btn-icon"><i class="fa fa-file-text-o"></i></span> Скачать TXT
+        </button>
+        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив статьи (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
+            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи
         </button>
         <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML файл">
             <span class="btn-icon">&#60;/&#62;</span> Export HTML
@@ -112,6 +118,10 @@
             <button class="block-btn" data-block-type="tabs" title="Вкладки">
                 <span class="block-btn-icon">&#9654;</span>
                 <span class="block-btn-label">Вкладки</span>
+            </button>
+            <button class="block-btn" data-block-type="html" title="Кастомный HTML / Код от ИИ">
+                <span class="block-btn-icon"><i class="fa fa-code"></i></span>
+                <span class="block-btn-label">HTML-код</span>
             </button>
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
@@ -407,6 +417,78 @@
             
             <div class="donate-footer-note">
                 <i class="fa fa-info-circle"></i> Нажмите на кнопку копирования рядом с реквизитами для сохранения в буфер обмена.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS MODAL (AI Configuration) -->
+<div id="settingsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-window settings-modal-window" style="width: 500px; max-width: 95vw;">
+        <div class="modal-header">
+            <h2><i class="fa fa-cog" style="color: #4a90d9;"></i> Настройки ИИ ассистента</h2>
+            <button class="modal-close" id="btnCloseSettings">&times;</button>
+        </div>
+        <div class="modal-body settings-modal-body" style="padding: 20px;">
+            <p style="font-size: 12.5px; color: #555; margin-bottom: 15px;">
+                Ключи API сохраняются локально в вашем браузере (в <code>localStorage</code>) и используются напрямую для отправки запросов к ИИ. Никуда более они не передаются.
+            </p>
+            
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для генерации картинок DALL-E 3)</label>
+                <input type="password" id="aiOpenAIKey" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="sk-proj-...">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для генерации картинок/текста)</label>
+                <input type="password" id="aiGeminiKey" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="AIzaSy...">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="btnSaveSettings" class="btn btn-primary" style="background: #27ae60; border-color: #27ae60;">
+                    <i class="fa fa-check"></i> Сохранить настройки
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI PROMPT MODAL -->
+<div id="aiPromptModal" class="modal-overlay" style="display: none;">
+    <div class="modal-window ai-prompt-modal-window" style="width: 700px; max-width: 95vw;">
+        <div class="modal-header">
+            <h2><i class="fa fa-magic" style="color: #5446f8;"></i> Генератор промтов для ИИ (AI Prompt)</h2>
+            <button class="modal-close" id="btnCloseAIPrompt">&times;</button>
+        </div>
+        <div class="modal-body ai-prompt-modal-body" style="padding: 20px;">
+            <p style="font-size: 13px; color: #555; margin-bottom: 12px;">
+                Скопируйте сгенерированный ниже промт и вставьте его в любую нейросеть (ChatGPT, Gemini, Claude). Напишите ИИ свои пожелания, а затем вставьте измененный код в HTML-блок.
+            </p>
+            
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Быстрые пожелания (кликните, чтобы добавить в промт):</label>
+                <div class="quick-wishes-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                    <button class="wish-tag-btn" data-wish="сделай фон нежно-голубым, скругление углов 12px и добавь тень">🌟 Нежно-голубой фон и тень</button>
+                    <button class="wish-tag-btn" data-wish="сделай кнопки оранжевыми с белым текстом и анимацией при наведении">🌟 Оранжевые кнопки</button>
+                    <button class="wish-tag-btn" data-wish="добавь рамку цвета accent и сделай отступы внутри побольше">🌟 Рамка и отступы</button>
+                    <button class="wish-tag-btn" data-wish="сделай этот блок более компактным по высоте и уменьши шрифты">🌟 Компактный вид</button>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="aiWishesInput" style="font-weight: 600; display: block; margin-bottom: 6px;">Ваши пожелания к изменению:</label>
+                <input type="text" id="aiWishesInput" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 13px;" placeholder="Например: сделай фон зеленым и кнопки со скруглением...">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Итоговый промт для копирования:</label>
+                <textarea id="aiPromptTextarea" rows="12" class="form-control" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 12px; background: #f9f9f9; resize: none;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="btnCopyAIPrompt" class="btn btn-primary" style="background: #5446f8; border-color: #5446f8;">
+                    <i class="fa fa-clipboard"></i> Скопировать промт
+                </button>
             </div>
         </div>
     </div>
