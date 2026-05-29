@@ -2564,7 +2564,7 @@ ${contentHTML}</div>
 </modification>`;
 
             zip.file("install.xml", installXmlContent);
-            zip.file("upload/catalog/view/theme/default/stylesheet/content-constructor.css", cssContent);
+            zip.file("upload/catalog/view/theme/default/stylesheet/content-constructor.css", getExportedCSS());
 
             btnDownloadZip.disabled = true;
             btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';

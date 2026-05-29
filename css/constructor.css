@@ -1044,6 +1044,12 @@ body.preview-hidden .workspace {
     border-bottom: 1px solid #eee;
     padding: 0 10px;
     overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.help-tabs-nav::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .help-tab-btn {
@@ -1078,6 +1084,7 @@ body.preview-hidden .workspace {
     height: 480px;
     max-height: 60vh;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .help-steps-list {
@@ -1092,9 +1099,25 @@ body.preview-hidden .workspace {
 
 .help-table-guide {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin: 12px 0 16px;
     font-size: 12.5px;
+}
+
+.help-table-guide th:nth-child(1),
+.help-table-guide td:nth-child(1) {
+    width: 42%;
+}
+
+.help-table-guide th:nth-child(2),
+.help-table-guide td:nth-child(2) {
+    width: 28%;
+}
+
+.help-table-guide th:nth-child(3),
+.help-table-guide td:nth-child(3) {
+    width: 30%;
 }
 
 .help-table-guide th, 
@@ -1102,6 +1125,13 @@ body.preview-hidden .workspace {
     border: 1px solid #e2e8f0;
     padding: 8px 10px;
     text-align: left;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.help-table-guide code {
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 
 .help-table-guide th {
