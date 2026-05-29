@@ -435,13 +435,34 @@
             </p>
             
             <div class="form-group" style="margin-bottom: 12px;">
-                <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для генерации картинок DALL-E 3)</label>
+                <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для DALL-E 3)</label>
                 <input type="password" id="aiOpenAIKey" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="sk-proj-...">
             </div>
 
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для генерации картинок/текста)</label>
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для Imagen 3 и промтов)</label>
                 <input type="password" id="aiGeminiKey" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="AIzaSy...">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Kandinsky / FusionBrain API (Sber AI)</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                    <input type="password" id="aiKandinskyKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Key (API Key)">
+                    <input type="password" id="aiKandinskySecret" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Secret (Secret Key)">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 6px;">YandexART API (Yandex Cloud)</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                    <input type="password" id="aiYandexKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="API Key">
+                    <input type="text" id="aiYandexFolder" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="Folder ID">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="aiHFToken" style="font-weight: 600; display: block; margin-bottom: 6px;">Hugging Face API Token (для FLUX.1-schnell)</label>
+                <input type="password" id="aiHFToken" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="hf_...">
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 10px;">

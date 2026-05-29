@@ -548,6 +548,9 @@
                                 <select class="img-ai-provider-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd; font-size:12px;">
                                     <option value="openai">OpenAI (DALL-E 3)</option>
                                     <option value="gemini">Gemini (Imagen 3)</option>
+                                    <option value="kandinsky">Kandinsky (Sber)</option>
+                                    <option value="yandexart">YandexART (Yandex)</option>
+                                    <option value="huggingface">Hugging Face (FLUX.1)</option>
                                 </select>
                                 <button type="button" class="btn btn-sm btn-primary btn-generate-img-ai" style="padding: 6px 12px; background: #5446f8; border-color: #5446f8; color:#fff; font-size:12px; font-weight:600; cursor:pointer; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
                                     <i class="fa fa-magic"></i> Сгенерировать
@@ -1594,6 +1597,192 @@
             });
         });
 
+        // ── AI Image Generation API Helpers ────────────────────
+        async function generateKandinsky(promptText, apiKey, apiSecret, statusCallback) {
+            let modelId = '1';
+            try {
+                const modelsRes = await fetch('https://api-key.fusionbrain.ai/key/api/v1/models', {
+                    headers: {
+                        'X-Key': 'Key ' + apiKey,
+                        'X-Secret': 'Secret ' + apiSecret
+                    }
+                });
+                if (modelsRes.ok) {
+                    const models = await modelsRes.json();
+                    if (models && models.length > 0) {
+                        modelId = models[0].id;
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to fetch Kandinsky model ID, using fallback 1:', e);
+            }
+
+            statusCallback('Kandinsky: отправка запроса...');
+            const formData = new FormData();
+            formData.append('model_id', modelId);
+            
+            const paramsJson = {
+                type: "GENERATE",
+                numImages: 1,
+                width: 1024,
+                height: 1024,
+                generateParams: {
+                    query: promptText
+                }
+            };
+            const paramsBlob = new Blob([JSON.stringify(paramsJson)], { type: 'application/json' });
+            formData.append('params', paramsBlob);
+
+            const runRes = await fetch('https://api-key.fusionbrain.ai/key/api/v1/text2image/run', {
+                method: 'POST',
+                headers: {
+                    'X-Key': 'Key ' + apiKey,
+                    'X-Secret': 'Secret ' + apiSecret
+                },
+                body: formData
+            });
+
+            if (!runRes.ok) {
+                const errorText = await runRes.text();
+                throw new Error(`Ошибка запуска генерации (${runRes.status}): ${errorText}`);
+            }
+
+            const runData = await runRes.json();
+            const uuidVal = runData.uuid;
+            if (!uuidVal) {
+                throw new Error('Не получен UUID задачи от Kandinsky API');
+            }
+
+            statusCallback('Kandinsky: генерация изображения... Пожалуйста, подождите.');
+            
+            const pollInterval = 2000;
+            const maxPolls = 30;
+            
+            for (let i = 0; i < maxPolls; i++) {
+                await new Promise(resolve => setTimeout(resolve, pollInterval));
+                statusCallback(`Kandinsky: генерация (${i * 2} сек)...`);
+                
+                const statusRes = await fetch(`https://api-key.fusionbrain.ai/key/api/v1/text2image/status/${uuidVal}`, {
+                    headers: {
+                        'X-Key': 'Key ' + apiKey,
+                        'X-Secret': 'Secret ' + apiSecret
+                    }
+                });
+                
+                if (!statusRes.ok) {
+                    continue;
+                }
+                
+                const statusData = await statusRes.json();
+                if (statusData.status === 'DONE') {
+                    if (statusData.images && statusData.images.length > 0) {
+                        return 'data:image/png;base64,' + statusData.images[0];
+                    }
+                    throw new Error('Список изображений от Kandinsky API пуст');
+                } else if (statusData.status === 'FAIL') {
+                    throw new Error(`Генерация Kandinsky провалилась: ${statusData.errorDescription || 'неизвестная ошибка'}`);
+                }
+            }
+            
+            throw new Error('Превышено время ожидания генерации Kandinsky');
+        }
+
+        async function generateYandexART(promptText, apiKey, folderId, statusCallback) {
+            statusCallback('YandexART: отправка запроса...');
+            
+            const runRes = await fetch('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Api-Key ' + apiKey
+                },
+                body: JSON.stringify({
+                    modelUri: `art://${folderId}/yandex-art/latest`,
+                    messages: [
+                        {
+                            weight: 1.0,
+                            text: promptText
+                        }
+                    ],
+                    generationOptions: {
+                        aspectRatio: "1:1",
+                        mimeType: "image/jpeg"
+                    }
+                })
+            });
+
+            if (!runRes.ok) {
+                const errorText = await runRes.text();
+                throw new Error(`Ошибка запуска генерации (${runRes.status}): ${errorText}`);
+            }
+
+            const runData = await runRes.json();
+            const operationId = runData.id;
+            if (!operationId) {
+                throw new Error('Не получен ID операции от Yandex Cloud API');
+            }
+
+            statusCallback('YandexART: генерация изображения... Пожалуйста, подождите.');
+            
+            const pollInterval = 2000;
+            const maxPolls = 30;
+            
+            for (let i = 0; i < maxPolls; i++) {
+                await new Promise(resolve => setTimeout(resolve, pollInterval));
+                statusCallback(`YandexART: генерация (${i * 2} сек)...`);
+                
+                const statusRes = await fetch(`https://operation.api.cloud.yandex.net/operations/${operationId}`, {
+                    headers: {
+                        'Authorization': 'Api-Key ' + apiKey
+                    }
+                });
+                
+                if (!statusRes.ok) {
+                    continue;
+                }
+                
+                const statusData = await statusRes.json();
+                if (statusData.done) {
+                    if (statusData.response && statusData.response.image) {
+                        return 'data:image/jpeg;base64,' + statusData.response.image;
+                    } else if (statusData.error) {
+                        throw new Error(`Генерация YandexART завершилась с ошибкой: ${statusData.error.message || JSON.stringify(statusData.error)}`);
+                    }
+                    throw new Error('Изображение не найдено в ответе Yandex Cloud API');
+                }
+            }
+            
+            throw new Error('Превышено время ожидания генерации YandexART');
+        }
+
+        async function generateHuggingFace(promptText, apiToken, statusCallback) {
+            statusCallback('Hugging Face: генерация изображения через FLUX.1-schnell...');
+            
+            const res = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + apiToken
+                },
+                body: JSON.stringify({
+                    inputs: promptText
+                })
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Ошибка Hugging Face (${res.status}): ${errorText}`);
+            }
+
+            const blob = await res.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
         // AI image generation handler
         form.querySelectorAll('.btn-generate-img-ai').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1609,16 +1798,37 @@
                 }
                 
                 let key = '';
+                let extraVal = '';
                 if (provider === 'openai') {
                     key = localStorage.getItem('aiOpenAIKey') || '';
                     if (!key) {
                         alert('Пожалуйста, укажите ваш OpenAI API Key в Настройках ИИ (кнопка в шапке конструктора).');
                         return;
                     }
-                } else {
+                } else if (provider === 'gemini') {
                     key = localStorage.getItem('aiGeminiKey') || '';
                     if (!key) {
                         alert('Пожалуйста, укажите ваш Gemini API Key в Настройках ИИ (кнопка в шапке конструктора).');
+                        return;
+                    }
+                } else if (provider === 'kandinsky') {
+                    key = localStorage.getItem('aiKandinskyKey') || '';
+                    extraVal = localStorage.getItem('aiKandinskySecret') || '';
+                    if (!key || !extraVal) {
+                        alert('Пожалуйста, укажите ваши X-Key и X-Secret для Kandinsky в Настройках ИИ.');
+                        return;
+                    }
+                } else if (provider === 'yandexart') {
+                    key = localStorage.getItem('aiYandexKey') || '';
+                    extraVal = localStorage.getItem('aiYandexFolder') || '';
+                    if (!key || !extraVal) {
+                        alert('Пожалуйста, укажите ваши API Key и Folder ID для YandexART в Настройках ИИ.');
+                        return;
+                    }
+                } else if (provider === 'huggingface') {
+                    key = localStorage.getItem('aiHFToken') || '';
+                    if (!key) {
+                        alert('Пожалуйста, укажите ваш Hugging Face API Token в Настройках ИИ.');
                         return;
                     }
                 }
@@ -1626,6 +1836,41 @@
                 if (statusDiv) statusDiv.textContent = 'Генерация изображения через ИИ... Пожалуйста, подождите.';
                 btn.disabled = true;
                 
+                const onGenerationSuccess = (dataUrl) => {
+                    block.data.localSrc = dataUrl;
+                    
+                    const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
+                    const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
+                    const pathVal = 'image/catalog/content-constructor/' + filename;
+                    block.data.src = pathVal;
+                    
+                    const pathInput = form.querySelector('[data-field="src"]');
+                    if (pathInput) pathInput.value = pathVal;
+                    
+                    let thumb = form.querySelector('.img-local-thumb');
+                    if (!thumb) {
+                        thumb = document.createElement('div');
+                        thumb.className = 'img-local-thumb';
+                        thumb.style.marginTop = '6px';
+                        btn.parentNode.parentNode.appendChild(thumb);
+                    }
+                    thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
+                    
+                    if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
+                    btn.disabled = false;
+                    updatePreview();
+                };
+
+                const onGenerationError = (err) => {
+                    console.error(err);
+                    let errMsg = err.message || 'Ошибка при генерации';
+                    if (err.stack && err.stack.includes('fetch') || err.message && err.message.includes('Failed to fetch') || (err.constructor && err.constructor.name === 'TypeError')) {
+                        errMsg = 'Ошибка сети (вероятно, блокировка CORS). Провайдер блокирует прямые запросы из браузера. Для обхода CORS используйте расширение CORS в браузере или прокси-сервер.';
+                    }
+                    if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
+                    btn.disabled = false;
+                };
+
                 if (provider === 'openai') {
                     fetch('https://api.openai.com/v1/images/generations', {
                         method: 'POST',
@@ -1647,38 +1892,10 @@
                     })
                     .then(json => {
                         const b64 = json.data[0].b64_json;
-                        const dataUrl = 'data:image/png;base64,' + b64;
-                        
-                        block.data.localSrc = dataUrl;
-                        
-                        const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
-                        const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
-                        const pathVal = 'image/catalog/content-constructor/' + filename;
-                        block.data.src = pathVal;
-                        
-                        const pathInput = form.querySelector('[data-field="src"]');
-                        if (pathInput) pathInput.value = pathVal;
-                        
-                        let thumb = form.querySelector('.img-local-thumb');
-                        if (!thumb) {
-                            thumb = document.createElement('div');
-                            thumb.className = 'img-local-thumb';
-                            thumb.style.marginTop = '6px';
-                            btn.parentNode.parentNode.appendChild(thumb);
-                        }
-                        thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
-                        
-                        if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
-                        btn.disabled = false;
-                        updatePreview();
+                        onGenerationSuccess('data:image/png;base64,' + b64);
                     })
-                    .catch(err => {
-                        console.error(err);
-                        const errMsg = err.error && err.error.message ? err.error.message : 'Ошибка при генерации';
-                        if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
-                        btn.disabled = false;
-                    });
-                } else {
+                    .catch(onGenerationError);
+                } else if (provider === 'gemini') {
                     fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${key}`, {
                         method: 'POST',
                         headers: {
@@ -1697,37 +1914,27 @@
                     })
                     .then(json => {
                         const b64 = json.generatedImages[0].image.imageBytes;
-                        const dataUrl = 'data:image/png;base64,' + b64;
-                        
-                        block.data.localSrc = dataUrl;
-                        
-                        const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
-                        const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
-                        const pathVal = 'image/catalog/content-constructor/' + filename;
-                        block.data.src = pathVal;
-                        
-                        const pathInput = form.querySelector('[data-field="src"]');
-                        if (pathInput) pathInput.value = pathVal;
-                        
-                        let thumb = form.querySelector('.img-local-thumb');
-                        if (!thumb) {
-                            thumb = document.createElement('div');
-                            thumb.className = 'img-local-thumb';
-                            thumb.style.marginTop = '6px';
-                            btn.parentNode.parentNode.appendChild(thumb);
-                        }
-                        thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
-                        
-                        if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
-                        btn.disabled = false;
-                        updatePreview();
+                        onGenerationSuccess('data:image/png;base64,' + b64);
                     })
-                    .catch(err => {
-                        console.error(err);
-                        const errMsg = err.error && err.error.message ? err.error.message : 'Ошибка при генерации';
-                        if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
-                        btn.disabled = false;
-                    });
+                    .catch(onGenerationError);
+                } else if (provider === 'kandinsky') {
+                    generateKandinsky(promptText, key, extraVal, (msg) => {
+                        if (statusDiv) statusDiv.textContent = msg;
+                    })
+                    .then(onGenerationSuccess)
+                    .catch(onGenerationError);
+                } else if (provider === 'yandexart') {
+                    generateYandexART(promptText, key, extraVal, (msg) => {
+                        if (statusDiv) statusDiv.textContent = msg;
+                    })
+                    .then(onGenerationSuccess)
+                    .catch(onGenerationError);
+                } else if (provider === 'huggingface') {
+                    generateHuggingFace(promptText, key, (msg) => {
+                        if (statusDiv) statusDiv.textContent = msg;
+                    })
+                    .then(onGenerationSuccess)
+                    .catch(onGenerationError);
                 }
             });
         });
@@ -2981,6 +3188,11 @@ ${contentHTML}</div>
     const btnSaveSettings = $('#btnSaveSettings');
     const aiOpenAIKeyInput = $('#aiOpenAIKey');
     const aiGeminiKeyInput = $('#aiGeminiKey');
+    const aiKandinskyKeyInput = $('#aiKandinskyKey');
+    const aiKandinskySecretInput = $('#aiKandinskySecret');
+    const aiYandexKeyInput = $('#aiYandexKey');
+    const aiYandexFolderInput = $('#aiYandexFolder');
+    const aiHFTokenInput = $('#aiHFToken');
 
     if (btnSettings && settingsModal && btnCloseSettings && btnSaveSettings) {
         btnSettings.addEventListener('click', () => {
@@ -2989,6 +3201,21 @@ ${contentHTML}</div>
             }
             if (aiGeminiKeyInput) {
                 aiGeminiKeyInput.value = localStorage.getItem('aiGeminiKey') || '';
+            }
+            if (aiKandinskyKeyInput) {
+                aiKandinskyKeyInput.value = localStorage.getItem('aiKandinskyKey') || '';
+            }
+            if (aiKandinskySecretInput) {
+                aiKandinskySecretInput.value = localStorage.getItem('aiKandinskySecret') || '';
+            }
+            if (aiYandexKeyInput) {
+                aiYandexKeyInput.value = localStorage.getItem('aiYandexKey') || '';
+            }
+            if (aiYandexFolderInput) {
+                aiYandexFolderInput.value = localStorage.getItem('aiYandexFolder') || '';
+            }
+            if (aiHFTokenInput) {
+                aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
             }
             settingsModal.style.display = 'flex';
         });
@@ -3006,9 +3233,19 @@ ${contentHTML}</div>
         btnSaveSettings.addEventListener('click', () => {
             const openAIKey = aiOpenAIKeyInput ? aiOpenAIKeyInput.value.trim() : '';
             const geminiKey = aiGeminiKeyInput ? aiGeminiKeyInput.value.trim() : '';
+            const kandinskyKey = aiKandinskyKeyInput ? aiKandinskyKeyInput.value.trim() : '';
+            const kandinskySecret = aiKandinskySecretInput ? aiKandinskySecretInput.value.trim() : '';
+            const yandexKey = aiYandexKeyInput ? aiYandexKeyInput.value.trim() : '';
+            const yandexFolder = aiYandexFolderInput ? aiYandexFolderInput.value.trim() : '';
+            const hfToken = aiHFTokenInput ? aiHFTokenInput.value.trim() : '';
             
             localStorage.setItem('aiOpenAIKey', openAIKey);
             localStorage.setItem('aiGeminiKey', geminiKey);
+            localStorage.setItem('aiKandinskyKey', kandinskyKey);
+            localStorage.setItem('aiKandinskySecret', kandinskySecret);
+            localStorage.setItem('aiYandexKey', yandexKey);
+            localStorage.setItem('aiYandexFolder', yandexFolder);
+            localStorage.setItem('aiHFToken', hfToken);
             
             alert('Настройки успешно сохранены!');
             settingsModal.style.display = 'none';
