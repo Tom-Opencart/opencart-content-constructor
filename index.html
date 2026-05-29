@@ -170,7 +170,7 @@
                 </div>
             </details>
 
-            <details style="border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
+            <details style="margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
                 <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">2. Отдельные XML-файлы модификаторов</summary>
                 <div style="margin-top: 10px; font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border: 1px solid #eee; border-radius: 4px;">
@@ -181,6 +181,20 @@
                         <span>Модификатор подключения стилей в head (catalog/header.twig)</span>
                         <button class="btn btn-sm btn-ghost" id="btnDownloadStylesXml" style="padding: 4px 8px; font-size: 11px;"><i class="fa fa-download"></i> Скачать XML</button>
                     </div>
+                </div>
+            </details>
+
+            <details style="border: 1px solid #ddd; border-radius: 6px; padding: 8px 12px; background: #fafafa;">
+                <summary style="cursor: pointer; font-weight: bold; font-size: 13px;">3. Как повесить всплывающее окно (agree) на слово в тексте?</summary>
+                <div style="margin-top: 10px; font-size: 13px;">
+                    <p>Для добавления всплывающего соглашения OpenCart к слову или фразе внутри текста, используйте стандартный синтаксис markdown-ссылок:</p>
+                    <code style="display: block; background: #eee; padding: 6px 10px; border-radius: 4px; font-family: monospace; margin-bottom: 10px;">[Ваш текст](agree:ID)</code>
+                    <p>Где вместо <code>ID</code> укажите номер информационной статьи из OpenCart. Например:</p>
+                    <ul>
+                        <li><code>[политикой конфиденциальности](agree:3)</code> — откроет в попапе статью с ID = 3.</li>
+                        <li><code>[условиями соглашения](agree:5)</code> — откроет в попапе статью с ID = 5.</li>
+                    </ul>
+                    <p>При клике на такую ссылку в превью отобразится отладочное сообщение, а на живом сайте OpenCart она автоматически преобразуется в стандартное всплывающее окно.</p>
                 </div>
             </details>
         </div>

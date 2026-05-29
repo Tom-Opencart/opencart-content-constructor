@@ -155,8 +155,8 @@
             editForm(block) {
                 return `<div class="form-group"><label>Текст (поддержка Markdown: **жирный**, *курсив*, [ссылка](url), списки, новые строки)</label><textarea data-field="text" rows="6">${escapeHtml(block.data.text)}</textarea></div>`;
             },
-            toHTML(block) { return markdownToHtml(block.data.text); },
-            preview(block) { return markdownToHtml(block.data.text); },
+            toHTML(block) { return markdownToHtml(block.data.text, false); },
+            preview(block) { return markdownToHtml(block.data.text, true); },
         },
 
         quote: {
@@ -167,13 +167,13 @@
                     <div class="form-group"><label>Текст цитаты</label><textarea data-field="text" rows="3">${escapeHtml(block.data.text)}</textarea></div>
                     <div class="form-group"><label>Автор (необязательно)</label><input type="text" data-field="author" value="${escapeHtml(block.data.author)}"></div>`;
             },
-            toHTML(block) {
-                let html = `<blockquote><p>${inlineFormat(block.data.text)}</p>`;
+            toHTML(block, isPreview = false) {
+                let html = `<blockquote><p>${inlineFormat(block.data.text, isPreview)}</p>`;
                 if (block.data.author) html += `<i>— ${escapeHtml(block.data.author)}</i>`;
                 html += `</blockquote>`;
                 return html;
             },
-            preview(block) { return this.toHTML(block); },
+            preview(block) { return this.toHTML(block, true); },
         },
 
         table: {
@@ -232,10 +232,10 @@
                 html += `</div><button class="btn btn-sm btn-ghost" data-action="add-item">+ Добавить пункт</button>`;
                 return html;
             },
-            toHTML(block) {
-                return `<ol>${block.data.items.map(i => `<li>${inlineFormat(i)}</li>`).join('')}</ol>`;
+            toHTML(block, isPreview = false) {
+                return `<ol>${block.data.items.map(i => `<li>${inlineFormat(i, isPreview)}</li>`).join('')}</ol>`;
             },
-            preview(block) { return this.toHTML(block); },
+            preview(block) { return this.toHTML(block, true); },
         },
 
         'unordered-list': {
@@ -252,10 +252,10 @@
                 html += `</div><button class="btn btn-sm btn-ghost" data-action="add-item">+ Добавить пункт</button>`;
                 return html;
             },
-            toHTML(block) {
-                return `<ul>${block.data.items.map(i => `<li>${inlineFormat(i)}</li>`).join('')}</ul>`;
+            toHTML(block, isPreview = false) {
+                return `<ul>${block.data.items.map(i => `<li>${inlineFormat(i, isPreview)}</li>`).join('')}</ul>`;
             },
-            preview(block) { return this.toHTML(block); },
+            preview(block) { return this.toHTML(block, true); },
         },
 
         image: {
@@ -513,10 +513,10 @@
                     <div class="form-group"><label>Текст (поддерживает Markdown: списки, абзацы, "Ключ :: Описание")</label><textarea data-field="text" rows="5">${escapeHtml(block.data.text)}</textarea></div>`;
             },
             toHTML(block) {
-                return `<details><summary>${escapeHtml(block.data.title)}</summary>${markdownToHtml(block.data.text)}</details>`;
+                return `<details><summary>${escapeHtml(block.data.title)}</summary>${markdownToHtml(block.data.text, false)}</details>`;
             },
             preview(block) {
-                return this.toHTML(block);
+                return `<details><summary>${escapeHtml(block.data.title)}</summary>${markdownToHtml(block.data.text, true)}</details>`;
             },
         },
 
@@ -545,7 +545,7 @@
                 });
                 html += `</div><div class="article-tabs-panels">`;
                 block.data.tabs.forEach((tab, i) => {
-                    html += `<div class="article-tabs-panel" style="${i===0?'':'display:none'}">${markdownToHtml(tab.text)}</div>`;
+                    html += `<div class="article-tabs-panel" style="${i===0?'':'display:none'}">${markdownToHtml(tab.text, false)}</div>`;
                 });
                 html += `</div></div>`;
                 return html;
@@ -558,7 +558,7 @@
                 });
                 html += `</div><div class="article-tabs-panels">`;
                 block.data.tabs.forEach((tab, i) => {
-                    html += `<div class="article-tabs-panel" style="${i===0?'':'display:none'}">${markdownToHtml(tab.text)}</div>`;
+                    html += `<div class="article-tabs-panel" style="${i===0?'':'display:none'}">${markdownToHtml(tab.text, true)}</div>`;
                 });
                 html += `</div></div>`;
                 return html;
@@ -577,17 +577,42 @@
     };
 
     // ── Inline formatting ────────────────────────────────────
-    function inlineFormat(text) {
+    function inlineFormat(text, isPreview = false) {
         let s = escapeHtml(text);
         s = s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
         s = s.replace(/\*(.+?)\*/g, '<i>$1</i>');
         s = s.replace(/`(.+?)`/g, '<code>$1</code>');
-        s = s.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+        
+        s = s.replace(/\[(.+?)\]\((.+?)\)/g, (match, linkText, url) => {
+            let isAgree = false;
+            let infoId = '';
+            
+            if (url.startsWith('agree:') || url.startsWith('popup:')) {
+                isAgree = true;
+                infoId = url.split(':')[1];
+            } else {
+                const matchAgree = url.match(/information\/information\/agree.*[?&]information_id=(\d+)/);
+                if (matchAgree) {
+                    isAgree = true;
+                    infoId = matchAgree[1];
+                }
+            }
+            
+            if (isAgree) {
+                const href = `index.php?route=information/information/agree&information_id=${infoId}`;
+                if (isPreview) {
+                    return `<a class="agree" href="${href}" onclick="alert('\u0412 OpenCart: \u041e\u0442\u043a\u0440\u044b\u0442\u0438\u0435 \u043c\u043e\u0434\u0430\u043b\u044c\u043dого \u043e\u043a\u043d\u0430 \u0441 ID = ${infoId} (\u0447\u0435\u0440ез AJAX/Bootstrap modal). \u0412 \u0440\u0435\u0430\u043bьно\u0439 \u0441\u0438\u0441теме \u0441\u0440аботает \u0430в\u0442оматич\u0435ски \u0431лагодаря agree...'); return false;">${linkText}</a>`;
+                } else {
+                    return `<a class="agree" href="${href}">${linkText}</a>`;
+                }
+            }
+            return `<a href="${url}">${linkText}</a>`;
+        });
         return s;
     }
 
     // ── Markdown to HTML parser ──────────────────────────────
-    function markdownToHtml(text) {
+    function markdownToHtml(text, isPreview = false) {
         if (!text) return '';
         const lines = text.split(/\r?\n/);
         let html = '';
@@ -614,7 +639,7 @@
                     listType = 'ul';
                 }
                 const cleanLine = line.replace(/^[\*\-\•]\s+/, '');
-                html += `<li>${inlineFormat(cleanLine)}</li>\n`;
+                html += `<li>${inlineFormat(cleanLine, isPreview)}</li>\n`;
                 continue;
             }
             
@@ -629,7 +654,7 @@
                     listType = 'ol';
                 }
                 const cleanLine = line.replace(/^\d+\.\s+/, '');
-                html += `<li>${inlineFormat(cleanLine)}</li>\n`;
+                html += `<li>${inlineFormat(cleanLine, isPreview)}</li>\n`;
                 continue;
             }
             
@@ -646,7 +671,7 @@
                 const parts = line.split('::');
                 const dt = parts[0].trim();
                 const dd = parts.slice(1).join('::').trim();
-                html += `<dt>${inlineFormat(dt)}</dt><dd>${inlineFormat(dd)}</dd>\n`;
+                html += `<dt>${inlineFormat(dt, isPreview)}</dt><dd>${inlineFormat(dd, isPreview)}</dd>\n`;
                 continue;
             }
             
@@ -655,7 +680,7 @@
                 html += `</${listType}>\n`;
                 listType = null;
             }
-            html += `<p>${inlineFormat(line)}</p>\n`;
+            html += `<p>${inlineFormat(line, isPreview)}</p>\n`;
         }
         
         if (listType) {
