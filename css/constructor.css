@@ -184,6 +184,27 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .form-group textarea { resize: vertical; min-height: 60px; }
 .form-group select { cursor: pointer; }
 
+.textarea-tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -2px 0 6px;
+}
+.textarea-tools input {
+    width: 54px;
+    padding: 3px 6px;
+    font-size: 11px;
+}
+.textarea-tools .btn {
+    padding: 3px 8px;
+    font-size: 11px;
+    line-height: 1.4;
+}
+.textarea-tools-hint {
+    color: #777;
+    font-size: 11px;
+}
+
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; padding-top: 4px; }
 
 /* --- Table editor --- */

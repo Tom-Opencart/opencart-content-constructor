@@ -153,7 +153,7 @@
             label: 'Параграф',
             defaults: () => ({ text: 'Текст абзаца...' }),
             editForm(block) {
-                return `<div class="form-group"><label>Текст (поддержка Markdown: **жирный**, *курсив*, [ссылка](url), списки, новые строки)</label><textarea data-field="text" rows="6">${escapeHtml(block.data.text)}</textarea></div>`;
+                return `<div class="form-group"><label>Текст (поддержка Markdown: **жирный**, *курсив*, [ссылка](url), списки, новые строки)</label>${agreeToolbarHtml()}<textarea data-field="text" rows="6">${escapeHtml(block.data.text)}</textarea></div>`;
             },
             toHTML(block) { return markdownToHtml(block.data.text, false); },
             preview(block) { return markdownToHtml(block.data.text, true); },
@@ -164,7 +164,7 @@
             defaults: () => ({ text: 'Текст цитаты...', author: '' }),
             editForm(block) {
                 return `
-                    <div class="form-group"><label>Текст цитаты</label><textarea data-field="text" rows="3">${escapeHtml(block.data.text)}</textarea></div>
+                    <div class="form-group"><label>Текст цитаты</label>${agreeToolbarHtml()}<textarea data-field="text" rows="3">${escapeHtml(block.data.text)}</textarea></div>
                     <div class="form-group"><label>Автор (необязательно)</label><input type="text" data-field="author" value="${escapeHtml(block.data.author)}"></div>`;
             },
             toHTML(block, isPreview = false) {
@@ -510,7 +510,7 @@
             editForm(block) {
                 return `
                     <div class="form-group"><label>Заголовок спойлера</label><input type="text" data-field="title" value="${escapeHtml(block.data.title)}"></div>
-                    <div class="form-group"><label>Текст (поддерживает Markdown: списки, абзацы, "Ключ :: Описание")</label><textarea data-field="text" rows="5">${escapeHtml(block.data.text)}</textarea></div>`;
+                    <div class="form-group"><label>Текст (поддерживает Markdown: списки, абзацы, "Ключ :: Описание")</label>${agreeToolbarHtml()}<textarea data-field="text" rows="5">${escapeHtml(block.data.text)}</textarea></div>`;
             },
             toHTML(block) {
                 return `<details><summary>${escapeHtml(block.data.title)}</summary>${markdownToHtml(block.data.text, false)}</details>`;
@@ -531,6 +531,7 @@
                             <input type="text" data-tab-title="${i}" value="${escapeHtml(tab.title)}" placeholder="Заголовок вкладки">
                             <button class="btn btn-sm btn-ghost" data-action="remove-tab" data-index="${i}">&times;</button>
                         </div>
+                        ${agreeToolbarHtml()}
                         <textarea data-tab-text="${i}" rows="3" placeholder="Содержимое">${escapeHtml(tab.text)}</textarea>
                     </div>`;
                 });
@@ -609,6 +610,53 @@
             return `<a href="${url}">${linkText}</a>`;
         });
         return s;
+    }
+
+    function agreeToolbarHtml() {
+        return `<div class="textarea-tools">
+            <input type="number" min="1" value="5" data-agree-info-id title="ID информационной статьи OpenCart">
+            <button type="button" class="btn btn-sm btn-ghost" data-action="insert-agree-link" title="Обернуть выделенный текст в OpenCart agree-ссылку">agree</button>
+            <span class="textarea-tools-hint">Выделите текст и нажмите agree</span>
+        </div>`;
+    }
+
+    function insertAgreeLinkFromSelection(block, form, trigger) {
+        const textareas = Array.from(form.querySelectorAll('textarea'));
+        const activeTextarea = textareas.includes(document.activeElement) ? document.activeElement : null;
+        const textarea = activeTextarea && activeTextarea.selectionStart !== activeTextarea.selectionEnd
+            ? activeTextarea
+            : textareas.find(el => el.selectionStart !== el.selectionEnd);
+
+        if (!textarea) {
+            alert('Выделите текст в поле редактора, который нужно открыть через agree-попап.');
+            return;
+        }
+
+        const infoInput = trigger.closest('.textarea-tools').querySelector('[data-agree-info-id]');
+        const cleanInfoId = infoInput ? infoInput.value.trim() : '';
+
+        if (!/^\d+$/.test(cleanInfoId)) {
+            alert('ID статьи должен быть числом.');
+            return;
+        }
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.slice(start, end);
+
+        textarea.setRangeText(`[${selectedText}](agree:${cleanInfoId})`, start, end, 'end');
+        syncTextareaData(block, textarea);
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        updatePreview();
+    }
+
+    function syncTextareaData(block, textarea) {
+        if (textarea.dataset.field) {
+            block.data[textarea.dataset.field] = textarea.value;
+        } else if (textarea.dataset.tabText !== undefined) {
+            const idx = parseInt(textarea.dataset.tabText);
+            block.data.tabs[idx].text = textarea.value;
+        }
     }
 
     // ── Markdown to HTML parser ──────────────────────────────
@@ -846,6 +894,10 @@
             el.addEventListener('input', () => {
                 // Live update block data on input for instant feedback
             });
+        });
+
+        form.querySelectorAll('[data-action="insert-agree-link"]').forEach(btn => {
+            btn.addEventListener('click', () => insertAgreeLinkFromSelection(block, form, btn));
         });
 
         // List add/remove items
