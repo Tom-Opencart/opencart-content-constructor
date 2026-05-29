@@ -1308,14 +1308,14 @@ ${contentHTML}</div>
 
 @font-face {
     font-family: 'Venryn';
-    src: url('fonts/Venryn.woff2') format('woff2'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn.woff2') format('woff2');
+    src: url('fonts/VenrynSans-Regular.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('fonts/Venryn-Bold.woff2') format('woff2'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/fonts/Venryn-Bold.woff2') format('woff2');
+    src: url('fonts/VenrynSans-SemiBold.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -1799,12 +1799,12 @@ ${contentHTML}</div>
             btnDownloadZip.disabled = true;
             btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
 
-            const font1Promise = fetch('css/Venryn.woff2').then(res => res.arrayBuffer());
-            const font2Promise = fetch('css/Venryn-Bold.woff2').then(res => res.arrayBuffer());
+            const font1Promise = fetch('css/VenrynSans-Regular.woff').then(res => res.arrayBuffer());
+            const font2Promise = fetch('css/VenrynSans-SemiBold.woff').then(res => res.arrayBuffer());
 
             Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
-                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/Venryn.woff2", font1Data);
-                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/Venryn-Bold.woff2", font2Data);
+                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", font1Data);
+                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-SemiBold.woff", font2Data);
 
                 return zip.generateAsync({ type: "blob" });
             }).then((blob) => {
