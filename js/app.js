@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    Content Constructor — app.js
    ============================================================ */
 
@@ -2620,15 +2620,6 @@ ${contentHTML}</div>
     }
 
     // ── Initial Render ───────────────────────────────────────
-    if (titleInput) {
-        // titleInput preset now set via HTML value attribute
-    }
-    if (slugInput) {
-        // slugInput preset now set via HTML value attribute
-    }
-    if (domainInput) {
-        // domainInput preset now set via HTML value attribute
-        // domainInput.value = 'https://example.ru/';
     renderBlocks();
     updatePreview();
 
