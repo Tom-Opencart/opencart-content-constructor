@@ -15,7 +15,15 @@
     </div>
     <div class="header-center">
         <input type="text" id="articleTitle" class="header-title-input" placeholder="Название статьи..." value="">
-        <input type="text" id="articleSlug" class="header-slug-input" placeholder="slug-fajla" value="">
+        <div class="slug-wrapper">
+            <span class="slug-hint" title="SEO-слаг (ЧПУ): автоматически формируется из заголовка. Используется как имя файла при экспорте (content-{slug}.html) и соответствует полю «SEO URL» в OpenCart. Можно отредактировать вручную.">
+                <i class="fa fa-question-circle"></i>
+            </span>
+            <input type="text" id="articleSlug" class="header-slug-input" placeholder="slug-fajla" value="">
+            <button class="slug-copy-btn" id="btnCopySlug" title="Скопировать slug">
+                <i class="fa fa-clone"></i>
+            </button>
+        </div>
         <input type="text" id="articleDomain" class="header-domain-input" placeholder="Домен для превью (например: https://example.ru/)" value="">
     </div>
     <div class="header-right">

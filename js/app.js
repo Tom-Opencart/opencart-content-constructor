@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    Content Constructor — app.js
    ============================================================ */
 
@@ -1650,6 +1650,40 @@
         }
     }
 
+
+        const html = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(title)} — Превью</title>
+    <base href="${window.location.href}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/constructor.css">
+    <style>
+        body { background: #fff; padding: 40px 20px; overflow-y: auto; height: auto; }
+        .new-window-preview-container { max-width: 900px; margin: 0 auto; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="preview-content new-window-preview-container">
+        ${tocHTML}
+        <div class="description">
+            ${contentHTML}
+        </div>
+    </div>
+</body>
+</html>`;
+
+        try {
+            previewWindow.document.open();
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        } catch (e) {
+            console.error('Ошибка обновления нового окна:', e);
+        }
+    }
+
     function updatePreview() {
         clearTimeout(previewTimer);
         previewTimer = setTimeout(() => {
@@ -1799,6 +1833,25 @@
             alert('Не удалось скопировать автоматически. Скопируйте код из экспортированного файла.');
         });
     });
+
+    // ── Copy Slug to Clipboard ────────────────────────────────
+    const btnCopySlug = $('#btnCopySlug');
+    if (btnCopySlug) {
+        btnCopySlug.addEventListener('click', () => {
+            const slug = slugInput.value.trim();
+            if (!slug) return;
+            navigator.clipboard.writeText(slug).then(() => {
+                btnCopySlug.classList.add('copied');
+                btnCopySlug.innerHTML = '<i class="fa fa-check"></i>';
+                setTimeout(() => {
+                    btnCopySlug.classList.remove('copied');
+                    btnCopySlug.innerHTML = '<i class="fa fa-clone"></i>';
+                }, 2000);
+            }).catch(() => {
+                alert('Не удалось скопировать slug.');
+            });
+        });
+    }
 
     // ── Export TXT (Clean HTML for OpenCart) ─────────────────
     const btnExportTXT = $('#btnExportTXT');

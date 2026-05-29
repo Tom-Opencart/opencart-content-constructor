@@ -35,10 +35,62 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 }
 .header-title-input:focus { border-color: #4a90d9; }
 .header-slug-input {
-    width: 130px; padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px;
-    font-size: 13px; color: #666; outline: none; transition: border-color .2s;
+    flex: 1; min-width: 0; padding: 6px 8px; border: none; background: transparent;
+    font-size: 13px; color: #666; outline: none;
 }
-.header-slug-input:focus { border-color: #4a90d9; }
+.header-slug-input:focus { color: #333; }
+
+/* --- Slug wrapper with hint & copy --- */
+.slug-wrapper {
+    display: flex; align-items: center;
+    width: 155px; border: 1px solid #ccc; border-radius: 6px;
+    background: #fff; transition: border-color .2s;
+    overflow: hidden;
+}
+.slug-wrapper:focus-within { border-color: #4a90d9; }
+
+.slug-hint {
+    flex-shrink: 0; padding: 0 7px;
+    color: #aaa; font-size: 13px; cursor: default;
+    position: relative;
+}
+.slug-hint:hover { color: #4a90d9; }
+
+/* Tooltip */
+.slug-hint::after {
+    content: attr(title);
+    position: absolute; top: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e; color: #fff;
+    font-size: 11px; line-height: 1.4;
+    padding: 7px 10px; border-radius: 6px;
+    width: 240px; white-space: normal; text-align: left;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    pointer-events: none; opacity: 0;
+    transition: opacity .15s;
+    z-index: 9999;
+}
+.slug-hint::before {
+    content: '';
+    position: absolute; top: calc(100% + 3px); left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent; border-bottom-color: #1a1a2e;
+    pointer-events: none; opacity: 0;
+    transition: opacity .15s;
+    z-index: 9999;
+}
+.slug-hint:hover::after,
+.slug-hint:hover::before { opacity: 1; }
+
+.slug-copy-btn {
+    flex-shrink: 0; padding: 0 8px; height: 100%;
+    background: transparent; border: none; border-left: 1px solid #e8e8e8;
+    color: #aaa; font-size: 13px; cursor: pointer;
+    transition: color .15s, background .15s;
+    display: flex; align-items: center;
+}
+.slug-copy-btn:hover { color: #4a90d9; background: #f0f6ff; }
+.slug-copy-btn.copied { color: #27ae60; }
 .header-domain-input {
     width: 210px; padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px;
     font-size: 13px; color: #666; outline: none; transition: border-color .2s;
