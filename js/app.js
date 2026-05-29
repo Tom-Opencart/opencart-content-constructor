@@ -21,6 +21,137 @@
         return d.innerHTML;
     }
 
+    const GRID_PC_PRESETS = {
+        2: [[6, 6], [4, 8], [8, 4], [3, 9], [9, 3]],
+        3: [[4, 4, 4], [3, 6, 3], [6, 3, 3], [3, 3, 6]],
+        4: [[3, 3, 3, 3]]
+    };
+
+    function formatGridPattern(pattern) {
+        return pattern.join('+');
+    }
+
+    function parseGridPattern(value) {
+        return value.split('+').map(v => parseInt(v, 10)).filter(Boolean);
+    }
+
+    function getGridPattern(sectionCount) {
+        return GRID_PC_PRESETS[sectionCount][0].slice();
+    }
+
+    function createGridColumn() {
+        return { id: uuid(), blocks: [] };
+    }
+
+    function refreshBlockIds(block) {
+        block.id = uuid();
+
+        if (block.type === 'grid') {
+            block.data.columns.forEach(column => {
+                column.id = uuid();
+                column.blocks.forEach(child => refreshBlockIds(child));
+            });
+        }
+
+        return block;
+    }
+
+    function getGridColumnClasses(block, idx) {
+        const pc = block.data.pcPattern[idx] || 12;
+        const mobilePerRow = parseInt(block.data.mobilePerRow, 10) || 1;
+        const xs = mobilePerRow === 2 ? 6 : 12;
+
+        return `col-xs-${xs} col-md-${pc}`;
+    }
+
+    function renderBlockContent(block, mode, allBlocks) {
+        const def = BLOCK_TYPES[block.type];
+
+        if (!def) {
+            return '';
+        }
+
+        return mode === 'preview' ? def.preview(block, allBlocks) : def.toHTML(block, allBlocks);
+    }
+
+    function renderContentBlocks(contentBlocks, mode) {
+        let html = '';
+
+        contentBlocks.forEach(block => {
+            html += renderBlockContent(block, mode, blocks) + '\n';
+        });
+
+        return html;
+    }
+
+    function renderGridHtml(block, mode) {
+        let html = '<div class="row article-grid-row">\n';
+
+        block.data.columns.forEach((column, idx) => {
+            html += `  <div class="${getGridColumnClasses(block, idx)}">\n`;
+            html += renderContentBlocks(column.blocks, mode);
+            html += '  </div>\n';
+        });
+
+        html += '</div>';
+
+        return html;
+    }
+
+    function renderArticleParts(mode) {
+        let tocHTML = '';
+        let contentHTML = '';
+
+        blocks.forEach(block => {
+            const html = renderBlockContent(block, mode, blocks);
+
+            if (block.type === 'toc') {
+                tocHTML += html + '\n';
+            } else {
+                contentHTML += '    ' + html + '\n';
+            }
+        });
+
+        return { tocHTML, contentHTML };
+    }
+
+    function renderGridWorkspace(block) {
+        const pattern = formatGridPattern(block.data.pcPattern);
+        let html = `<div class="grid-workspace">
+            <div class="grid-workspace-help">Bootstrap 3 row: PC ${pattern}, mobile ${block.data.mobilePerRow} в ряд. Перетащите блоки в нужную секцию.</div>
+            <div class="row grid-workspace-row">`;
+
+        block.data.columns.forEach((column, idx) => {
+            html += `<div class="${getGridColumnClasses(block, idx)}">
+                <div class="grid-column-drop" data-grid-column="${column.id}">
+                    <div class="grid-column-head">
+                        <span>md-${block.data.pcPattern[idx]}</span>
+                        <button type="button" class="grid-column-remove" data-action="remove-grid-column" data-column-id="${column.id}" title="Удалить секцию и вернуть блоки вниз">&times;</button>
+                    </div>`;
+
+            if (column.blocks.length) {
+                column.blocks.forEach(child => {
+                    const childDef = BLOCK_TYPES[child.type];
+                    html += `<div class="grid-child-card" draggable="true" data-child-id="${child.id}" data-column-id="${column.id}">
+                        <div class="grid-child-head">
+                            <span>${childDef ? childDef.label : child.type}</span>
+                            <button type="button" class="grid-child-remove" data-action="remove-grid-child" data-child-id="${child.id}" data-column-id="${column.id}" title="Удалить вложенный блок">&times;</button>
+                        </div>
+                        <div class="grid-child-preview">${renderBlockContent(child, 'preview', blocks)}</div>
+                    </div>`;
+                });
+            } else {
+                html += '<div class="grid-column-empty">Пусто</div>';
+            }
+
+            html += '</div></div>';
+        });
+
+        html += '</div></div>';
+
+        return html;
+    }
+
     // ── State ────────────────────────────────────────────────
     let blocks = [
         {
@@ -71,6 +202,110 @@
             id: uuid(),
             type: 'paragraph',
             data: { text: 'Основной акцент Apple делает на **мониторинге здоровья** и безопасности пользователя. Часы способны предупреждать о критических изменениях пульса, распознавать падения и даже вызывать службу спасения при автомобильных авариях.' }
+        },
+        {
+            id: uuid(),
+            type: 'heading',
+            data: { level: 2, text: 'Примеры Bootstrap-сетки внутри статьи' }
+        },
+        {
+            id: uuid(),
+            type: 'paragraph',
+            data: { text: 'Ниже показаны два множественных блока. Это обычная Bootstrap 3 сетка: секции используют `col-xs-* col-md-*`, а внутрь можно перетаскивать стандартные блоки конструктора.' }
+        },
+        {
+            id: uuid(),
+            type: 'grid',
+            data: {
+                pcPattern: [6, 6],
+                mobilePerRow: 1,
+                columns: [
+                    {
+                        id: uuid(),
+                        blocks: [
+                            {
+                                id: uuid(),
+                                type: 'image',
+                                data: {
+                                    srcType: 'path',
+                                    src: 'https://placehold.co/900x600/e8f0fe/334155?text=Apple+Watch',
+                                    localSrc: '',
+                                    alt: 'Apple Watch на руке',
+                                    caption: 'Пример: изображение слева'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: uuid(),
+                        blocks: [
+                            {
+                                id: uuid(),
+                                type: 'paragraph',
+                                data: { text: '**Схема 6+6:** слева размещена картинка, справа текстовый блок. На мобильной версии выбран режим 1 в ряд, поэтому секции аккуратно складываются друг под другом.' }
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            id: uuid(),
+            type: 'grid',
+            data: {
+                pcPattern: [4, 4, 4],
+                mobilePerRow: 2,
+                columns: [
+                    {
+                        id: uuid(),
+                        blocks: [
+                            {
+                                id: uuid(),
+                                type: 'image',
+                                data: {
+                                    srcType: 'path',
+                                    src: 'https://placehold.co/600x420/f0fdf4/166534?text=Activity',
+                                    localSrc: '',
+                                    alt: 'Активность Apple Watch',
+                                    caption: 'Активность'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: uuid(),
+                        blocks: [
+                            {
+                                id: uuid(),
+                                type: 'image',
+                                data: {
+                                    srcType: 'path',
+                                    src: 'https://placehold.co/600x420/fef2f2/991b1b?text=Health',
+                                    localSrc: '',
+                                    alt: 'Здоровье Apple Watch',
+                                    caption: 'Здоровье'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: uuid(),
+                        blocks: [
+                            {
+                                id: uuid(),
+                                type: 'image',
+                                data: {
+                                    srcType: 'path',
+                                    src: 'https://placehold.co/600x420/fff7ed/9a3412?text=Notifications',
+                                    localSrc: '',
+                                    alt: 'Уведомления Apple Watch',
+                                    caption: 'Уведомления'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
         },
         {
             id: uuid(),
@@ -345,6 +580,58 @@
                     html += `<p style="text-align:center;font-size:13px;color:#888;margin-top:5px;text-indent:0!important;">${escapeHtml(block.data.caption)}</p>`;
                 }
                 return html;
+            },
+        },
+
+        grid: {
+            label: 'Bootstrap сетка',
+            defaults: () => {
+                const pcPattern = getGridPattern(2);
+
+                return {
+                    pcPattern,
+                    mobilePerRow: 1,
+                    columns: pcPattern.map(() => createGridColumn())
+                };
+            },
+            editForm(block) {
+                const sectionCount = block.data.columns.length;
+                const patternOptions = GRID_PC_PRESETS[sectionCount].map(pattern => {
+                    const value = formatGridPattern(pattern);
+                    const selected = formatGridPattern(block.data.pcPattern) === value ? 'selected' : '';
+
+                    return `<option value="${value}" ${selected}>${value}</option>`;
+                }).join('');
+
+                return `
+                    <div class="grid-help">Это Bootstrap 3 row. Перетаскивайте обычные блоки в нужную секцию. PC-схема всегда суммируется в 12, mobile ограничен 1 или 2 блоками в ряд.</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Секций</label>
+                            <select data-grid-field="sectionCount">
+                                <option value="2" ${sectionCount===2?'selected':''}>2</option>
+                                <option value="3" ${sectionCount===3?'selected':''}>3</option>
+                                <option value="4" ${sectionCount===4?'selected':''}>4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>PC схема md</label>
+                            <select data-grid-field="pcPattern">${patternOptions}</select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile</label>
+                            <select data-grid-field="mobilePerRow">
+                                <option value="1" ${block.data.mobilePerRow===1?'selected':''}>1 в ряд</option>
+                                <option value="2" ${block.data.mobilePerRow===2?'selected':''}>2 в ряд</option>
+                            </select>
+                        </div>
+                    </div>`;
+            },
+            toHTML(block) {
+                return renderGridHtml(block, 'toHTML');
+            },
+            preview(block) {
+                return renderGridHtml(block, 'preview');
             },
         },
 
@@ -771,7 +1058,15 @@
     }
 
     function removeBlock(id) {
-        blocks = blocks.filter(b => b.id !== id);
+        const idx = blocks.findIndex(b => b.id === id);
+
+        if (idx === -1) {
+            return;
+        }
+
+        const block = blocks[idx];
+        const returnedBlocks = block.type === 'grid' ? getGridChildren(block) : [];
+        blocks.splice(idx, 1, ...returnedBlocks);
         renderBlocks();
         updatePreview();
     }
@@ -780,7 +1075,7 @@
         const idx = blocks.findIndex(b => b.id === id);
         if (idx === -1) return;
         const clone = JSON.parse(JSON.stringify(blocks[idx]));
-        clone.id = uuid();
+        refreshBlockIds(clone);
         blocks.splice(idx + 1, 0, clone);
         renderBlocks();
         updatePreview();
@@ -790,6 +1085,157 @@
         if (fromIdx === toIdx) return;
         const [moved] = blocks.splice(fromIdx, 1);
         blocks.splice(toIdx > fromIdx ? toIdx - 1 : toIdx, 0, moved);
+        renderBlocks();
+        updatePreview();
+    }
+
+    function getGridChildren(block) {
+        if (!block || block.type !== 'grid') {
+            return [];
+        }
+
+        return block.data.columns.flatMap(column => column.blocks);
+    }
+
+    function findGridColumn(gridBlock, columnId) {
+        return gridBlock.data.columns.find(column => column.id === columnId);
+    }
+
+    function findNestedBlock(childId) {
+        for (const gridBlock of blocks) {
+            if (gridBlock.type !== 'grid') continue;
+
+            for (const column of gridBlock.data.columns) {
+                const idx = column.blocks.findIndex(child => child.id === childId);
+
+                if (idx !== -1) {
+                    return { gridBlock, column, idx, block: column.blocks[idx] };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function moveBlockIntoGrid(blockId, gridBlock, columnId) {
+        if (!gridBlock || gridBlock.type !== 'grid' || blockId === gridBlock.id) {
+            return;
+        }
+
+        const column = findGridColumn(gridBlock, columnId);
+
+        if (!column) {
+            return;
+        }
+
+        let movedBlock = null;
+        const topIdx = blocks.findIndex(block => block.id === blockId);
+
+        if (topIdx !== -1) {
+            movedBlock = blocks[topIdx];
+
+            if (movedBlock.type === 'grid') {
+                return;
+            }
+
+            blocks.splice(topIdx, 1);
+        } else {
+            const nested = findNestedBlock(blockId);
+
+            if (!nested) {
+                return;
+            }
+
+            movedBlock = nested.block;
+            nested.column.blocks.splice(nested.idx, 1);
+        }
+
+        column.blocks.push(movedBlock);
+        renderBlocks();
+        updatePreview();
+    }
+
+    function removeGridChild(columnId, childId) {
+        const nested = findNestedBlock(childId);
+
+        if (!nested || nested.column.id !== columnId) {
+            return;
+        }
+
+        nested.column.blocks.splice(nested.idx, 1);
+        renderBlocks();
+        updatePreview();
+    }
+
+    function removeGridColumn(gridBlock, columnId) {
+        const gridIdx = blocks.findIndex(block => block.id === gridBlock.id);
+        const columnIdx = gridBlock.data.columns.findIndex(column => column.id === columnId);
+
+        if (gridIdx === -1 || columnIdx === -1 || gridBlock.data.columns.length <= 1) {
+            return;
+        }
+
+        const [removedColumn] = gridBlock.data.columns.splice(columnIdx, 1);
+        const count = gridBlock.data.columns.length;
+        gridBlock.data.pcPattern = getGridPattern(count);
+
+        if (gridBlock.data.mobilePerRow > count) {
+            gridBlock.data.mobilePerRow = 1;
+        }
+
+        blocks.splice(gridIdx + 1, 0, ...removedColumn.blocks);
+        renderBlocks();
+        updatePreview();
+    }
+
+    function updateGridSectionCount(gridBlock, count) {
+        const gridIdx = blocks.findIndex(block => block.id === gridBlock.id);
+        const currentCount = gridBlock.data.columns.length;
+
+        if (gridIdx === -1 || count === currentCount || !GRID_PC_PRESETS[count]) {
+            return;
+        }
+
+        if (count > currentCount) {
+            while (gridBlock.data.columns.length < count) {
+                gridBlock.data.columns.push(createGridColumn());
+            }
+        } else {
+            const removedColumns = gridBlock.data.columns.splice(count);
+            const returnedBlocks = removedColumns.flatMap(column => column.blocks);
+            blocks.splice(gridIdx + 1, 0, ...returnedBlocks);
+        }
+
+        gridBlock.data.pcPattern = getGridPattern(count);
+
+        if (gridBlock.data.mobilePerRow > count) {
+            gridBlock.data.mobilePerRow = 1;
+        }
+
+        renderBlocks();
+        updatePreview();
+    }
+
+    function updateGridPcPattern(gridBlock, value) {
+        const pattern = parseGridPattern(value);
+
+        if (pattern.length !== gridBlock.data.columns.length || pattern.reduce((sum, col) => sum + col, 0) !== 12) {
+            return;
+        }
+
+        gridBlock.data.pcPattern = pattern;
+        renderBlocks();
+        updatePreview();
+    }
+
+    function updateGridMobilePerRow(gridBlock, value) {
+        const mobilePerRow = parseInt(value, 10);
+
+        if (![1, 2].includes(mobilePerRow)) {
+            return;
+        }
+
+        gridBlock.data.mobilePerRow = mobilePerRow;
         renderBlocks();
         updatePreview();
     }
@@ -807,7 +1253,7 @@
             card.dataset.idx = idx;
             card.draggable = true;
 
-            const preview = def.preview(block, blocks);
+            const preview = block.type === 'grid' ? renderGridWorkspace(block) : def.preview(block, blocks);
 
             card.innerHTML = `
                 <div class="block-header">
@@ -859,7 +1305,57 @@
             card.querySelector('[data-action="duplicate"]').addEventListener('click', () => duplicateBlock(block.id));
             card.querySelector('[data-action="edit"]').addEventListener('click', () => toggleEdit(block, card));
 
+            if (block.type === 'grid') {
+                bindGridWorkspaceEvents(block, card);
+            }
+
             blocksContainer.appendChild(card);
+        });
+    }
+
+    function bindGridWorkspaceEvents(gridBlock, card) {
+        card.querySelectorAll('.grid-column-drop').forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'move';
+                zone.classList.add('grid-column-over');
+            });
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('grid-column-over');
+            });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                zone.classList.remove('grid-column-over');
+                moveBlockIntoGrid(e.dataTransfer.getData('text/plain'), gridBlock, zone.dataset.gridColumn);
+            });
+        });
+
+        card.querySelectorAll('.grid-child-card').forEach(childCard => {
+            childCard.addEventListener('dragstart', (e) => {
+                e.stopPropagation();
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', childCard.dataset.childId);
+                childCard.classList.add('dragging');
+            });
+            childCard.addEventListener('dragend', () => {
+                childCard.classList.remove('dragging');
+            });
+        });
+
+        card.querySelectorAll('[data-action="remove-grid-child"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeGridChild(btn.dataset.columnId, btn.dataset.childId);
+            });
+        });
+
+        card.querySelectorAll('[data-action="remove-grid-column"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeGridColumn(gridBlock, btn.dataset.columnId);
+            });
         });
     }
 
@@ -898,6 +1394,22 @@
 
         form.querySelectorAll('[data-action="insert-agree-link"]').forEach(btn => {
             btn.addEventListener('click', () => insertAgreeLinkFromSelection(block, form, btn));
+        });
+
+        form.querySelectorAll('[data-grid-field]').forEach(select => {
+            select.addEventListener('change', () => {
+                if (block.type !== 'grid') {
+                    return;
+                }
+
+                if (select.dataset.gridField === 'sectionCount') {
+                    updateGridSectionCount(block, parseInt(select.value, 10));
+                } else if (select.dataset.gridField === 'pcPattern') {
+                    updateGridPcPattern(block, select.value);
+                } else if (select.dataset.gridField === 'mobilePerRow') {
+                    updateGridMobilePerRow(block, select.value);
+                }
+            });
         });
 
         // List add/remove items
@@ -1103,16 +1615,7 @@
         if (!previewWindow || previewWindow.closed) return;
         
         const title = titleInput.value || 'Превью статьи';
-        let tocHTML = '';
-        let contentHTML = '';
-        blocks.forEach(block => {
-            const def = BLOCK_TYPES[block.type];
-            if (block.type === 'toc') {
-                tocHTML += def.preview(block, blocks) + '\n';
-            } else {
-                contentHTML += def.preview(block, blocks) + '\n';
-            }
-        });
+        const { tocHTML, contentHTML } = renderArticleParts('preview');
 
         const html = `<!DOCTYPE html>
 <html lang="ru">
@@ -1154,16 +1657,7 @@
                 previewContent.innerHTML = '<p class="preview-empty">Превью появится после добавления блоков</p>';
                 return;
             }
-            let tocHTML = '';
-            let contentHTML = '';
-            blocks.forEach(block => {
-                const def = BLOCK_TYPES[block.type];
-                if (block.type === 'toc') {
-                    tocHTML += def.preview(block, blocks) + '\n';
-                } else {
-                    contentHTML += def.preview(block, blocks) + '\n';
-                }
-            });
+            const { tocHTML, contentHTML } = renderArticleParts('preview');
             previewContent.innerHTML = tocHTML + '<div class="description">\n' + contentHTML + '</div>';
             
             if (previewWindow && !previewWindow.closed) {
@@ -1186,7 +1680,34 @@
 
     // ── Fullscreen Preview Toggle ────────────────────────────
     const btnToggleFullscreen = $('#btnToggleFullscreen');
+    const btnHidePreview = $('#btnHidePreview');
+    const btnShowPreview = $('#btnShowPreview');
     const previewPanel = $('#previewPanel');
+    function resetPreviewFullscreen() {
+        if (!previewPanel || !btnToggleFullscreen) return;
+
+        previewPanel.classList.remove('fullscreen');
+        const icon = btnToggleFullscreen.querySelector('i');
+        if (icon) {
+            icon.classList.replace('fa-compress', 'fa-expand');
+        }
+        btnToggleFullscreen.title = 'Развернуть на весь экран';
+    }
+
+    function setPreviewHidden(hidden) {
+        document.body.classList.toggle('preview-hidden', hidden);
+
+        if (btnShowPreview) {
+            btnShowPreview.style.display = hidden ? 'inline-flex' : 'none';
+        }
+
+        if (hidden) {
+            resetPreviewFullscreen();
+        } else {
+            updatePreview();
+        }
+    }
+
     if (btnToggleFullscreen && previewPanel) {
         btnToggleFullscreen.addEventListener('click', () => {
             const isFullscreen = previewPanel.classList.toggle('fullscreen');
@@ -1212,6 +1733,14 @@
                 }
             }
         });
+    }
+
+    if (btnHidePreview) {
+        btnHidePreview.addEventListener('click', () => setPreviewHidden(true));
+    }
+
+    if (btnShowPreview) {
+        btnShowPreview.addEventListener('click', () => setPreviewHidden(false));
     }
 
     // ── Open in New Window ───────────────────────────────────
@@ -1252,16 +1781,7 @@
 
     // ── Copy HTML to Clipboard ───────────────────────────────
     $('#btnCopyHTML').addEventListener('click', () => {
-        let tocHTML = '';
-        let contentHTML = '';
-        blocks.forEach(block => {
-            const def = BLOCK_TYPES[block.type];
-            if (block.type === 'toc') {
-                tocHTML += def.toHTML(block, blocks) + '\n';
-            } else {
-                contentHTML += '    ' + def.toHTML(block, blocks) + '\n';
-            }
-        });
+        const { tocHTML, contentHTML } = renderArticleParts('toHTML');
 
         const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
 
@@ -1287,16 +1807,7 @@
             const title = titleInput.value || 'Статья';
             const slug = slugInput.value || slugify(title) || 'article';
 
-            let tocHTML = '';
-            let contentHTML = '';
-            blocks.forEach(block => {
-                const def = BLOCK_TYPES[block.type];
-                if (block.type === 'toc') {
-                    tocHTML += def.toHTML(block, blocks) + '\n';
-                } else {
-                    contentHTML += '    ' + def.toHTML(block, blocks) + '\n';
-                }
-            });
+            const { tocHTML, contentHTML } = renderArticleParts('toHTML');
 
             const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
             downloadFile(cleanHTML, `content-${slug}.txt`, 'text/plain');
@@ -1309,16 +1820,7 @@
         const slug = slugInput.value || slugify(title) || 'content';
         const cssFile = `content-constructor.css`;
 
-        let tocHTML = '';
-        let contentHTML = '';
-        blocks.forEach(block => {
-            const def = BLOCK_TYPES[block.type];
-            if (block.type === 'toc') {
-                tocHTML += def.toHTML(block, blocks) + '\n';
-            } else {
-                contentHTML += '    ' + def.toHTML(block, blocks) + '\n';
-            }
-        });
+        const { tocHTML, contentHTML } = renderArticleParts('toHTML');
 
         const fullHTML = `<!DOCTYPE html>
 <html lang="ru">
@@ -1461,6 +1963,86 @@ ${contentHTML}</div>
     margin: 0 0 10px 0;
     text-indent: 15px;
     line-height: 1.5;
+}
+
+.description .article-grid-row {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.description .article-grid-row p:first-child {
+    margin-top: 0;
+}
+
+.description .row {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.description .row:before,
+.description .row:after {
+    content: " ";
+    display: table;
+}
+
+.description .row:after {
+    clear: both;
+}
+
+.description [class*="col-xs-"],
+.description [class*="col-md-"] {
+    position: relative;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.description .col-xs-6,
+.description .col-xs-12 {
+    float: left;
+}
+
+.description .col-xs-6 {
+    width: 50%;
+}
+
+.description .col-xs-12 {
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .description .col-md-3,
+    .description .col-md-4,
+    .description .col-md-6,
+    .description .col-md-8,
+    .description .col-md-9,
+    .description .col-md-12 {
+        float: left;
+    }
+
+    .description .col-md-3 {
+        width: 25%;
+    }
+
+    .description .col-md-4 {
+        width: 33.33333333%;
+    }
+
+    .description .col-md-6 {
+        width: 50%;
+    }
+
+    .description .col-md-8 {
+        width: 66.66666667%;
+    }
+
+    .description .col-md-9 {
+        width: 75%;
+    }
+
+    .description .col-md-12 {
+        width: 100%;
+    }
 }
 
 .description b,

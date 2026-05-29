@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.0.5">
+    <link rel="stylesheet" href="css/constructor.css?v=1.0.6">
 </head>
 <body>
 
@@ -21,6 +21,9 @@
     <div class="header-right">
         <button id="btnHelp" class="btn btn-secondary" title="Инструкция по интеграции с OpenCart">
             <span class="btn-icon"><i class="fa fa-question-circle"></i></span> Справка
+        </button>
+        <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать правую панель превью" style="display: none;">
+            <span class="btn-icon"><i class="fa fa-eye"></i></span> Превью
         </button>
         <button id="btnCopyHTML" class="btn btn-primary" title="Копировать чистый HTML для OpenCart" style="background: #27ae60;">
             <span class="btn-icon"><i class="fa fa-clipboard"></i></span> Копировать код
@@ -71,6 +74,10 @@
                 <span class="block-btn-icon">&#9636;</span>
                 <span class="block-btn-label">Изображение</span>
             </button>
+            <button class="block-btn" data-block-type="grid" title="Bootstrap 3 сетка из нескольких секций">
+                <span class="block-btn-icon">&#9635;</span>
+                <span class="block-btn-label">Сетка</span>
+            </button>
             <button class="block-btn" data-block-type="link" title="Ссылка">
                 <span class="block-btn-icon">&#128279;</span>
                 <span class="block-btn-label">Ссылка</span>
@@ -112,6 +119,9 @@
                 </button>
                 <button id="btnToggleFullscreen" class="panel-action-btn" title="Развернуть на весь экран" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
                     <i class="fa fa-expand"></i>
+                </button>
+                <button id="btnHidePreview" class="panel-action-btn" title="Скрыть превью" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
+                    <i class="fa fa-eye-slash"></i>
                 </button>
             </div>
         </div>
@@ -202,6 +212,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.0.5"></script>
+<script src="js/app.js?v=1.0.6"></script>
 </body>
 </html>
