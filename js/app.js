@@ -2621,14 +2621,14 @@ ${contentHTML}</div>
 
     // ── Initial Render ───────────────────────────────────────
     if (titleInput) {
-        titleInput.value = 'Apple Watch: Полный обзор умных часов';
+        // titleInput preset now set via HTML value attribute
     }
     if (slugInput) {
-        slugInput.value = 'apple-watch-obzor';
+        // slugInput preset now set via HTML value attribute
     }
     if (domainInput) {
-        domainInput.value = 'https://example.ru/';
-    }
+        // domainInput preset now set via HTML value attribute
+        // domainInput.value = 'https://example.ru/';
     renderBlocks();
     updatePreview();
 

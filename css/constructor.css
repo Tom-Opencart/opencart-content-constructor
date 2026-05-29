@@ -30,10 +30,30 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .header-title { font-size: 16px; font-weight: 700; white-space: nowrap; color: #333; }
 .header-center { flex: 1; min-width: 0; display: flex; gap: 8px; align-items: center; }
 .header-title-input {
-    flex: 1; padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px;
-    min-width: 120px; font-size: 14px; outline: none; transition: border-color .2s;
+    flex: 1; min-width: 0; padding: 6px 8px; border: none; background: transparent;
+    font-size: 14px; outline: none;
 }
-.header-title-input:focus { border-color: #4a90d9; }
+.header-title-input:focus { color: #333; }
+
+/* --- Title & Domain hint wrappers --- */
+.hint-wrapper--title {
+    display: flex; align-items: center;
+    flex: 1; min-width: 120px;
+    border: 1px solid #ccc; border-radius: 6px;
+    background: #fff; transition: border-color .2s;
+    overflow: hidden;
+}
+.hint-wrapper--title:focus-within { border-color: #4a90d9; }
+
+.hint-wrapper--domain {
+    display: flex; align-items: center;
+    width: 230px;
+    border: 1px solid #ccc; border-radius: 6px;
+    background: #fff; transition: border-color .2s;
+    overflow: hidden;
+}
+.hint-wrapper--domain:focus-within { border-color: #4a90d9; }
+
 .header-slug-input {
     flex: 1; min-width: 0; padding: 6px 8px; border: none; background: transparent;
     font-size: 13px; color: #666; outline: none;
@@ -92,10 +112,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .slug-copy-btn:hover { color: #4a90d9; background: #f0f6ff; }
 .slug-copy-btn.copied { color: #27ae60; }
 .header-domain-input {
-    width: 210px; padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px;
-    font-size: 13px; color: #666; outline: none; transition: border-color .2s;
+    flex: 1; min-width: 0; padding: 6px 8px; border: none; background: transparent;
+    font-size: 13px; color: #666; outline: none;
 }
-.header-domain-input:focus { border-color: #4a90d9; }
+.header-domain-input:focus { color: #333; }
 .header-right { display: flex; flex-shrink: 0; gap: 5px; }
 
 /* --- Buttons --- */
