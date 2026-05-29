@@ -1681,7 +1681,6 @@
     // ── Fullscreen Preview Toggle ────────────────────────────
     const btnToggleFullscreen = $('#btnToggleFullscreen');
     const btnHidePreview   = $('#btnHidePreview');
-    const btnRevealPreview = $('#btnRevealPreview');
     const btnShowPreview   = $('#btnShowPreview');
     const previewPanel     = $('#previewPanel');
     function resetPreviewFullscreen() {
@@ -1754,10 +1753,6 @@
             const isHidden = document.body.classList.contains('preview-hidden');
             setPreviewHidden(!isHidden);
         });
-    }
-
-    if (btnRevealPreview) {
-        btnRevealPreview.addEventListener('click', () => setPreviewHidden(false));
     }
 
     if (btnShowPreview) {
