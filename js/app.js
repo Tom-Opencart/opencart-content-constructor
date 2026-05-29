@@ -64,14 +64,14 @@
         return `col-xs-${xs} col-md-${pc}`;
     }
 
-    function renderBlockContent(block, mode, allBlocks) {
+    function renderBlockContent(block, mode, allBlocks, isWorkspace = false) {
         const def = BLOCK_TYPES[block.type];
 
         if (!def) {
             return '';
         }
 
-        return mode === 'preview' ? def.preview(block, allBlocks) : def.toHTML(block, allBlocks);
+        return mode === 'preview' ? def.preview(block, allBlocks, isWorkspace) : def.toHTML(block, allBlocks);
     }
 
     function renderContentBlocks(contentBlocks, mode) {
@@ -141,7 +141,7 @@
                             <span>${childDef ? childDef.label : child.type}</span>
                             <button type="button" class="grid-child-remove" data-action="remove-grid-child" data-child-id="${child.id}" data-column-id="${column.id}" title="Удалить вложенный блок">&times;</button>
                         </div>
-                        <div class="grid-child-preview">${renderBlockContent(child, 'preview', blocks)}</div>
+                        <div class="grid-child-preview">${renderBlockContent(child, 'preview', blocks, true)}</div>
                     </div>`;
                 });
             } else {
@@ -574,7 +574,7 @@
                 
                 // If both are empty, use SVG placeholder
                 if (!imgUrl) {
-                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="%23888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`;
+                    imgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="#f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="#888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`);
                 }
                 
                 let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
@@ -583,7 +583,7 @@
                 }
                 return html;
             },
-            preview(block) {
+            preview(block, allBlocks, isWorkspace = false) {
                 let imgUrl = '';
                 if (block.data.srcType === 'local' || block.data.srcType === 'ai') {
                     imgUrl = block.data.localSrc || '';
@@ -609,12 +609,25 @@
                     }
                 }
                 
+                const isPlaceholder = !imgUrl;
                 if (!imgUrl) {
                     // Inline SVG placeholder
-                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23F3F2FF"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%235446f8" dominant-baseline="middle" text-anchor="middle">Заглушка: ${escapeHtml(block.data.src || 'файл не выбран')}</text></svg>`;
+                    imgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="#F3F2FF"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#5446f8" dominant-baseline="middle" text-anchor="middle">Заглушка: ${escapeHtml(block.data.src || 'файл не выбран')}</text></svg>`);
                 }
                 
-                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
+                let html = '';
+                if (isPlaceholder && isWorkspace) {
+                    html = `
+                    <div class="img-preview-wrapper">
+                        <img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%; display: block;" src="${imgUrl}" loading="lazy">
+                        <button type="button" class="img-ai-sticker-btn" data-block-id="${block.id}" title="Сгенерировать изображение с помощью ИИ">
+                            <i class="fa fa-magic"></i>
+                        </button>
+                    </div>`;
+                } else {
+                    html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
+                }
+                
                 if (block.data.caption) {
                     html += `<p style="text-align:center;font-size:13px;color:#888;margin-top:5px;text-indent:0!important;">${escapeHtml(block.data.caption)}</p>`;
                 }
@@ -1310,7 +1323,7 @@
             card.dataset.idx = idx;
             card.draggable = true;
 
-            const preview = block.type === 'grid' ? renderGridWorkspace(block) : def.preview(block, blocks);
+            const preview = block.type === 'grid' ? renderGridWorkspace(block) : def.preview(block, blocks, true);
 
             card.innerHTML = `
                 <div class="block-header">
@@ -1420,8 +1433,11 @@
 
     // ── Edit mode ────────────────────────────────────────────
     function toggleEdit(block, card) {
-        const body = card.querySelector('.block-body');
+        const isNested = card.classList.contains('grid-child-card');
+        const body = isNested ? card.querySelector('.grid-child-preview') : card.querySelector('.block-body');
         const def = BLOCK_TYPES[block.type];
+
+        if (!body) return;
 
         // If already editing, close
         if (body.querySelector('.edit-form')) {
@@ -1475,14 +1491,14 @@
         form.querySelectorAll('[data-action="add-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.items.push('Новый пункт');
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.items.splice(idx, 1);
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
 
@@ -1491,13 +1507,13 @@
             btn.addEventListener('click', () => {
                 block.data.headers.push('Новый столбец');
                 block.data.rows.forEach(row => row.push(''));
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="add-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.rows.push(new Array(block.data.headers.length).fill(''));
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-col"]').forEach(btn => {
@@ -1505,14 +1521,14 @@
                 if (block.data.headers.length <= 1) return;
                 block.data.headers.pop();
                 block.data.rows.forEach(row => row.pop());
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (block.data.rows.length <= 1) return;
                 block.data.rows.pop();
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
 
@@ -1520,14 +1536,14 @@
         form.querySelectorAll('[data-action="add-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.tabs.push({ title: 'Новая вкладка', text: '' });
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.tabs.splice(idx, 1);
-                toggleEdit(block, btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
             });
         });
 
@@ -3252,6 +3268,57 @@ ${contentHTML}</div>
         });
     }
 
+    // ── AI Setup Instruction Modal Handlers ──────────────────
+    const aiSetupInstructionModal = $('#aiSetupInstructionModal');
+    const btnCloseAISetupInstruction = $('#btnCloseAISetupInstruction');
+    const btnCancelAISetupInstruction = $('#btnCancelAISetupInstruction');
+    const btnGoToSettings = $('#btnGoToSettings');
+
+    if (aiSetupInstructionModal && btnCloseAISetupInstruction && btnCancelAISetupInstruction && btnGoToSettings) {
+        const closeSetup = () => {
+            aiSetupInstructionModal.style.display = 'none';
+        };
+        
+        btnCloseAISetupInstruction.addEventListener('click', closeSetup);
+        btnCancelAISetupInstruction.addEventListener('click', closeSetup);
+        
+        aiSetupInstructionModal.addEventListener('click', (e) => {
+            if (e.target === aiSetupInstructionModal) {
+                closeSetup();
+            }
+        });
+
+        btnGoToSettings.addEventListener('click', () => {
+            closeSetup();
+            // Fill existing settings values
+            if (aiOpenAIKeyInput) {
+                aiOpenAIKeyInput.value = localStorage.getItem('aiOpenAIKey') || '';
+            }
+            if (aiGeminiKeyInput) {
+                aiGeminiKeyInput.value = localStorage.getItem('aiGeminiKey') || '';
+            }
+            if (aiKandinskyKeyInput) {
+                aiKandinskyKeyInput.value = localStorage.getItem('aiKandinskyKey') || '';
+            }
+            if (aiKandinskySecretInput) {
+                aiKandinskySecretInput.value = localStorage.getItem('aiKandinskySecret') || '';
+            }
+            if (aiYandexKeyInput) {
+                aiYandexKeyInput.value = localStorage.getItem('aiYandexKey') || '';
+            }
+            if (aiYandexFolderInput) {
+                aiYandexFolderInput.value = localStorage.getItem('aiYandexFolder') || '';
+            }
+            if (aiHFTokenInput) {
+                aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
+            }
+            // Show settings modal
+            if (settingsModal) {
+                settingsModal.style.display = 'flex';
+            }
+        });
+    }
+
     // ── AI Prompt Modal Handlers ────────────────────────────
     const aiPromptModal = $('#aiPromptModal');
     const btnCloseAIPrompt = $('#btnCloseAIPrompt');
@@ -3340,6 +3407,10 @@ ${blockHtml}`;
                         btnCopyAIPrompt.disabled = false;
                         btnCopyAIPrompt.innerHTML = originalHTML;
                     }, 2000);
+                    
+                    setTimeout(() => {
+                        alert("Промт успешно скопирован в буфер обмена!\n\nЧто делать дальше:\n1. Откройте чат-бот с ИИ (ChatGPT, Gemini или Claude) и вставьте туда скопированный промт.\n2. Допишите ваши пожелания по изменению блока и отправьте сообщение.\n3. Нейросеть вернет вам изменённый HTML-код (вместе со стилями CSS).\n4. Скопируйте полученный код от ИИ, вернитесь в конструктор, добавьте блок «HTML-код» (самая нижняя кнопка </> в левой панели) и вставьте код туда через кнопку редактирования.");
+                    }, 100);
                 }).catch(err => {
                     console.error('Failed to copy prompt:', err);
                     alert('Не удалось скопировать текст в буфер обмена.');
@@ -3478,6 +3549,95 @@ ${blockHtml}`;
                 btnExportZIP.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать ZIP статьи';
             });
         });
+    }
+
+    // Event delegation for AI Image Generation sticker button in workspace
+    if (blocksContainer) {
+        blocksContainer.addEventListener('click', (e) => {
+            const stickerBtn = e.target.closest('.img-ai-sticker-btn');
+            if (stickerBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const blockId = stickerBtn.getAttribute('data-block-id');
+                handleAIStickerClick(blockId);
+            }
+        });
+    }
+
+    function findBlockById(id) {
+        // Search root level
+        let block = blocks.find(b => b.id === id);
+        if (block) {
+            const card = blocksContainer.querySelector(`.block-card[data-id="${id}"]`);
+            return { block, card };
+        }
+        
+        // Search nested level
+        const nested = findNestedBlock(id);
+        if (nested) {
+            const card = blocksContainer.querySelector(`.grid-child-card[data-child-id="${id}"]`);
+            return { block: nested.block, card };
+        }
+        
+        return null;
+    }
+
+    function handleAIStickerClick(blockId) {
+        const found = findBlockById(blockId);
+        if (!found) return;
+        const { block, card } = found;
+
+        // Check if any keys are configured
+        const keys = [
+            localStorage.getItem('aiOpenAIKey'),
+            localStorage.getItem('aiGeminiKey'),
+            localStorage.getItem('aiKandinskyKey'),
+            localStorage.getItem('aiYandexKey'),
+            localStorage.getItem('aiHFToken')
+        ];
+        const hasAnyKey = keys.some(key => key && key.trim().length > 0);
+
+        if (!hasAnyKey) {
+            const aiSetupInstructionModal = document.getElementById('aiSetupInstructionModal');
+            if (aiSetupInstructionModal) {
+                aiSetupInstructionModal.style.display = 'flex';
+            } else {
+                // Fallback
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal) {
+                    settingsModal.style.display = 'flex';
+                }
+            }
+            return;
+        }
+
+        // Set srcType to 'ai'
+        block.data.srcType = 'ai';
+
+        // Open edit form if not already open
+        const container = card.classList.contains('grid-child-card') 
+            ? card.querySelector('.grid-child-preview') 
+            : card.querySelector('.block-body');
+            
+        if (container && !container.querySelector('.edit-form')) {
+            toggleEdit(block, card);
+        } else if (container) {
+            // If already open, just switch select value and update fields visibility
+            const select = container.querySelector('.img-src-type-select');
+            if (select) {
+                select.value = 'ai';
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Focus the prompt textarea
+        setTimeout(() => {
+            const promptInput = card.querySelector('.img-ai-prompt-input');
+            if (promptInput) {
+                promptInput.focus();
+                promptInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 150);
     }
 
     // ── Initial Render ───────────────────────────────────────
