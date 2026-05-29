@@ -1293,7 +1293,7 @@ ${contentHTML}</div>
     });
 
     function getExportedCSS() {
-        return `/* content-constructor.css — Стили для разметки (arschi.ru compatible) */
+        return `/* content-constructor.css — Стили для разметки */
 /* Генерировано OpenCart Content Constructor */
 
 :root {
@@ -1308,14 +1308,14 @@ ${contentHTML}</div>
 
 @font-face {
     font-family: 'Venryn';
-    src: url('fonts/VenrynSans-Regular.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
+    src: url('fonts/VenrynSans-Regular.woff?v=1.0.3') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('fonts/VenrynSans-SemiBold.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
+    src: url('fonts/VenrynSans-SemiBold.woff?v=1.0.3') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -1940,7 +1940,7 @@ ${contentHTML}</div>
         slugInput.value = 'apple-watch-obzor';
     }
     if (domainInput) {
-        domainInput.value = 'https://arschi.ru/';
+        domainInput.value = 'https://example.ru/';
     }
     renderBlocks();
     updatePreview();

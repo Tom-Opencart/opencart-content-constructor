@@ -4,14 +4,14 @@
 
 @font-face {
     font-family: 'Venryn';
-    src: url('VenrynSans-Regular.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
+    src: url('VenrynSans-Regular.woff?v=1.0.3') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('VenrynSans-SemiBold.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
+    src: url('VenrynSans-SemiBold.woff?v=1.0.3') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -267,7 +267,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     padding: 30px 20px 60px 20px;
 }
 
-/* Preview article styles (mirror of exported CSS — arschi.ru compatible) */
+/* Preview article styles (mirror of exported CSS) */
 .preview-content {
     --description-font: 'Venryn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --description-font-bold: 'Venryn Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

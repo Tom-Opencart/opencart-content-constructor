@@ -27,14 +27,14 @@
 
 Если ваш шаблон не поддерживает кастомный CSS из админки, или вы хотите держать стили конструктора изолированно, можно подключить их как внешний файл стилей.
 
-Мы подготовили для вас готовый файл модификатора: **[article_styles.ocmod.xml](file:///c:/Users/tomop/Downloads/extra%20news/article-constructor/article_styles.ocmod.xml)**.
+Мы подготовили для вас готовый файл модификатора: **`content_styles.ocmod.xml`**.
 
 ### Инструкция:
-1. Нажмите кнопку **«Export CSS»** в конструкторе и сохраните файл как `article-constructor.css`.
+1. Нажмите кнопку **«Export CSS»** в конструкторе и сохраните файл как `content-constructor.css`.
 2. Загрузите этот файл на ваш сервер по пути:
-   `catalog/view/theme/default/stylesheet/article-constructor.css`
+   `catalog/view/theme/default/stylesheet/content-constructor.css`
    *(Если вы используете сторонний шаблон, вместо `default` может быть папка вашего шаблона, но модификатор по умолчанию ищет в `default` как в базовой папке)*.
-3. Установите модификатор **[article_styles.ocmod.xml](file:///c:/Users/tomop/Downloads/extra%20news/article-constructor/article_styles.ocmod.xml)** через установщик дополнений OpenCart и обновите кэш модификаторов.
+3. Установите модификатор **`content_styles.ocmod.xml`** через установщик дополнений OpenCart и обновите кэш модификаторов.
 4. Модификатор автоматически добавит подключение этого файла во все шапки (`<head>`) вашего сайта.
 
 ---
