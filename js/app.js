@@ -1308,14 +1308,14 @@ ${contentHTML}</div>
 
 @font-face {
     font-family: 'Venryn';
-    src: url('fonts/VenrynSans-Regular.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
+    src: url('fonts/VenrynSans-Regular.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('fonts/VenrynSans-SemiBold.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
+    src: url('fonts/VenrynSans-SemiBold.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -1799,8 +1799,8 @@ ${contentHTML}</div>
             btnDownloadZip.disabled = true;
             btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
 
-            const font1Promise = fetch('css/VenrynSans-Regular.woff').then(res => res.arrayBuffer());
-            const font2Promise = fetch('css/VenrynSans-SemiBold.woff').then(res => res.arrayBuffer());
+            const font1Promise = fetch('css/VenrynSans-Regular.woff?v=1.0.3').then(res => res.arrayBuffer());
+            const font2Promise = fetch('css/VenrynSans-SemiBold.woff?v=1.0.3').then(res => res.arrayBuffer());
 
             Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
                 zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", font1Data);

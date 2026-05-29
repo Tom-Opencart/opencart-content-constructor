@@ -4,14 +4,14 @@
 
 @font-face {
     font-family: 'Venryn';
-    src: url('VenrynSans-Regular.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
+    src: url('VenrynSans-Regular.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 @font-face {
     font-family: 'Venryn Bold';
-    src: url('VenrynSans-SemiBold.woff') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
+    src: url('VenrynSans-SemiBold.woff?v=1.0.3') format('woff'), url('https://arschi.ru/catalog/view/theme/default/stylesheet/VenrynSans-SemiBold.woff') format('woff');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
