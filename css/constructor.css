@@ -393,7 +393,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 /* --- Right Panel: Preview --- */
 .panel-right {
     width: 450px; min-width: 450px; background: #fff;
-    border-left: 1px solid #ddd; overflow-y: auto; overflow-x: hidden; padding: 16px;
+    border-left: 1px solid #ddd; overflow-y: auto; overflow-x: hidden;
+    display: flex; flex-direction: column; padding: 0;
 }
 body.preview-hidden .panel-right {
     display: none;
@@ -405,7 +406,11 @@ body.preview-hidden .workspace {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    padding: 10px 16px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    position: sticky; top: 0; z-index: 10;
+    flex-shrink: 0;
 }
 .panel-action-btn:hover {
     color: #5446f8 !important;
@@ -413,8 +418,25 @@ body.preview-hidden .workspace {
 .btn-preview-toggle {
     white-space: nowrap;
 }
+.preview-toggle-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: none; border: 1px solid #ddd; border-radius: 5px;
+    color: #888; cursor: pointer; font-size: 12px; font-weight: 500;
+    padding: 3px 9px; transition: color 0.2s, border-color 0.2s, background 0.2s;
+    white-space: nowrap;
+}
+.preview-toggle-btn:hover {
+    color: #5446f8 !important; border-color: #5446f8; background: #f3f2ff;
+}
+.preview-toggle-btn.is-hidden {
+    color: #27ae60 !important; border-color: #27ae60; background: #f0faf5;
+}
+.preview-toggle-btn.is-hidden:hover {
+    color: #219a52 !important; border-color: #219a52; background: #e0f5ea;
+}
 .preview-content {
     font-size: 14px; line-height: 1.6; color: #333;
+    padding: 16px; flex: 1;
 }
 .preview-empty { color: #aaa; font-style: italic; }
 
@@ -441,8 +463,8 @@ body.preview-hidden .workspace {
     padding: 16px 40px;
     border-bottom: 1px solid #eee;
     background: #fafafa;
-    margin-bottom: 0;
     flex-shrink: 0;
+    position: sticky; top: 0; z-index: 10;
 }
 .panel-right.fullscreen .preview-content {
     flex: 1;

@@ -1697,8 +1697,21 @@
     function setPreviewHidden(hidden) {
         document.body.classList.toggle('preview-hidden', hidden);
 
-        if (btnShowPreview) {
-            btnShowPreview.style.display = hidden ? 'inline-flex' : 'none';
+        // Update toggle button state
+        if (btnHidePreview) {
+            const icon  = btnHidePreview.querySelector('i');
+            const label = btnHidePreview.querySelector('.preview-toggle-label');
+            if (hidden) {
+                if (icon)  { icon.className = 'fa fa-eye'; }
+                if (label) { label.textContent = 'Показать'; }
+                btnHidePreview.classList.add('is-hidden');
+                btnHidePreview.title = 'Показать превью';
+            } else {
+                if (icon)  { icon.className = 'fa fa-eye-slash'; }
+                if (label) { label.textContent = 'Скрыть'; }
+                btnHidePreview.classList.remove('is-hidden');
+                btnHidePreview.title = 'Скрыть превью';
+            }
         }
 
         if (hidden) {
@@ -1736,11 +1749,10 @@
     }
 
     if (btnHidePreview) {
-        btnHidePreview.addEventListener('click', () => setPreviewHidden(true));
-    }
-
-    if (btnShowPreview) {
-        btnShowPreview.addEventListener('click', () => setPreviewHidden(false));
+        btnHidePreview.addEventListener('click', () => {
+            const isHidden = document.body.classList.contains('preview-hidden');
+            setPreviewHidden(!isHidden);
+        });
     }
 
     // ── Open in New Window ───────────────────────────────────

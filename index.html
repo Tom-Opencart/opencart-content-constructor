@@ -131,15 +131,15 @@
     <aside class="panel-right" id="previewPanel">
         <div class="panel-title-container">
             <div class="panel-title" style="margin-bottom: 0;">Превью</div>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 4px; align-items: center;">
                 <button id="btnOpenNewWindow" class="panel-action-btn" title="Открыть в новом окне" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
                     <i class="fa fa-external-link"></i>
                 </button>
                 <button id="btnToggleFullscreen" class="panel-action-btn" title="Развернуть на весь экран" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
                     <i class="fa fa-expand"></i>
                 </button>
-                <button id="btnHidePreview" class="panel-action-btn" title="Скрыть превью" style="background: none; border: none; color: #999; cursor: pointer; font-size: 15px; padding: 4px 8px; transition: color 0.2s;">
-                    <i class="fa fa-eye-slash"></i>
+                <button id="btnHidePreview" class="panel-action-btn preview-toggle-btn" title="Скрыть / Показать превью">
+                    <i class="fa fa-eye-slash"></i> <span class="preview-toggle-label">Скрыть</span>
                 </button>
             </div>
         </div>
