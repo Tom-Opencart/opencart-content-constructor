@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.1.0">
+    <link rel="stylesheet" href="css/constructor.css?v=1.1.1">
 </head>
 <body>
 
@@ -46,6 +46,9 @@
         </button>
         <button id="btnExportTXT" class="btn btn-primary" title="Скачать чистый HTML-код в TXT для импорта" style="background: #e67e22; border-color: #d35400;">
             <span class="btn-icon"><i class="fa fa-file-text-o"></i></span> Скачать TXT
+        </button>
+        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив статьи (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
+            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи
         </button>
         <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML файл">
             <span class="btn-icon">&#60;/&#62;</span> Export HTML
@@ -303,7 +306,7 @@
                 </p>
                 <ul>
                     <li>
-                        <strong>Относительный путь:</strong> В поле пути к картинке вводите адрес относительно корня сайта, например: <code>image/catalog/articles/my-photo.jpg</code>.
+                        <strong>Автоматический путь (Скачать ZIP статьи):</strong> При выгрузке архива (кнопка «Скачать ZIP статьи»), все добавленные в конструктор картинки автоматически пакуются и сохраняются в папку <code>image/catalog/content-constructor/{slug}/</code>. При импорте TXT-файла в OpenCart правильные пути к картинкам формируются автоматически. Вам не нужно указывать пути вручную, кроме случаев подключения уже загруженных на ваш сервер картинок.
                     </li>
                     <li>
                         <strong>Временный просмотр:</strong> Чтобы картинка отображалась в превью во время сборки, вы можете:
@@ -413,6 +416,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.1.0"></script>
+<script src="js/app.js?v=1.1.1"></script>
 </body>
 </html>

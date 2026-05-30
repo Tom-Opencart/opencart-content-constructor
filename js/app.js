@@ -98,12 +98,12 @@
         return html;
     }
 
-    function renderArticleParts(mode) {
+    function renderArticlePartsForBlocks(blocksList, mode) {
         let tocHTML = '';
         let contentHTML = '';
 
-        blocks.forEach(block => {
-            const html = renderBlockContent(block, mode, blocks);
+        blocksList.forEach(block => {
+            const html = renderBlockContent(block, mode, blocksList);
 
             if (block.type === 'toc') {
                 tocHTML += html + '\n';
@@ -113,6 +113,10 @@
         });
 
         return { tocHTML, contentHTML };
+    }
+
+    function renderArticleParts(mode) {
+        return renderArticlePartsForBlocks(blocks, mode);
     }
 
     function renderGridWorkspace(block) {
@@ -2699,6 +2703,174 @@ ${contentHTML}</div>
     </file>
 </modification>`;
             downloadFile(xmlContent, 'content_styles.ocmod.xml', 'text/xml');
+        });
+    }
+
+    // ── Article ZIP Exporter ──────────────────────────────────
+    function collectAllImageBlocks(blocksList) {
+        let imageBlocks = [];
+        blocksList.forEach(block => {
+            if (block.type === 'image') {
+                imageBlocks.push(block);
+            } else if (block.type === 'grid' && block.data && block.data.columns) {
+                block.data.columns.forEach(col => {
+                    if (col.blocks) {
+                        imageBlocks.push(...collectAllImageBlocks(col.blocks));
+                    }
+                });
+            }
+        });
+        return imageBlocks;
+    }
+
+    function getExtensionFromMime(mime) {
+        if (mime.includes('png')) return 'png';
+        if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
+        if (mime.includes('gif')) return 'gif';
+        if (mime.includes('webp')) return 'webp';
+        if (mime.includes('svg')) return 'svg';
+        return 'png';
+    }
+
+    function getExtensionFromPath(path) {
+        const parts = path.split('.');
+        if (parts.length > 1) {
+            const ext = parts.pop().toLowerCase();
+            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
+                return ext === 'jpeg' ? 'jpg' : ext;
+            }
+        }
+        return 'png';
+    }
+
+    const btnExportZIP = $('#btnExportZIP');
+    if (btnExportZIP) {
+        btnExportZIP.addEventListener('click', () => {
+            if (typeof JSZip === 'undefined') {
+                alert('Библиотека JSZip не загружена. Проверьте подключение к интернету.');
+                return;
+            }
+
+            const title = titleInput ? titleInput.value : 'Статья';
+            const slug = slugInput ? slugInput.value.trim() : slugify(title) || 'article';
+
+            btnExportZIP.disabled = true;
+            btnExportZIP.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
+
+            const copiedBlocks = JSON.parse(JSON.stringify(blocks));
+            const imageBlocks = collectAllImageBlocks(copiedBlocks);
+            const zipPromises = [];
+
+            const zip = new JSZip();
+
+            imageBlocks.forEach((imgBlock, idx) => {
+                let imgPromise = null;
+                let ext = 'png';
+                
+                if (imgBlock.data.srcType === 'local') {
+                    const b64Data = imgBlock.data.localSrc;
+                    if (b64Data && b64Data.startsWith('data:')) {
+                        const mimeMatch = b64Data.match(/^data:(image\/[a-z+]+);base64,/);
+                        if (mimeMatch) {
+                            ext = getExtensionFromMime(mimeMatch[1]);
+                        }
+                        const rawB64 = b64Data.substring(b64Data.indexOf(';base64,') + 8);
+                        imgPromise = Promise.resolve({
+                            data: rawB64,
+                            isBase64: true,
+                            ext: ext
+                        });
+                    }
+                }
+                
+                if (!imgPromise && imgBlock.data.src) {
+                    const srcPath = imgBlock.data.src;
+                    ext = getExtensionFromPath(srcPath);
+                    
+                    let url = srcPath;
+                    if (url.startsWith('image/catalog/content-constructor/')) {
+                        const filename = url.substring('image/catalog/content-constructor/'.length);
+                        url = 'image/' + filename;
+                    }
+                    
+                    imgPromise = fetch(url)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Fetch failed');
+                            return res.arrayBuffer();
+                        })
+                        .then(buf => {
+                            return {
+                                data: buf,
+                                isBase64: false,
+                                ext: ext
+                            };
+                        })
+                        .catch(err => {
+                            console.warn('Could not fetch image for ZIP packaging:', url, err);
+                            return null;
+                        });
+                }
+                
+                if (imgPromise) {
+                    const newFilename = `${slug}-img-${idx + 1}`;
+                    zipPromises.push(
+                        imgPromise.then(res => {
+                            if (res) {
+                                const finalExt = res.ext || ext;
+                                const zipPath = `image/catalog/content-constructor/${slug}/${newFilename}.${finalExt}`;
+                                
+                                imgBlock.data.src = zipPath;
+                                imgBlock.data.srcType = 'path';
+                                
+                                return {
+                                    path: zipPath,
+                                    data: res.data,
+                                    isBase64: res.isBase64
+                                };
+                            }
+                            return null;
+                        })
+                    );
+                }
+            });
+
+            Promise.all(zipPromises).then(imagesToAdd => {
+                imagesToAdd.forEach(img => {
+                    if (img) {
+                        if (img.isBase64) {
+                            zip.file(img.path, img.data, { base64: true });
+                        } else {
+                            zip.file(img.path, img.data);
+                        }
+                    }
+                });
+
+                // Generate clean HTML
+                const { tocHTML, contentHTML } = renderArticlePartsForBlocks(copiedBlocks, 'toHTML');
+                const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
+
+                // Add HTML to zip
+                zip.file(`content-${slug}.html`, cleanHTML);
+
+                return zip.generateAsync({ type: "blob" });
+            }).then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `article-${slug}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                btnExportZIP.disabled = false;
+                btnExportZIP.innerHTML = '<span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи';
+            }).catch(err => {
+                console.error('Ошибка при экспорте ZIP статьи:', err);
+                alert('Не удалось экспортировать статью в ZIP-архив.');
+                btnExportZIP.disabled = false;
+                btnExportZIP.innerHTML = '<span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи';
+            });
         });
     }
 
