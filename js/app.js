@@ -71,7 +71,13 @@
             return '';
         }
 
-        return mode === 'preview' ? def.preview(block, allBlocks) : def.toHTML(block, allBlocks);
+        const html = mode === 'preview' ? def.preview(block, allBlocks) : def.toHTML(block, allBlocks);
+
+        if (mode === 'preview' && html.trim()) {
+            return `<div class="preview-block-wrap" data-preview-id="${block.id}">${html}</div>`;
+        }
+
+        return html;
     }
 
     function renderContentBlocks(contentBlocks, mode) {
@@ -1121,6 +1127,30 @@
     }
 
     // ── Block CRUD ───────────────────────────────────────────
+    function scrollToBlock(blockId) {
+        setTimeout(() => {
+            const card = document.querySelector(`.block-card[data-id="${blockId}"]`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                card.style.transition = 'background-color 0.4s';
+                card.style.backgroundColor = '#fff9db';
+                setTimeout(() => card.style.backgroundColor = '', 1000);
+            }
+            
+            const previewEl = document.querySelector(`[data-preview-id="${blockId}"]`);
+            if (previewEl) {
+                previewEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                previewEl.style.transition = 'background-color 0.4s, box-shadow 0.4s';
+                previewEl.style.backgroundColor = '#fff9db';
+                previewEl.style.boxShadow = '0 0 10px rgba(241, 196, 15, 0.4)';
+                setTimeout(() => {
+                    previewEl.style.backgroundColor = '';
+                    previewEl.style.boxShadow = '';
+                }, 1000);
+            }
+        }, 250);
+    }
+
     function addBlock(type) {
         const def = BLOCK_TYPES[type];
         if (!def) return;
@@ -1128,6 +1158,7 @@
         blocks.push(block);
         renderBlocks();
         updatePreview();
+        scrollToBlock(block.id);
     }
 
     function removeBlock(id) {
