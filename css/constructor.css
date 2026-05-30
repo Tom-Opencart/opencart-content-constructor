@@ -237,6 +237,11 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .block-preview th, .block-preview td { border: 1px solid #ddd; padding: 5px 8px; text-align: left; }
 .block-preview th { background: #f5f5f5; font-weight: 600; }
 .block-preview ul, .block-preview ol { padding-left: 20px; margin: 0; }
+img.img-responsive {
+    max-width: 100%;
+    height: auto !important;
+}
+
 .block-preview img.img-responsive {
     display: block;
     max-width: 100%;
