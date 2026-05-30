@@ -849,10 +849,12 @@
                 html += `<div class="article-faq-list">`;
                 block.data.items.forEach((item, i) => {
                     const faqId = `${id}-${i}`;
-                    html += `<details class="article-faq-item">
-                        <summary class="article-faq-question">${escapeHtml(item.question)}</summary>
-                        <div class="article-faq-answer">${markdownToHtml(item.answer, false)}</div>
-                    </details>`;
+                    html += `<div class="article-faq-item">
+                        <div class="article-faq-question collapsed" data-toggle="collapse" data-target="#${faqId}">${escapeHtml(item.question)}</div>
+                        <div id="${faqId}" class="article-faq-collapse collapse">
+                            <div class="article-faq-answer">${markdownToHtml(item.answer, false)}</div>
+                        </div>
+                    </div>`;
                 });
                 html += `</div></div>`;
                 return html;
@@ -865,10 +867,13 @@
                 }
                 html += `<div class="article-faq-list">`;
                 block.data.items.forEach((item, i) => {
-                    html += `<details class="article-faq-item">
-                        <summary class="article-faq-question">${escapeHtml(item.question)}</summary>
-                        <div class="article-faq-answer">${markdownToHtml(item.answer, true)}</div>
-                    </details>`;
+                    const faqId = `${id}-${i}`;
+                    html += `<div class="article-faq-item">
+                        <div class="article-faq-question collapsed" data-toggle="collapse" data-target="#${faqId}">${escapeHtml(item.question)}</div>
+                        <div id="${faqId}" class="article-faq-collapse collapse">
+                            <div class="article-faq-answer">${markdownToHtml(item.answer, true)}</div>
+                        </div>
+                    </div>`;
                 });
                 html += `</div></div>`;
                 return html;
@@ -1922,6 +1927,27 @@
         panels.children[parseInt(idx)].style.display = 'block';
     });
 
+    // ── FAQ collapse toggle (event delegation for preview) ────
+    document.addEventListener('click', function (e) {
+        const question = e.target.closest('.article-faq-question');
+        if (!question) return;
+        
+        const targetId = question.getAttribute('data-target');
+        if (!targetId) return;
+        
+        const targetEl = document.querySelector(targetId);
+        if (!targetEl) return;
+        
+        const isCollapsed = targetEl.classList.contains('in');
+        if (isCollapsed) {
+            targetEl.classList.remove('in');
+            question.classList.add('collapsed');
+        } else {
+            targetEl.classList.add('in');
+            question.classList.remove('collapsed');
+        }
+    });
+
     // ── Copy HTML to Clipboard ───────────────────────────────
     $('#btnCopyHTML').addEventListener('click', () => {
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
@@ -2395,11 +2421,6 @@ ${contentHTML}</div>
     border-color: #cfd8dc;
 }
 
-.article-faq-item[open] {
-    border-color: #cfd8dc;
-    box-shadow: none;
-}
-
 .article-faq-question {
     font-family: var(--description-font-bold), sans-serif;
     font-weight: 500;
@@ -2407,8 +2428,6 @@ ${contentHTML}</div>
     padding: 14px 48px 14px 16px !important;
     cursor: pointer;
     outline: none;
-    list-style: none !important;
-    list-style-type: none !important;
     display: flex !important;
     align-items: center !important;
     gap: 16px;
@@ -2418,19 +2437,6 @@ ${contentHTML}</div>
     color: #2c2c2c;
     width: 100% !important;
     box-sizing: border-box !important;
-}
-
-.article-faq-question::-webkit-details-marker {
-    display: none !important;
-}
-
-.article-faq-question::marker {
-    display: none !important;
-    content: "" !important;
-}
-
-.article-faq-question::-moz-list-bullet {
-    display: none !important;
 }
 
 .article-faq-question:hover {
@@ -2468,8 +2474,16 @@ ${contentHTML}</div>
     transition: transform 0.2s, border-color 0.2s;
 }
 
-.article-faq-item[open] .article-faq-question::after {
+.article-faq-question:not(.collapsed)::after {
     transform: translateY(-50%) rotate(-135deg) !important;
+}
+
+.collapse {
+    display: none;
+}
+
+.collapse.in {
+    display: block !important;
 }
 
 .article-faq-answer {
