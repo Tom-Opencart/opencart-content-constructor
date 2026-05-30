@@ -752,24 +752,34 @@ body.preview-hidden .workspace {
     font-family: var(--description-font-bold), sans-serif;
     font-weight: 500;
     font-size: 16px;
-    padding: 14px 40px 14px 0px;
+    padding: 14px 48px 14px 16px !important;
     cursor: pointer;
     outline: none;
-    list-style: none;
-    display: flex;
-    align-items: center;
+    list-style: none !important;
+    list-style-type: none !important;
+    display: flex !important;
+    align-items: center !important;
     gap: 16px;
     transition: color 0.2s;
     background: transparent;
-    position: relative;
+    position: relative !important;
     color: #2c2c2c;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.preview-content .article-faq-question::-webkit-details-marker {
+    display: none !important;
+}
+.preview-content .article-faq-question::marker {
+    display: none !important;
+    content: "" !important;
+}
+.preview-content .article-faq-question::-moz-list-bullet {
+    display: none !important;
 }
 .preview-content .article-faq-question:hover {
     background: transparent;
     color: #1a1a1a;
-}
-.preview-content .article-faq-question::-webkit-details-marker {
-    display: none;
 }
 .preview-content .article-faq-question::before {
     content: "?";
@@ -787,22 +797,22 @@ body.preview-hidden .workspace {
     box-sizing: border-box;
 }
 .preview-content .article-faq-question::after {
-    content: "";
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 1.5px solid #a0aab2;
-    border-bottom: 1.5px solid #a0aab2;
-    transform: translateY(-70%) rotate(45deg);
+    content: "" !important;
+    position: absolute !important;
+    right: 20px !important;
+    top: 50% !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-right: 1.5px solid #a0aab2 !important;
+    border-bottom: 1.5px solid #a0aab2 !important;
+    transform: translateY(-50%) rotate(45deg) !important;
     transition: transform 0.2s, border-color 0.2s;
 }
 .preview-content .article-faq-item[open] .article-faq-question::after {
-    transform: translateY(-30%) rotate(-135deg);
+    transform: translateY(-50%) rotate(-135deg) !important;
 }
 .preview-content .article-faq-answer {
-    padding: 0px 4px 16px 48px;
+    padding: 0px 16px 16px 64px;
     background: transparent;
     font-size: 14px;
     line-height: 1.6;
