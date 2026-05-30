@@ -324,22 +324,20 @@
         {
             id: uuid(),
             type: 'heading',
-            data: { level: 2, text: 'Часто задаваемые вопросы (FAQ)' }
+            data: { level: 2, text: 'Пример заголовка' }
         },
         {
             id: uuid(),
-            type: 'spoiler',
+            type: 'faq',
             data: {
-                title: 'Можно ли использовать Apple Watch с Android?',
-                text: 'К сожалению, нет.\nApple Watch жестко привязаны к экосистеме Apple. Для их первоначальной активации и полноценного использования требуется iPhone (модель Xs или новее).'
-            }
-        },
-        {
-            id: uuid(),
-            type: 'spoiler',
-            data: {
-                title: 'Можно ли плавать в часах Apple Watch?',
-                text: 'Да, все актуальные модели имеют влагозащиту.\n* SE и Series выдерживают погружение до 50 метров (подходят для бассейна).\n* Ultra поддерживают погружение до 100 метров и сертифицированы для рекреационного дайвинга на глубину до 40 метров.'
+                title: 'Часто задаваемые вопросы',
+                items: [
+                    { question: 'Можно ли использовать Apple Watch с Android?', answer: 'К сожалению, нет. Apple Watch жестко привязаны к экосистеме Apple. Для их первоначальной активации и полноценного использования требуется iPhone (модель 6s или новее).' },
+                    { question: 'Можно ли плавать в часах Apple Watch?', answer: 'Да, все актуальные модели имеют влагозащиту.\n* SE и Series выдерживают погружение до 50 метров (подходят для бассейна).\n* Ultra поддерживают погружение до 100 метров и сертифицированы для рекреационного дайвинга на глубину до 40 метров.' },
+                    { question: 'Какое время работы от батареи?', answer: 'Все актуальные модели работают до 18 часов в обычном режиме. Apple Watch Ultra 2 — до 36 часов. Быстрая зарядка позволяет充充满 за 1.5 часа.' },
+                    { question: 'Есть ли в часах ЭКГ и измерение кислорода?', answer: 'Да, функции ЭКГ (ECG) и измерения уровня кислорода в крови (SpO2) доступны в моделях Series и Ultra. В модели SE эти функции отсутствуют.' },
+                    { question: 'Какой размер дисплея лучше выбрать?', answer: 'Зависит от запястья:\n* 40/42 мм — для тонких запястий (от 130 мм)\n* 44/46 мм — средние и крупные запястья\n* 49 мм (Ultra) — для активного спорта и крупных запястий' }
+                ]
             }
         }
     ];
@@ -808,6 +806,72 @@
             },
             preview(block) {
                 return `<details><summary>${escapeHtml(block.data.title)}</summary>${markdownToHtml(block.data.text, true)}</details>`;
+            },
+        },
+
+        faq: {
+            label: 'FAQ',
+            defaults: () => ({
+                title: 'Часто задаваемые вопросы',
+                items: [
+                    { question: 'Сколько времени занимает замена линз?', answer: 'В среднем процедура установки линз занимает от 6 до 12 часов. В некоторых случаях срок может увеличиться до 2–3 дней.' },
+                    { question: 'Какие линзы лучше выбрать: галоген, ксенон или Bi-LED?', answer: 'Bi-LED линзы — самый современный вариант. Они потребляют меньше энергии, работают до 50 000 часов, включаются мгновенно и не требуют блоков розжига. Ксенон требует времени для разогрева, а галоген уступает по яркости и долговечности.' },
+                    { question: 'Что такое Bi-LED линзы?', answer: 'Bi-LED линзы — это оптические устройства, которые используют светодиоды (LED) в качестве источника света. Приставка «Bi» означает, что одна линза выполняет функции как ближнего, так и дальнего света.' },
+                    { question: 'Какой световой поток у Bi-LED линз?', answer: 'Световой поток составляет от 3 000 до 4 000 лм на ближнем свете и от 5 000 до 8 000 лм на дальнем свете. Точные характеристики зависят от конкретной модели и производителя.' },
+                    { question: 'Предоставляется ли гарантия на работу?', answer: 'Да, на работу и компоненты предоставляется гарантия до 2-х лет. После замены линз регулировка света проверяется и корректируется на стенде по ГОСТ.' },
+                    { question: 'Нужно ли менять лампы после замены линз?', answer: 'Нет, при установке Bi-LED линз отдельные лампы не требуются — светодиоды уже встроены в модуль. Вы получаете полностью готовую к работе оптику.' },
+                    { question: 'Сохраняется ли штатный функционал фар после замены?', answer: 'Да, все процедуры проводятся согласно техническому регламенту с полным сохранением функционала фар. Адаптивное освещение (AFS, AFLS, DLA, ILS) продолжает работать.' }
+                ]
+            }),
+            editForm(block) {
+                let html = `<div class="form-group"><label>Заголовок секции</label><input type="text" data-field="title" value="${escapeHtml(block.data.title)}"></div>`;
+                html += `<div class="faq-editor">`;
+                block.data.items.forEach((item, i) => {
+                    html += `<div class="faq-editor-item">
+                        <div class="faq-editor-header">
+                            <span class="faq-editor-num">${i + 1}</span>
+                            <input type="text" data-faq-question="${i}" value="${escapeHtml(item.question)}" placeholder="Вопрос">
+                            <button class="btn btn-sm btn-ghost" data-action="remove-faq-item" data-index="${i}">&times;</button>
+                        </div>
+                        <textarea data-faq-answer="${i}" rows="3" placeholder="Ответ">${escapeHtml(item.answer)}</textarea>
+                        ${agreeToolbarHtml()}
+                    </div>`;
+                });
+                html += `</div><button class="btn btn-sm btn-ghost" data-action="add-faq-item">+ Добавить вопрос</button>`;
+                return html;
+            },
+            toHTML(block) {
+                const id = 'faq-' + block.id;
+                let html = `<div class="article-faq" id="${id}">`;
+                if (block.data.title) {
+                    html += `<h2 class="article-faq-title">${escapeHtml(block.data.title)}</h2>`;
+                }
+                html += `<div class="article-faq-list">`;
+                block.data.items.forEach((item, i) => {
+                    const faqId = `${id}-${i}`;
+                    html += `<details class="article-faq-item">
+                        <summary class="article-faq-question">${escapeHtml(item.question)}</summary>
+                        <div class="article-faq-answer">${markdownToHtml(item.answer, false)}</div>
+                    </details>`;
+                });
+                html += `</div></div>`;
+                return html;
+            },
+            preview(block) {
+                const id = 'preview-faq-' + block.id;
+                let html = `<div class="article-faq" id="${id}">`;
+                if (block.data.title) {
+                    html += `<h2 class="article-faq-title">${escapeHtml(block.data.title)}</h2>`;
+                }
+                html += `<div class="article-faq-list">`;
+                block.data.items.forEach((item, i) => {
+                    html += `<details class="article-faq-item">
+                        <summary class="article-faq-question">${escapeHtml(item.question)}</summary>
+                        <div class="article-faq-answer">${markdownToHtml(item.answer, true)}</div>
+                    </details>`;
+                });
+                html += `</div></div>`;
+                return html;
             },
         },
 
@@ -1473,6 +1537,62 @@
                 const idx = parseInt(btn.dataset.index);
                 block.data.tabs.splice(idx, 1);
                 toggleEdit(block, btn.closest('.block-card'));
+            });
+        });
+
+        // FAQ actions
+        form.querySelectorAll('[data-action="add-faq-item"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const newIdx = block.data.items.length;
+                block.data.items.push({ question: 'Новый вопрос?', answer: 'Ответ...' });
+                const faqEditor = form.querySelector('.faq-editor');
+                const itemHtml = `<div class="faq-editor-item">
+                    <div class="faq-editor-header">
+                        <span class="faq-editor-num">${newIdx + 1}</span>
+                        <input type="text" data-faq-question="${newIdx}" value="Новый вопрос?" placeholder="Вопрос">
+                        <button class="btn btn-sm btn-ghost" data-action="remove-faq-item" data-index="${newIdx}">&times;</button>
+                    </div>
+                    <textarea data-faq-answer="${newIdx}" rows="3" placeholder="Ответ">Ответ...</textarea>
+                    ${agreeToolbarHtml()}
+                </div>`;
+                faqEditor.insertAdjacentHTML('beforeend', itemHtml);
+                const newItem = faqEditor.lastElementChild;
+                newItem.querySelector('[data-action="remove-faq-item"]').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(newItem.querySelector('[data-action="remove-faq-item"]').dataset.index);
+                    block.data.items.splice(idx, 1);
+                    newItem.remove();
+                    updatePreview();
+                });
+                newItem.querySelector('[data-faq-question]').addEventListener('input', (e) => {
+                    const idx = parseInt(e.target.dataset.faqQuestion);
+                    block.data.items[idx].question = e.target.value;
+                });
+                newItem.querySelector('[data-faq-answer]').addEventListener('input', (e) => {
+                    const idx = parseInt(e.target.dataset.faqAnswer);
+                    block.data.items[idx].answer = e.target.value;
+                });
+                updatePreview();
+            });
+        });
+        form.querySelectorAll('[data-action="remove-faq-item"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.index);
+                block.data.items.splice(idx, 1);
+                btn.closest('.faq-editor-item').remove();
+                updatePreview();
+            });
+        });
+        form.querySelectorAll('[data-faq-question]').forEach(input => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.dataset.faqQuestion);
+                block.data.items[idx].question = input.value;
+            });
+        });
+        form.querySelectorAll('[data-faq-answer]').forEach(textarea => {
+            textarea.addEventListener('input', () => {
+                const idx = parseInt(textarea.dataset.faqAnswer);
+                block.data.items[idx].answer = textarea.value;
             });
         });
 
@@ -2242,6 +2362,115 @@ ${contentHTML}</div>
 .description details > ol:last-child,
 .description details > dl:last-child {
     padding-bottom: 10px;
+}
+
+/* --- FAQ --- */
+.article-faq {
+    margin: 20px 0;
+}
+
+.article-faq-title {
+    font-family: var(--description-font-bold), sans-serif;
+    font-size: 27px;
+    font-weight: 500;
+    margin: 20px 0px 15px;
+    color: #2c2c2c;
+    line-height: 1.2;
+}
+
+.article-faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.article-faq-item {
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.article-faq-item:hover {
+    border-color: var(--accent_background_color, #5446f8);
+}
+
+.article-faq-item[open] {
+    border-color: var(--accent_background_color, #5446f8);
+    box-shadow: 0 2px 8px rgba(84, 70, 248, 0.08);
+}
+
+.article-faq-question {
+    font-family: var(--description-font-bold), sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    padding: 14px 40px 14px 16px;
+    cursor: pointer;
+    outline: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.2s, background 0.2s;
+    background: #fafafa;
+    position: relative;
+}
+
+.article-faq-question:hover {
+    background: #f0f4ff;
+    color: var(--accent_background_color, #5446f8);
+}
+
+.article-faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.article-faq-question::before {
+    content: "В";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--accent_background_color, #5446f8);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.article-faq-question::after {
+    content: "▶";
+    font-size: 0.7em;
+    color: #bbb;
+    transition: transform 0.2s, color 0.2s;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.article-faq-item[open] .article-faq-question::after {
+    content: "▼";
+    color: var(--accent_background_color, #5446f8);
+}
+
+.article-faq-answer {
+    padding: 14px 16px 14px 52px;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #444;
+    border-top: 1px solid #f0f0f0;
+}
+
+.article-faq-answer p {
+    margin: 0 0 8px 0;
+}
+
+.article-faq-answer p:last-child {
+    margin-bottom: 0;
 }
 
 /* --- Вкладки (Tabs) --- */
