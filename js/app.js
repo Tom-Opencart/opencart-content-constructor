@@ -2403,7 +2403,7 @@ ${contentHTML}</div>
 .article-faq-question {
     font-family: var(--description-font-bold), sans-serif;
     font-weight: 500;
-    font-size: 16px;
+    font-size: 16px !important;
     padding: 14px 48px 14px 16px !important;
     cursor: pointer;
     outline: none;
@@ -2474,7 +2474,7 @@ ${contentHTML}</div>
 .article-faq-answer {
     padding: 0px 16px 16px 64px;
     background: transparent;
-    font-size: 14px;
+    font-size: 16px !important;
     line-height: 1.6;
     color: #555;
     border-top: none;
