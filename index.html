@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.0.10">
+    <link rel="stylesheet" href="css/constructor.css?v=1.0.11">
 </head>
 <body>
 
@@ -490,96 +490,98 @@
             <button class="modal-close" id="btnCloseSettings">&times;</button>
         </div>
         <div class="modal-body settings-modal-body" style="padding: 20px;">
-            <p style="font-size: 12.5px; color: #555; margin-bottom: 15px;">
-                Ключи API сохраняются локально в вашем браузере (в <code>localStorage</code>) и используются напрямую для отправки запросов к ИИ. Никуда более они не передаются.
-            </p>
-            
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для DALL-E 3)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="password" id="aiOpenAIKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="sk-proj-...">
-                    <button type="button" class="btn btn-secondary btn-check-key" data-provider="openai" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                        <i class="fa fa-refresh"></i> Проверить
+            <form id="aiSettingsForm" onsubmit="return false;">
+                <p style="font-size: 12.5px; color: #555; margin-bottom: 15px;">
+                    Ключи API сохраняются локально в вашем браузере (в <code>localStorage</code>) и используются напрямую для отправки запросов к ИИ. Никуда более они не передаются.
+                </p>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для DALL-E 3)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="password" id="aiOpenAIKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="sk-proj-...">
+                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="openai" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
+                            <i class="fa fa-refresh"></i> Проверить
+                        </button>
+                    </div>
+                    <div class="key-status-msg" data-provider="openai" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для Imagen 3 и промтов)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="password" id="aiGeminiKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="AIzaSy...">
+                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="gemini" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
+                            <i class="fa fa-refresh"></i> Проверить
+                        </button>
+                    </div>
+                    <div class="key-status-msg" data-provider="gemini" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Kandinsky / FusionBrain API (Sber AI)</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                        <input type="password" id="aiKandinskyKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Key (API Key)">
+                        <input type="password" id="aiKandinskySecret" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Secret (Secret Key)">
+                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="kandinsky" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
+                            <i class="fa fa-refresh"></i> Проверить
+                        </button>
+                    </div>
+                    <div class="key-status-msg" data-provider="kandinsky" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">YandexART API (Yandex Cloud)</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 4px;">
+                        <input type="password" id="aiYandexKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="API Key">
+                        <input type="text" id="aiYandexFolder" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="Folder ID">
+                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="yandexart" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
+                            <i class="fa fa-refresh"></i> Проверить
+                        </button>
+                    </div>
+                    <div class="key-status-msg" data-provider="yandexart" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="aiHFToken" style="font-weight: 600; display: block; margin-bottom: 6px;">Hugging Face API Token (для FLUX.1-schnell)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="password" id="aiHFToken" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="hf_...">
+                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="huggingface" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
+                            <i class="fa fa-refresh"></i> Проверить
+                        </button>
+                    </div>
+                    <div class="key-status-msg" data-provider="huggingface" style="font-size: 11px; margin-top: 4px; display: none;"></div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="aiDefaultProvider" style="font-weight: 600; display: block; margin-bottom: 6px;">Активный провайдер ИИ для картинок</label>
+                    <select id="aiDefaultProvider" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                        <option value="auto">Автоопределение (первый настроенный)</option>
+                        <option value="openai">OpenAI (DALL-E 3)</option>
+                        <option value="gemini">Gemini (Imagen 3)</option>
+                        <option value="kandinsky">Kandinsky (Sber)</option>
+                        <option value="yandexart">YandexART (Yandex)</option>
+                        <option value="huggingface">Hugging Face (FLUX.1)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="aiCorsProxy" style="font-weight: 600; display: block; margin-bottom: 6px;">CORS Proxy (для обхода блокировок браузера)</label>
+                    <select id="aiCorsProxy" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                        <option value="">Не использовать (прямые запросы)</option>
+                        <option value="https://corsproxy.io/?">corsproxy.io (рекомендуется для localhost и github.io)</option>
+                        <option value="https://api.allorigins.win/raw?url=">allorigins.win (альтернативный)</option>
+                    </select>
+                    <small style="color:#777;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
+                        <i class="fa fa-info-circle"></i> Большинство провайдеров ИИ блокируют прямые запросы из браузера (CORS). Прокси позволяет обойти это ограничение.
+                    </small>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button id="btnSaveSettings" class="btn btn-primary" style="background: #27ae60; border-color: #27ae60;">
+                        <i class="fa fa-check"></i> Сохранить настройки
                     </button>
                 </div>
-                <div class="key-status-msg" data-provider="openai" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для Imagen 3 и промтов)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="password" id="aiGeminiKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="AIzaSy...">
-                    <button type="button" class="btn btn-secondary btn-check-key" data-provider="gemini" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                        <i class="fa fa-refresh"></i> Проверить
-                    </button>
-                </div>
-                <div class="key-status-msg" data-provider="gemini" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Kandinsky / FusionBrain API (Sber AI)</label>
-                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
-                    <input type="password" id="aiKandinskyKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Key (API Key)">
-                    <input type="password" id="aiKandinskySecret" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Secret (Secret Key)">
-                    <button type="button" class="btn btn-secondary btn-check-key" data-provider="kandinsky" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                        <i class="fa fa-refresh"></i> Проверить
-                    </button>
-                </div>
-                <div class="key-status-msg" data-provider="kandinsky" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label style="font-weight: 600; display: block; margin-bottom: 6px;">YandexART API (Yandex Cloud)</label>
-                <div style="display: flex; gap: 8px; margin-bottom: 4px;">
-                    <input type="password" id="aiYandexKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="API Key">
-                    <input type="text" id="aiYandexFolder" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="Folder ID">
-                    <button type="button" class="btn btn-secondary btn-check-key" data-provider="yandexart" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                        <i class="fa fa-refresh"></i> Проверить
-                    </button>
-                </div>
-                <div class="key-status-msg" data-provider="yandexart" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="aiHFToken" style="font-weight: 600; display: block; margin-bottom: 6px;">Hugging Face API Token (для FLUX.1-schnell)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="password" id="aiHFToken" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="hf_...">
-                    <button type="button" class="btn btn-secondary btn-check-key" data-provider="huggingface" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                        <i class="fa fa-refresh"></i> Проверить
-                    </button>
-                </div>
-                <div class="key-status-msg" data-provider="huggingface" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="aiDefaultProvider" style="font-weight: 600; display: block; margin-bottom: 6px;">Активный провайдер ИИ для картинок</label>
-                <select id="aiDefaultProvider" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-                    <option value="auto">Автоопределение (первый настроенный)</option>
-                    <option value="openai">OpenAI (DALL-E 3)</option>
-                    <option value="gemini">Gemini (Imagen 3)</option>
-                    <option value="kandinsky">Kandinsky (Sber)</option>
-                    <option value="yandexart">YandexART (Yandex)</option>
-                    <option value="huggingface">Hugging Face (FLUX.1)</option>
-                </select>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="aiCorsProxy" style="font-weight: 600; display: block; margin-bottom: 6px;">CORS Proxy (для обхода блокировок браузера)</label>
-                <select id="aiCorsProxy" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-                    <option value="">Не использовать (прямые запросы)</option>
-                    <option value="https://corsproxy.io/?">corsproxy.io (рекомендуется для localhost и github.io)</option>
-                    <option value="https://api.allorigins.win/raw?url=">allorigins.win (альтернативный)</option>
-                </select>
-                <small style="color:#777;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
-                    <i class="fa fa-info-circle"></i> Большинство провайдеров ИИ блокируют прямые запросы из браузера (CORS). Прокси позволяет обойти это ограничение.
-                </small>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button id="btnSaveSettings" class="btn btn-primary" style="background: #27ae60; border-color: #27ae60;">
-                    <i class="fa fa-check"></i> Сохранить настройки
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -672,6 +674,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.0.10"></script>
+<script src="js/app.js?v=1.0.11"></script>
 </body>
 </html>
