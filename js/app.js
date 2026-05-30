@@ -340,7 +340,7 @@
                 items: [
                     { question: 'Можно ли использовать Apple Watch с Android?', answer: 'К сожалению, нет. Apple Watch жестко привязаны к экосистеме Apple. Для их первоначальной активации и полноценного использования требуется iPhone (модель 6s или новее).' },
                     { question: 'Можно ли плавать в часах Apple Watch?', answer: 'Да, все актуальные модели имеют влагозащиту.\n* SE и Series выдерживают погружение до 50 метров (подходят для бассейна).\n* Ultra поддерживают погружение до 100 метров и сертифицированы для рекреационного дайвинга на глубину до 40 метров.' },
-                    { question: 'Какое время работы от батареи?', answer: 'Все актуальные модели работают до 18 часов в обычном режиме. Apple Watch Ultra 2 — до 36 часов. Быстрая зарядка позволяет充充满 за 1.5 часа.' },
+                    { question: 'Какое время работы от батареи?', answer: 'Все актуальные модели работают до 18 часов в обычном режиме. Apple Watch Ultra 2 — до 36 часов. Быстрая зарядка позволяет полностью зарядить их за 1.5 часа.' },
                     { question: 'Есть ли в часах ЭКГ и измерение кислорода?', answer: 'Да, функции ЭКГ (ECG) и измерения уровня кислорода в крови (SpO2) доступны в моделях Series и Ultra. В модели SE эти функции отсутствуют.' },
                     { question: 'Какой размер дисплея лучше выбрать?', answer: 'Зависит от запястья:\n* 40/42 мм — для тонких запястий (от 130 мм)\n* 44/46 мм — средние и крупные запястья\n* 49 мм (Ultra) — для активного спорта и крупных запястий' }
                 ]
@@ -1129,17 +1129,35 @@
     // ── Block CRUD ───────────────────────────────────────────
     function scrollToBlock(blockId) {
         setTimeout(() => {
-            const card = document.querySelector(`.block-card[data-id="${blockId}"]`);
-            if (card) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const ws = document.getElementById('workspace');
+            const card = ws ? ws.querySelector(`.block-card[data-id="${blockId}"]`) : null;
+            if (ws && card) {
+                const wsRect = ws.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+                const targetScrollTop = cardRect.top + ws.scrollTop - wsRect.top;
+                
+                ws.scrollTo({
+                    top: targetScrollTop - 20,
+                    behavior: 'smooth'
+                });
+                
                 card.style.transition = 'background-color 0.4s';
                 card.style.backgroundColor = '#fff9db';
                 setTimeout(() => card.style.backgroundColor = '', 1000);
             }
             
-            const previewEl = document.querySelector(`[data-preview-id="${blockId}"]`);
-            if (previewEl) {
-                previewEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const preview = document.getElementById('previewPanel');
+            const previewEl = preview ? preview.querySelector(`[data-preview-id="${blockId}"]`) : null;
+            if (preview && previewEl) {
+                const previewRect = preview.getBoundingClientRect();
+                const previewElRect = previewEl.getBoundingClientRect();
+                const targetPreviewScrollTop = previewElRect.top + preview.scrollTop - previewRect.top;
+                
+                preview.scrollTo({
+                    top: targetPreviewScrollTop - 20,
+                    behavior: 'smooth'
+                });
+                
                 previewEl.style.transition = 'background-color 0.4s, box-shadow 0.4s';
                 previewEl.style.backgroundColor = '#fff9db';
                 previewEl.style.boxShadow = '0 0 10px rgba(241, 196, 15, 0.4)';
