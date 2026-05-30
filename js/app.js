@@ -2458,6 +2458,7 @@ ${contentHTML}</div>
     content: "" !important;
     position: absolute !important;
     right: 20px !important;
+    left: auto !important;
     top: 50% !important;
     width: 8px !important;
     height: 8px !important;
