@@ -658,7 +658,7 @@
                     imgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="#f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="#888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`);
                 }
                 
-                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
+                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">`;
                 if (block.data.caption) {
                     html += `<p style="text-align:center;font-size:13px;color:#888;margin-top:5px;text-indent:0!important;">${escapeHtml(block.data.caption)}</p>`;
                 }
@@ -700,13 +700,13 @@
                 if (isWorkspace) {
                     html = `
                     <div class="img-preview-wrapper">
-                        <img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%; display: block;" src="${imgUrl}" loading="lazy">
+                        <img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">
                         <button type="button" class="img-ai-sticker-btn" data-block-id="${block.id}" title="Сгенерировать / заменить изображение с помощью ИИ">
                             <i class="fa fa-magic"></i>
                         </button>
                     </div>`;
                 } else {
-                    html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
+                    html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">`;
                 }
                 
                 if (block.data.caption) {
