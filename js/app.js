@@ -10,6 +10,74 @@
         return 'b' + Math.random().toString(36).slice(2, 10);
     }
 
+    function getProxyUrl(url) {
+        const proxy = localStorage.getItem('aiCorsProxy') || '';
+        if (proxy) {
+            return proxy + url;
+        }
+        return url;
+    }
+
+    function getAvailableAIProviders() {
+        const list = [];
+        if ((localStorage.getItem('aiOpenAIKey') || '').trim()) {
+            list.push({ id: 'openai', name: 'OpenAI (DALL-E 3)' });
+        }
+        if ((localStorage.getItem('aiGeminiKey') || '').trim()) {
+            list.push({ id: 'gemini', name: 'Gemini (Imagen 3)' });
+        }
+        if ((localStorage.getItem('aiKandinskyKey') || '').trim() && (localStorage.getItem('aiKandinskySecret') || '').trim()) {
+            list.push({ id: 'kandinsky', name: 'Kandinsky (Sber)' });
+        }
+        if ((localStorage.getItem('aiYandexKey') || '').trim() && (localStorage.getItem('aiYandexFolder') || '').trim()) {
+            list.push({ id: 'yandexart', name: 'YandexART (Yandex)' });
+        }
+        if ((localStorage.getItem('aiHFToken') || '').trim()) {
+            list.push({ id: 'huggingface', name: 'Hugging Face (FLUX.1)' });
+        }
+        return list;
+    }
+
+    function getActiveAIProvider() {
+        const providers = getAvailableAIProviders();
+        if (providers.length === 0) return null;
+        
+        const defaultId = localStorage.getItem('aiDefaultProvider') || 'auto';
+        if (defaultId !== 'auto') {
+            const found = providers.find(p => p.id === defaultId);
+            if (found) return found;
+        }
+        
+        return providers[0];
+    }
+
+    function getActiveTextAIProvider() {
+        const list = [];
+        if ((localStorage.getItem('aiOpenAIKey') || '').trim()) {
+            list.push({ id: 'openai', name: 'OpenAI (GPT-4o-mini)' });
+        }
+        if ((localStorage.getItem('aiGeminiKey') || '').trim()) {
+            list.push({ id: 'gemini', name: 'Gemini (1.5 Flash)' });
+        }
+        if (list.length === 0) return null;
+        
+        const defaultId = localStorage.getItem('aiDefaultProvider') || 'auto';
+        if (defaultId === 'openai' || defaultId === 'gemini') {
+            const found = list.find(p => p.id === defaultId);
+            if (found) return found;
+        }
+        return list[0];
+    }
+
+    function cleanAIResponseCode(text) {
+        if (!text) return '';
+        let cleaned = text.trim();
+        // Remove markdown code block selector if present
+        cleaned = cleaned.replace(/^```(?:html|xml|css|javascript)?\s*/i, '');
+        cleaned = cleaned.replace(/\s*```$/, '');
+        return cleaned.trim();
+    }
+
     function slugify(text) {
         const map = { 'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya' };
         return text.toLowerCase().replace(/[а-яё]/g, c => map[c] || c).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -503,6 +571,28 @@
             editForm(block) {
                 const domainInputEl = document.getElementById('articleDomain');
                 const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
+                
+                const activeProvider = getActiveAIProvider();
+                let aiSelectorHtml = '';
+                
+                if (!activeProvider) {
+                    aiSelectorHtml = `
+                        <div style="color: #c0392b; font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 6px; background: #fadbd8; padding: 10px; border-radius: 4px; border: 1px solid #f5b7b1; width: 100%;">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            <span>API-ключи не настроены. Зайдите в <a href="#" id="btnOpenSettingsFromForm" style="color: #c0392b; text-decoration: underline; font-weight: bold;">Настройки ИИ</a> в шапке конструктора.</span>
+                        </div>
+                        <input type="hidden" class="img-ai-provider-select" value="">
+                    `;
+                } else {
+                    aiSelectorHtml = `
+                        <span style="font-size: 12px; color: #555;">Провайдер: <b>${activeProvider.name}</b></span>
+                        <input type="hidden" class="img-ai-provider-select" value="${activeProvider.id}">
+                        <button type="button" class="btn btn-sm btn-primary btn-generate-img-ai" style="padding: 6px 12px; background: #5446f8; border-color: #5446f8; color:#fff; font-size:12px; font-weight:600; cursor:pointer; border-radius:4px; display:inline-flex; align-items:center; gap:4px; margin-left: 10px;">
+                            <i class="fa fa-magic"></i> Сгенерировать
+                        </button>
+                    `;
+                }
+
                 return `
                     <div class="form-group">
                         <label>Источник изображения</label>
@@ -545,16 +635,7 @@
                             <label>Промт для генерации картинки</label>
                             <textarea class="img-ai-prompt-input" rows="3" style="width:100%; box-sizing:border-box; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:12.5px;" placeholder="Например: Apple Watch Series 10 на запястье, реалистичное фото, вид сбоку"></textarea>
                             <div style="margin-top: 6px; display: flex; gap: 8px; align-items: center;">
-                                <select class="img-ai-provider-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd; font-size:12px;">
-                                    <option value="openai">OpenAI (DALL-E 3)</option>
-                                    <option value="gemini">Gemini (Imagen 3)</option>
-                                    <option value="kandinsky">Kandinsky (Sber)</option>
-                                    <option value="yandexart">YandexART (Yandex)</option>
-                                    <option value="huggingface">Hugging Face (FLUX.1)</option>
-                                </select>
-                                <button type="button" class="btn btn-sm btn-primary btn-generate-img-ai" style="padding: 6px 12px; background: #5446f8; border-color: #5446f8; color:#fff; font-size:12px; font-weight:600; cursor:pointer; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
-                                    <i class="fa fa-magic"></i> Сгенерировать
-                                </button>
+                                ${aiSelectorHtml}
                             </div>
                             <div class="img-ai-generation-status" style="margin-top: 6px; font-size: 11px; color: #777;"></div>
                         </div>
@@ -1460,6 +1541,22 @@
     }
 
     function bindFormEvents(block, form, body) {
+        const btnOpenSettingsFromForm = form.querySelector('#btnOpenSettingsFromForm');
+        if (btnOpenSettingsFromForm) {
+            btnOpenSettingsFromForm.addEventListener('click', (e) => {
+                e.preventDefault();
+                const settingsModal = document.getElementById('settingsModal');
+                if (settingsModal) {
+                    const headerSettingsBtn = document.getElementById('btnSettings');
+                    if (headerSettingsBtn) {
+                        headerSettingsBtn.click();
+                    } else {
+                        settingsModal.style.display = 'flex';
+                    }
+                }
+            });
+        }
+
         // Generic field bindings
         form.querySelectorAll('[data-field]').forEach(el => {
             el.addEventListener('input', () => {
@@ -1617,7 +1714,7 @@
         async function generateKandinsky(promptText, apiKey, apiSecret, statusCallback) {
             let modelId = '1';
             try {
-                const modelsRes = await fetch('https://api-key.fusionbrain.ai/key/api/v1/models', {
+                const modelsRes = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/models'), {
                     headers: {
                         'X-Key': 'Key ' + apiKey,
                         'X-Secret': 'Secret ' + apiSecret
@@ -1649,7 +1746,7 @@
             const paramsBlob = new Blob([JSON.stringify(paramsJson)], { type: 'application/json' });
             formData.append('params', paramsBlob);
 
-            const runRes = await fetch('https://api-key.fusionbrain.ai/key/api/v1/text2image/run', {
+            const runRes = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/text2image/run'), {
                 method: 'POST',
                 headers: {
                     'X-Key': 'Key ' + apiKey,
@@ -1678,7 +1775,7 @@
                 await new Promise(resolve => setTimeout(resolve, pollInterval));
                 statusCallback(`Kandinsky: генерация (${i * 2} сек)...`);
                 
-                const statusRes = await fetch(`https://api-key.fusionbrain.ai/key/api/v1/text2image/status/${uuidVal}`, {
+                const statusRes = await fetch(getProxyUrl(`https://api-key.fusionbrain.ai/key/api/v1/text2image/status/${uuidVal}`), {
                     headers: {
                         'X-Key': 'Key ' + apiKey,
                         'X-Secret': 'Secret ' + apiSecret
@@ -1706,7 +1803,7 @@
         async function generateYandexART(promptText, apiKey, folderId, statusCallback) {
             statusCallback('YandexART: отправка запроса...');
             
-            const runRes = await fetch('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync', {
+            const runRes = await fetch(getProxyUrl('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1747,7 +1844,7 @@
                 await new Promise(resolve => setTimeout(resolve, pollInterval));
                 statusCallback(`YandexART: генерация (${i * 2} сек)...`);
                 
-                const statusRes = await fetch(`https://operation.api.cloud.yandex.net/operations/${operationId}`, {
+                const statusRes = await fetch(getProxyUrl(`https://operation.api.cloud.yandex.net/operations/${operationId}`), {
                     headers: {
                         'Authorization': 'Api-Key ' + apiKey
                     }
@@ -1774,7 +1871,7 @@
         async function generateHuggingFace(promptText, apiToken, statusCallback) {
             statusCallback('Hugging Face: генерация изображения через FLUX.1-schnell...');
             
-            const res = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
+            const res = await fetch(getProxyUrl('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1888,7 +1985,7 @@
                 };
 
                 if (provider === 'openai') {
-                    fetch('https://api.openai.com/v1/images/generations', {
+                    fetch(getProxyUrl('https://api.openai.com/v1/images/generations'), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1912,7 +2009,7 @@
                     })
                     .catch(onGenerationError);
                 } else if (provider === 'gemini') {
-                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${key}`, {
+                    fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${key}`), {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -3209,6 +3306,8 @@ ${contentHTML}</div>
     const aiYandexKeyInput = $('#aiYandexKey');
     const aiYandexFolderInput = $('#aiYandexFolder');
     const aiHFTokenInput = $('#aiHFToken');
+    const aiCorsProxyInput = $('#aiCorsProxy');
+    const aiDefaultProviderInput = $('#aiDefaultProvider');
 
     if (btnSettings && settingsModal && btnCloseSettings && btnSaveSettings) {
         btnSettings.addEventListener('click', () => {
@@ -3233,6 +3332,12 @@ ${contentHTML}</div>
             if (aiHFTokenInput) {
                 aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
             }
+            if (aiCorsProxyInput) {
+                aiCorsProxyInput.value = localStorage.getItem('aiCorsProxy') || '';
+            }
+            if (aiDefaultProviderInput) {
+                aiDefaultProviderInput.value = localStorage.getItem('aiDefaultProvider') || 'auto';
+            }
             settingsModal.style.display = 'flex';
         });
 
@@ -3254,6 +3359,8 @@ ${contentHTML}</div>
             const yandexKey = aiYandexKeyInput ? aiYandexKeyInput.value.trim() : '';
             const yandexFolder = aiYandexFolderInput ? aiYandexFolderInput.value.trim() : '';
             const hfToken = aiHFTokenInput ? aiHFTokenInput.value.trim() : '';
+            const corsProxy = aiCorsProxyInput ? aiCorsProxyInput.value : '';
+            const defaultProvider = aiDefaultProviderInput ? aiDefaultProviderInput.value : 'auto';
             
             localStorage.setItem('aiOpenAIKey', openAIKey);
             localStorage.setItem('aiGeminiKey', geminiKey);
@@ -3262,9 +3369,129 @@ ${contentHTML}</div>
             localStorage.setItem('aiYandexKey', yandexKey);
             localStorage.setItem('aiYandexFolder', yandexFolder);
             localStorage.setItem('aiHFToken', hfToken);
+            localStorage.setItem('aiCorsProxy', corsProxy);
+            localStorage.setItem('aiDefaultProvider', defaultProvider);
             
             alert('Настройки успешно сохранены!');
             settingsModal.style.display = 'none';
+        });
+
+        // Key verification handlers
+        settingsModal.querySelectorAll('.btn-check-key').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const provider = btn.dataset.provider;
+                const statusDiv = settingsModal.querySelector(`.key-status-msg[data-provider="${provider}"]`);
+                
+                if (!statusDiv) return;
+                
+                statusDiv.style.display = 'block';
+                statusDiv.style.color = '#777';
+                statusDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Проверка ключа...';
+                btn.disabled = true;
+                
+                try {
+                    let success = false;
+                    let errorMsg = '';
+                    
+                    if (provider === 'openai') {
+                        const val = aiOpenAIKeyInput.value.trim();
+                        if (!val) throw new Error('Поле ключа пустое');
+                        
+                        const res = await fetch(getProxyUrl('https://api.openai.com/v1/models'), {
+                            headers: { 'Authorization': `Bearer ${val}` }
+                        });
+                        
+                        if (res.ok) {
+                            success = true;
+                        } else {
+                            const errJson = await res.json().catch(() => ({}));
+                            errorMsg = errJson.error?.message || `Ошибка HTTP ${res.status}`;
+                        }
+                    } else if (provider === 'gemini') {
+                        const val = aiGeminiKeyInput.value.trim();
+                        if (!val) throw new Error('Поле ключа пустое');
+                        
+                        const res = await fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models?key=${val}`));
+                        
+                        if (res.ok) {
+                            success = true;
+                        } else {
+                            const errJson = await res.json().catch(() => ({}));
+                            errorMsg = errJson.error?.message || `Ошибка HTTP ${res.status}`;
+                        }
+                    } else if (provider === 'kandinsky') {
+                        const keyVal = aiKandinskyKeyInput.value.trim();
+                        const secretVal = aiKandinskySecretInput.value.trim();
+                        if (!keyVal || !secretVal) throw new Error('Поля API Key или Secret Key пусты');
+                        
+                        const res = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/models'), {
+                            headers: {
+                                'X-Key': 'Key ' + keyVal,
+                                'X-Secret': 'Secret ' + secretVal
+                            }
+                        });
+                        
+                        if (res.ok) {
+                            success = true;
+                        } else {
+                            const errText = await res.text().catch(() => '');
+                            errorMsg = errText || `Ошибка HTTP ${res.status}`;
+                        }
+                    } else if (provider === 'yandexart') {
+                        const keyVal = aiYandexKeyInput.value.trim();
+                        const folderVal = aiYandexFolderInput.value.trim();
+                        if (!keyVal || !folderVal) throw new Error('Поля API Key или Folder ID пусты');
+                        
+                        const res = await fetch(getProxyUrl('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync'), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Api-Key ' + keyVal
+                            },
+                            body: JSON.stringify({})
+                        });
+                        
+                        if (res.status === 400) {
+                            success = true;
+                        } else {
+                            const errText = await res.text().catch(() => '');
+                            errorMsg = `Ошибка HTTP ${res.status}: ${errText.substring(0, 100)}`;
+                        }
+                    } else if (provider === 'huggingface') {
+                        const tokenVal = aiHFTokenInput.value.trim();
+                        if (!tokenVal) throw new Error('Поле токена пустое');
+                        
+                        const res = await fetch(getProxyUrl('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell'), {
+                            headers: { 'Authorization': `Bearer ${tokenVal}` }
+                        });
+                        
+                        if (res.ok) {
+                            success = true;
+                        } else {
+                            const errJson = await res.json().catch(() => ({}));
+                            errorMsg = errJson.error || `Ошибка HTTP ${res.status}`;
+                        }
+                    }
+                    
+                    if (success) {
+                        statusDiv.style.color = '#27ae60';
+                        statusDiv.innerHTML = '<i class="fa fa-check-circle"></i> Соединение успешно установлено!';
+                    } else {
+                        statusDiv.style.color = '#c0392b';
+                        statusDiv.innerHTML = `<i class="fa fa-times-circle"></i> Ошибка проверки: ${errorMsg}`;
+                    }
+                } catch (err) {
+                    console.error('Ошибка проверки API-ключа:', err);
+                    statusDiv.style.color = '#c0392b';
+                    let errMsg = err.message || 'Неизвестная ошибка';
+                    if (err.message && err.message.includes('fetch') || err.constructor && err.constructor.name === 'TypeError') {
+                        errMsg = 'Ошибка сети (блокировка CORS). Включите CORS Proxy в настройках ниже для обхода.';
+                    }
+                    statusDiv.innerHTML = `<i class="fa fa-times-circle"></i> ${errMsg}`;
+                } finally {
+                    btn.disabled = false;
+                }
+            });
         });
     }
 
@@ -3312,6 +3539,12 @@ ${contentHTML}</div>
             if (aiHFTokenInput) {
                 aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
             }
+            if (aiCorsProxyInput) {
+                aiCorsProxyInput.value = localStorage.getItem('aiCorsProxy') || '';
+            }
+            if (aiDefaultProviderInput) {
+                aiDefaultProviderInput.value = localStorage.getItem('aiDefaultProvider') || 'auto';
+            }
             // Show settings modal
             if (settingsModal) {
                 settingsModal.style.display = 'flex';
@@ -3323,6 +3556,8 @@ ${contentHTML}</div>
     const aiPromptModal = $('#aiPromptModal');
     const btnCloseAIPrompt = $('#btnCloseAIPrompt');
     const btnCopyAIPrompt = $('#btnCopyAIPrompt');
+    const btnSendAIPromptDirectly = $('#btnSendAIPromptDirectly');
+    const aiPromptStatus = $('#aiPromptStatus');
     const aiWishesInput = $('#aiWishesInput');
     const aiPromptTextarea = $('#aiPromptTextarea');
     let currentPromptBlock = null;
@@ -3331,6 +3566,23 @@ ${contentHTML}</div>
         currentPromptBlock = block;
         if (aiWishesInput) {
             aiWishesInput.value = '';
+        }
+        if (aiPromptStatus) {
+            aiPromptStatus.style.display = 'none';
+            aiPromptStatus.innerHTML = '';
+        }
+        if (btnSendAIPromptDirectly) {
+            const provider = getActiveTextAIProvider();
+            if (provider) {
+                btnSendAIPromptDirectly.innerHTML = `<i class="fa fa-paper-plane"></i> Генерировать через ${provider.id === 'openai' ? 'OpenAI' : 'Gemini'}`;
+                btnSendAIPromptDirectly.title = `Использовать ${provider.name}`;
+                btnSendAIPromptDirectly.style.opacity = '1';
+                btnSendAIPromptDirectly.style.cursor = 'pointer';
+            } else {
+                btnSendAIPromptDirectly.innerHTML = `<i class="fa fa-paper-plane"></i> Генерировать через ИИ`;
+                btnSendAIPromptDirectly.title = 'API ключи не настроены';
+                btnSendAIPromptDirectly.style.opacity = '0.6';
+            }
         }
         updateGeneratedPrompt();
         if (aiPromptModal) {
@@ -3413,6 +3665,161 @@ ${blockHtml}`;
                 });
             }
         });
+
+        if (btnSendAIPromptDirectly) {
+            btnSendAIPromptDirectly.addEventListener('click', async () => {
+                const provider = getActiveTextAIProvider();
+                if (!provider) {
+                    if (aiPromptStatus) {
+                        aiPromptStatus.style.display = 'block';
+                        aiPromptStatus.style.background = '#fdf2f2';
+                        aiPromptStatus.style.borderLeft = '4px solid #ec5b5b';
+                        aiPromptStatus.style.color = '#ec5b5b';
+                        aiPromptStatus.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Провайдер ИИ не настроен. Пожалуйста, укажите API-ключ Gemini или OpenAI в настройках ИИ.';
+                    }
+                    return;
+                }
+
+                if (!aiPromptTextarea || !aiPromptTextarea.value.trim()) {
+                    alert('Промт пуст.');
+                    return;
+                }
+
+                const prompt = aiPromptTextarea.value;
+
+                if (aiPromptStatus) {
+                    aiPromptStatus.style.display = 'block';
+                    aiPromptStatus.style.background = '#f4f3ff';
+                    aiPromptStatus.style.borderLeft = '4px solid #8e44ad';
+                    aiPromptStatus.style.color = '#8e44ad';
+                    aiPromptStatus.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Отправка запроса в ${provider.name}...`;
+                }
+
+                btnSendAIPromptDirectly.disabled = true;
+                btnCopyAIPrompt.disabled = true;
+                const btnInsertAIResponse = $('#btnInsertAIResponse');
+                if (btnInsertAIResponse) btnInsertAIResponse.disabled = true;
+
+                try {
+                    let generatedHtml = '';
+                    if (provider.id === 'openai') {
+                        const key = localStorage.getItem('aiOpenAIKey').trim();
+                        const res = await fetch(getProxyUrl('https://api.openai.com/v1/chat/completions'), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${key}`
+                            },
+                            body: JSON.stringify({
+                                model: 'gpt-4o-mini',
+                                messages: [{ role: 'user', content: prompt }],
+                                temperature: 0.7
+                            })
+                        });
+
+                        if (!res.ok) {
+                            const errJson = await res.json().catch(() => ({}));
+                            throw new Error(errJson.error?.message || `HTTP ${res.status}`);
+                        }
+
+                        const data = await res.json();
+                        generatedHtml = data.choices?.[0]?.message?.content || '';
+                    } else if (provider.id === 'gemini') {
+                        const key = localStorage.getItem('aiGeminiKey').trim();
+                        const res = await fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{ text: prompt }]
+                                }]
+                            })
+                        });
+
+                        if (!res.ok) {
+                            const errJson = await res.json().catch(() => ({}));
+                            throw new Error(errJson.error?.message || `HTTP ${res.status}`);
+                        }
+
+                        const data = await res.json();
+                        generatedHtml = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    }
+
+                    if (!generatedHtml) {
+                        throw new Error('Получен пустой ответ от нейросети.');
+                    }
+
+                    const cleanedCode = cleanAIResponseCode(generatedHtml);
+
+                    if (currentPromptBlock) {
+                        const idx = blocks.findIndex(b => b.id === currentPromptBlock.id);
+                        if (idx !== -1) {
+                            blocks[idx].type = 'html';
+                            blocks[idx].data = { html: cleanedCode };
+                        } else {
+                            // Search in grid column blocks
+                            let foundInGrid = false;
+                            for (let b of blocks) {
+                                if (b.type === 'grid' && b.data.columns) {
+                                    for (let col of b.data.columns) {
+                                        const childIdx = col.blocks.findIndex(cb => cb.id === currentPromptBlock.id);
+                                        if (childIdx !== -1) {
+                                            col.blocks[childIdx].type = 'html';
+                                            col.blocks[childIdx].data = { html: cleanedCode };
+                                            foundInGrid = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (foundInGrid) break;
+                            }
+                        }
+                    } else {
+                        // Create a new HTML block
+                        const htmlBlock = { id: uuid(), type: 'html', data: { html: cleanedCode } };
+                        blocks.push(htmlBlock);
+                    }
+
+                    renderBlocks();
+                    updatePreview();
+
+                    if (aiPromptStatus) {
+                        aiPromptStatus.style.background = '#eef9f0';
+                        aiPromptStatus.style.borderLeft = '4px solid #27ae60';
+                        aiPromptStatus.style.color = '#27ae60';
+                        aiPromptStatus.innerHTML = '<i class="fa fa-check-circle"></i> Блок успешно обновлен!';
+                    }
+
+                    setTimeout(() => {
+                        aiPromptModal.style.display = 'none';
+                        currentPromptBlock = null;
+                        if (aiPromptStatus) {
+                            aiPromptStatus.style.display = 'none';
+                            aiPromptStatus.innerHTML = '';
+                        }
+                    }, 1500);
+
+                } catch (err) {
+                    console.error('Ошибка генерации ИИ:', err);
+                    if (aiPromptStatus) {
+                        aiPromptStatus.style.background = '#fdf2f2';
+                        aiPromptStatus.style.borderLeft = '4px solid #ec5b5b';
+                        aiPromptStatus.style.color = '#ec5b5b';
+                        let errMsg = err.message || 'Неизвестная ошибка';
+                        if (err.message && (err.message.includes('fetch') || err.message.includes('TypeError'))) {
+                            errMsg = 'Ошибка сети (блокировка CORS). Включите CORS Proxy в настройках ИИ для обхода.';
+                        }
+                        aiPromptStatus.innerHTML = `<i class="fa fa-times-circle"></i> Ошибка генерации: ${errMsg}`;
+                    }
+                } finally {
+                    btnSendAIPromptDirectly.disabled = false;
+                    btnCopyAIPrompt.disabled = false;
+                    if (btnInsertAIResponse) btnInsertAIResponse.disabled = false;
+                }
+            });
+        }
 
         // ── "Insert AI Response" button: creates an HTML block, opens editor, focuses textarea ──
         const btnInsertAIResponse = $('#btnInsertAIResponse');
