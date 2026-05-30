@@ -10,74 +10,6 @@
         return 'b' + Math.random().toString(36).slice(2, 10);
     }
 
-    function getProxyUrl(url) {
-        const proxy = localStorage.getItem('aiCorsProxy') || '';
-        if (proxy) {
-            return proxy + url;
-        }
-        return url;
-    }
-
-    function getAvailableAIProviders() {
-        const list = [];
-        if ((localStorage.getItem('aiOpenAIKey') || '').trim()) {
-            list.push({ id: 'openai', name: 'OpenAI (DALL-E 3)' });
-        }
-        if ((localStorage.getItem('aiGeminiKey') || '').trim()) {
-            list.push({ id: 'gemini', name: 'Gemini (Imagen 3)' });
-        }
-        if ((localStorage.getItem('aiKandinskyKey') || '').trim() && (localStorage.getItem('aiKandinskySecret') || '').trim()) {
-            list.push({ id: 'kandinsky', name: 'Kandinsky (Sber)' });
-        }
-        if ((localStorage.getItem('aiYandexKey') || '').trim() && (localStorage.getItem('aiYandexFolder') || '').trim()) {
-            list.push({ id: 'yandexart', name: 'YandexART (Yandex)' });
-        }
-        if ((localStorage.getItem('aiHFToken') || '').trim()) {
-            list.push({ id: 'huggingface', name: 'Hugging Face (FLUX.1)' });
-        }
-        return list;
-    }
-
-    function getActiveAIProvider() {
-        const providers = getAvailableAIProviders();
-        if (providers.length === 0) return null;
-        
-        const defaultId = localStorage.getItem('aiDefaultProvider') || 'auto';
-        if (defaultId !== 'auto') {
-            const found = providers.find(p => p.id === defaultId);
-            if (found) return found;
-        }
-        
-        return providers[0];
-    }
-
-    function getActiveTextAIProvider() {
-        const list = [];
-        if ((localStorage.getItem('aiOpenAIKey') || '').trim()) {
-            list.push({ id: 'openai', name: 'OpenAI (GPT-4o-mini)' });
-        }
-        if ((localStorage.getItem('aiGeminiKey') || '').trim()) {
-            list.push({ id: 'gemini', name: 'Gemini (1.5 Flash)' });
-        }
-        if (list.length === 0) return null;
-        
-        const defaultId = localStorage.getItem('aiDefaultProvider') || 'auto';
-        if (defaultId === 'openai' || defaultId === 'gemini') {
-            const found = list.find(p => p.id === defaultId);
-            if (found) return found;
-        }
-        return list[0];
-    }
-
-    function cleanAIResponseCode(text) {
-        if (!text) return '';
-        let cleaned = text.trim();
-        // Remove markdown code block selector if present
-        cleaned = cleaned.replace(/^```(?:html|xml|css|javascript)?\s*/i, '');
-        cleaned = cleaned.replace(/\s*```$/, '');
-        return cleaned.trim();
-    }
-
     function slugify(text) {
         const map = { 'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya' };
         return text.toLowerCase().replace(/[а-яё]/g, c => map[c] || c).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -132,14 +64,14 @@
         return `col-xs-${xs} col-md-${pc}`;
     }
 
-    function renderBlockContent(block, mode, allBlocks, isWorkspace = false) {
+    function renderBlockContent(block, mode, allBlocks) {
         const def = BLOCK_TYPES[block.type];
 
         if (!def) {
             return '';
         }
 
-        return mode === 'preview' ? def.preview(block, allBlocks, isWorkspace) : def.toHTML(block, allBlocks);
+        return mode === 'preview' ? def.preview(block, allBlocks) : def.toHTML(block, allBlocks);
     }
 
     function renderContentBlocks(contentBlocks, mode) {
@@ -166,12 +98,12 @@
         return html;
     }
 
-    function renderArticlePartsForBlocks(blocksList, mode) {
+    function renderArticleParts(mode) {
         let tocHTML = '';
         let contentHTML = '';
 
-        blocksList.forEach(block => {
-            const html = renderBlockContent(block, mode, blocksList);
+        blocks.forEach(block => {
+            const html = renderBlockContent(block, mode, blocks);
 
             if (block.type === 'toc') {
                 tocHTML += html + '\n';
@@ -181,10 +113,6 @@
         });
 
         return { tocHTML, contentHTML };
-    }
-
-    function renderArticleParts(mode) {
-        return renderArticlePartsForBlocks(blocks, mode);
     }
 
     function renderGridWorkspace(block) {
@@ -209,7 +137,7 @@
                             <span>${childDef ? childDef.label : child.type}</span>
                             <button type="button" class="grid-child-remove" data-action="remove-grid-child" data-child-id="${child.id}" data-column-id="${column.id}" title="Удалить вложенный блок">&times;</button>
                         </div>
-                        <div class="grid-child-preview">${renderBlockContent(child, 'preview', blocks, true)}</div>
+                        <div class="grid-child-preview">${renderBlockContent(child, 'preview', blocks)}</div>
                     </div>`;
                 });
             } else {
@@ -300,7 +228,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'image/catalog/content-constructor/apple-watch.png',
+                                    src: 'https://placehold.co/900x600/e8f0fe/334155?text=Apple+Watch',
                                     localSrc: '',
                                     alt: 'Apple Watch на руке',
                                     caption: 'Пример: изображение слева'
@@ -336,7 +264,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'image/catalog/content-constructor/activity.png',
+                                    src: 'https://placehold.co/600x420/f0fdf4/166534?text=Activity',
                                     localSrc: '',
                                     alt: 'Активность Apple Watch',
                                     caption: 'Активность'
@@ -352,7 +280,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'image/catalog/content-constructor/health.png',
+                                    src: 'https://placehold.co/600x420/fef2f2/991b1b?text=Health',
                                     localSrc: '',
                                     alt: 'Здоровье Apple Watch',
                                     caption: 'Здоровье'
@@ -368,7 +296,7 @@
                                 type: 'image',
                                 data: {
                                     srcType: 'path',
-                                    src: 'image/catalog/content-constructor/notifications.png',
+                                    src: 'https://placehold.co/600x420/fff7ed/9a3412?text=Notifications',
                                     localSrc: '',
                                     alt: 'Уведомления Apple Watch',
                                     caption: 'Уведомления'
@@ -571,47 +499,21 @@
             editForm(block) {
                 const domainInputEl = document.getElementById('articleDomain');
                 const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
-                
-                const activeProvider = getActiveAIProvider();
-                let aiSelectorHtml = '';
-                
-                if (!activeProvider) {
-                    aiSelectorHtml = `
-                        <div style="color: #c0392b; font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 6px; background: #fadbd8; padding: 10px; border-radius: 4px; border: 1px solid #f5b7b1; width: 100%;">
-                            <i class="fa fa-exclamation-triangle"></i>
-                            <span>API-ключи не настроены. Зайдите в <a href="#" id="btnOpenSettingsFromForm" style="color: #c0392b; text-decoration: underline; font-weight: bold;">Настройки ИИ</a> в шапке конструктора.</span>
-                        </div>
-                        <input type="hidden" class="img-ai-provider-select" value="">
-                    `;
-                } else {
-                    aiSelectorHtml = `
-                        <span style="font-size: 12px; color: #555;">Провайдер: <b>${activeProvider.name}</b></span>
-                        <input type="hidden" class="img-ai-provider-select" value="${activeProvider.id}">
-                        <button type="button" class="btn btn-sm btn-primary btn-generate-img-ai" style="padding: 6px 12px; background: #5446f8; border-color: #5446f8; color:#fff; font-size:12px; font-weight:600; cursor:pointer; border-radius:4px; display:inline-flex; align-items:center; gap:4px; margin-left: 10px;">
-                            <i class="fa fa-magic"></i> Сгенерировать
-                        </button>
-                    `;
-                }
-
                 return `
                     <div class="form-group">
                         <label>Источник изображения</label>
                         <select data-field="srcType" class="img-src-type-select">
                             <option value="path" ${block.data.srcType==='path'?'selected':''}>Путь в OpenCart / Ссылка</option>
                             <option value="local" ${block.data.srcType==='local'?'selected':''}>Загрузить локальный файл (для превью)</option>
-                            <option value="ai" ${block.data.srcType==='ai'?'selected':''}>Сгенерировать через ИИ</option>
                         </select>
                     </div>
                     
-                    <div class="img-src-path-group" style="display: ${block.data.srcType==='path'||!block.data.srcType?'block':'none'}">
+                    <div class="img-src-path-group" style="display: ${block.data.srcType==='local'?'none':'block'}">
                         <div class="form-group">
                             <label>Путь к изображению в OpenCart</label>
                             <input type="text" data-field="src" value="${escapeHtml(block.data.src)}" placeholder="image/catalog/folder/image.jpg">
                             <small style="color:#777;font-size:11px;margin-top:2px;display:block;">
                                 В превью отобразится с использованием домена из шапки: <b>${domainVal || 'не указан'}</b>
-                            </small>
-                            <small style="color:#e67e22;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
-                                <i class="fa fa-info-circle"></i> Загрузите файл на свой сайт через FTP / менеджер картинок по пути: <b>image/catalog/content-constructor/имя_файла</b>
                             </small>
                         </div>
                     </div>
@@ -624,20 +526,6 @@
                             <div class="img-local-thumb" style="margin-top:6px;">
                                 ${block.data.localSrc ? `<img src="${block.data.localSrc}" style="max-height:80px;border-radius:4px;display:block;">` : ''}
                             </div>
-                            <small style="color:#27ae60;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
-                                <i class="fa fa-info-circle"></i> Относительный путь заполнен автоматически. При скачивании ZIP статьи картинка будет сохранена в архив.
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="img-src-ai-group" style="display: ${block.data.srcType==='ai'?'block':'none'}">
-                        <div class="form-group">
-                            <label>Промт для генерации картинки</label>
-                            <textarea class="img-ai-prompt-input" rows="3" style="width:100%; box-sizing:border-box; padding:6px; border:1px solid #ddd; border-radius:4px; font-size:12.5px;" placeholder="Например: Apple Watch Series 10 на запястье, реалистичное фото, вид сбоку"></textarea>
-                            <div style="margin-top: 6px; display: flex; gap: 8px; align-items: center;">
-                                ${aiSelectorHtml}
-                            </div>
-                            <div class="img-ai-generation-status" style="margin-top: 6px; font-size: 11px; color: #777;"></div>
                         </div>
                     </div>
 
@@ -647,68 +535,47 @@
                     </div>`;
             },
             toHTML(block) {
-                // If relative path exists, always export that for OpenCart database safety (avoids massive base64)
-                let imgUrl = block.data.src || '';
-                if (!imgUrl && (block.data.srcType === 'local' || block.data.srcType === 'ai')) {
+                let imgUrl = '';
+                if (block.data.srcType === 'local') {
                     imgUrl = block.data.localSrc || '';
+                } else {
+                    imgUrl = block.data.src || '';
                 }
                 
                 // If both are empty, use SVG placeholder
                 if (!imgUrl) {
-                    imgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="#f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="#888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`);
+                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="%23888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`;
                 }
                 
-                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">`;
+                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
                 if (block.data.caption) {
                     html += `<p style="text-align:center;font-size:13px;color:#888;margin-top:5px;text-indent:0!important;">${escapeHtml(block.data.caption)}</p>`;
                 }
                 return html;
             },
-            preview(block, allBlocks, isWorkspace = false) {
+            preview(block) {
                 let imgUrl = '';
-                if (block.data.srcType === 'local' || block.data.srcType === 'ai') {
+                if (block.data.srcType === 'local') {
                     imgUrl = block.data.localSrc || '';
-                }
-                
-                // Fallback to relative path if local preview is empty, or if in path mode
-                if (!imgUrl) {
+                } else {
                     imgUrl = block.data.src || '';
                     if (imgUrl && !imgUrl.startsWith('http://') && !imgUrl.startsWith('https://') && !imgUrl.startsWith('data:')) {
                         const domainInputEl = document.getElementById('articleDomain');
                         const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
-                        if (domainVal && domainVal !== 'https://example.ru/') {
+                        if (domainVal) {
                             const base = domainVal.endsWith('/') ? domainVal : domainVal + '/';
                             const path = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
                             imgUrl = base + path;
-                        } else {
-                            // Offline/Local preview fallback for prepackaged images
-                            if (imgUrl.startsWith('image/catalog/content-constructor/')) {
-                                const filename = imgUrl.substring('image/catalog/content-constructor/'.length);
-                                imgUrl = 'image/' + filename;
-                            }
                         }
                     }
                 }
                 
-                const isPlaceholder = !imgUrl;
                 if (!imgUrl) {
                     // Inline SVG placeholder
-                    imgUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="#F3F2FF"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="#5446f8" dominant-baseline="middle" text-anchor="middle">Заглушка: ${escapeHtml(block.data.src || 'файл не выбран')}</text></svg>`);
+                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23F3F2FF"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%235446f8" dominant-baseline="middle" text-anchor="middle">Заглушка: ${escapeHtml(block.data.src || 'файл не выбран')}</text></svg>`;
                 }
                 
-                let html = '';
-                if (isWorkspace) {
-                    html = `
-                    <div class="img-preview-wrapper">
-                        <img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">
-                        <button type="button" class="img-ai-sticker-btn" data-block-id="${block.id}" title="Сгенерировать / заменить изображение с помощью ИИ">
-                            <i class="fa fa-magic"></i>
-                        </button>
-                    </div>`;
-                } else {
-                    html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="max-width: 100%; height: auto; display: block; margin: 0 auto;" src="${imgUrl}" loading="lazy">`;
-                }
-                
+                let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
                 if (block.data.caption) {
                     html += `<p style="text-align:center;font-size:13px;color:#888;margin-top:5px;text-indent:0!important;">${escapeHtml(block.data.caption)}</p>`;
                 }
@@ -994,24 +861,6 @@
             },
             toHTML(block, allBlocks) { return generateTOC(allBlocks); },
             preview(block, allBlocks) { return generateTOC(allBlocks); },
-        },
-
-        html: {
-            label: 'HTML-код',
-            defaults: () => ({ html: '<div class="alert alert-info">Вставьте сюда ваш HTML-код от ИИ</div>' }),
-            editForm(block) {
-                return `
-                    <div class="form-group">
-                        <label>Собственный HTML-код (от ИИ или кастомный):</label>
-                        <textarea data-field="html" rows="12" style="font-family: monospace; font-size: 12px; background: #fafafa; box-sizing: border-box; width: 100%;">${escapeHtml(block.data.html)}</textarea>
-                    </div>`;
-            },
-            toHTML(block) {
-                return block.data.html || '';
-            },
-            preview(block) {
-                return block.data.html || '';
-            }
         },
     };
 
@@ -1404,14 +1253,13 @@
             card.dataset.idx = idx;
             card.draggable = true;
 
-            const preview = block.type === 'grid' ? renderGridWorkspace(block) : def.preview(block, blocks, true);
+            const preview = block.type === 'grid' ? renderGridWorkspace(block) : def.preview(block, blocks);
 
             card.innerHTML = `
                 <div class="block-header">
                     <span class="drag-handle" title="Перетащить">&#9776;</span>
                     <span class="block-type-label">${def.label}</span>
                     <div class="block-actions">
-                        <button class="block-action-btn" data-action="prompt" title="Создать промт для ИИ" style="color: #5446f8;"><i class="fa fa-magic"></i></button>
                         <button class="block-action-btn" data-action="edit" title="Редактировать">&#9998;</button>
                         <button class="block-action-btn" data-action="duplicate" title="Дублировать">&#10697;</button>
                         <button class="block-action-btn delete" data-action="delete" title="Удалить">&#10005;</button>
@@ -1456,7 +1304,6 @@
             card.querySelector('[data-action="delete"]').addEventListener('click', () => removeBlock(block.id));
             card.querySelector('[data-action="duplicate"]').addEventListener('click', () => duplicateBlock(block.id));
             card.querySelector('[data-action="edit"]').addEventListener('click', () => toggleEdit(block, card));
-            card.querySelector('[data-action="prompt"]').addEventListener('click', () => showAIPromptModal(block));
 
             if (block.type === 'grid') {
                 bindGridWorkspaceEvents(block, card);
@@ -1514,11 +1361,8 @@
 
     // ── Edit mode ────────────────────────────────────────────
     function toggleEdit(block, card) {
-        const isNested = card.classList.contains('grid-child-card');
-        const body = isNested ? card.querySelector('.grid-child-preview') : card.querySelector('.block-body');
+        const body = card.querySelector('.block-body');
         const def = BLOCK_TYPES[block.type];
-
-        if (!body) return;
 
         // If already editing, close
         if (body.querySelector('.edit-form')) {
@@ -1541,22 +1385,6 @@
     }
 
     function bindFormEvents(block, form, body) {
-        const btnOpenSettingsFromForm = form.querySelector('#btnOpenSettingsFromForm');
-        if (btnOpenSettingsFromForm) {
-            btnOpenSettingsFromForm.addEventListener('click', (e) => {
-                e.preventDefault();
-                const settingsModal = document.getElementById('settingsModal');
-                if (settingsModal) {
-                    const headerSettingsBtn = document.getElementById('btnSettings');
-                    if (headerSettingsBtn) {
-                        headerSettingsBtn.click();
-                    } else {
-                        settingsModal.style.display = 'flex';
-                    }
-                }
-            });
-        }
-
         // Generic field bindings
         form.querySelectorAll('[data-field]').forEach(el => {
             el.addEventListener('input', () => {
@@ -1588,14 +1416,14 @@
         form.querySelectorAll('[data-action="add-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.items.push('Новый пункт');
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.items.splice(idx, 1);
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
 
@@ -1604,13 +1432,13 @@
             btn.addEventListener('click', () => {
                 block.data.headers.push('Новый столбец');
                 block.data.rows.forEach(row => row.push(''));
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="add-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.rows.push(new Array(block.data.headers.length).fill(''));
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-col"]').forEach(btn => {
@@ -1618,14 +1446,14 @@
                 if (block.data.headers.length <= 1) return;
                 block.data.headers.pop();
                 block.data.rows.forEach(row => row.pop());
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (block.data.rows.length <= 1) return;
                 block.data.rows.pop();
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
 
@@ -1633,14 +1461,14 @@
         form.querySelectorAll('[data-action="add-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.tabs.push({ title: 'Новая вкладка', text: '' });
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
         form.querySelectorAll('[data-action="remove-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.tabs.splice(idx, 1);
-                toggleEdit(block, btn.closest('.grid-child-card') || btn.closest('.block-card'));
+                toggleEdit(block, btn.closest('.block-card'));
             });
         });
 
@@ -1682,18 +1510,9 @@
                     const base64 = evt.target.result;
                     block.data.localSrc = base64;
                     
-                    const filename = file.name;
-                    const pathVal = 'image/catalog/content-constructor/' + filename;
-                    block.data.src = pathVal;
-
                     const hiddenInput = form.querySelector('[data-field="localSrc"]');
                     if (hiddenInput) {
                         hiddenInput.value = base64;
-                    }
-
-                    const pathInput = form.querySelector('[data-field="src"]');
-                    if (pathInput) {
-                        pathInput.value = pathVal;
                     }
                     
                     let thumb = form.querySelector('.img-local-thumb');
@@ -1710,348 +1529,6 @@
             });
         });
 
-        // ── AI Image Generation API Helpers ────────────────────
-        async function generateKandinsky(promptText, apiKey, apiSecret, statusCallback) {
-            let modelId = '1';
-            try {
-                const modelsRes = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/models'), {
-                    headers: {
-                        'X-Key': 'Key ' + apiKey,
-                        'X-Secret': 'Secret ' + apiSecret
-                    }
-                });
-                if (modelsRes.ok) {
-                    const models = await modelsRes.json();
-                    if (models && models.length > 0) {
-                        modelId = models[0].id;
-                    }
-                }
-            } catch (e) {
-                console.warn('Failed to fetch Kandinsky model ID, using fallback 1:', e);
-            }
-
-            statusCallback('Kandinsky: отправка запроса...');
-            const formData = new FormData();
-            formData.append('model_id', modelId);
-            
-            const paramsJson = {
-                type: "GENERATE",
-                numImages: 1,
-                width: 1024,
-                height: 1024,
-                generateParams: {
-                    query: promptText
-                }
-            };
-            const paramsBlob = new Blob([JSON.stringify(paramsJson)], { type: 'application/json' });
-            formData.append('params', paramsBlob);
-
-            const runRes = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/text2image/run'), {
-                method: 'POST',
-                headers: {
-                    'X-Key': 'Key ' + apiKey,
-                    'X-Secret': 'Secret ' + apiSecret
-                },
-                body: formData
-            });
-
-            if (!runRes.ok) {
-                const errorText = await runRes.text();
-                throw new Error(`Ошибка запуска генерации (${runRes.status}): ${errorText}`);
-            }
-
-            const runData = await runRes.json();
-            const uuidVal = runData.uuid;
-            if (!uuidVal) {
-                throw new Error('Не получен UUID задачи от Kandinsky API');
-            }
-
-            statusCallback('Kandinsky: генерация изображения... Пожалуйста, подождите.');
-            
-            const pollInterval = 2000;
-            const maxPolls = 30;
-            
-            for (let i = 0; i < maxPolls; i++) {
-                await new Promise(resolve => setTimeout(resolve, pollInterval));
-                statusCallback(`Kandinsky: генерация (${i * 2} сек)...`);
-                
-                const statusRes = await fetch(getProxyUrl(`https://api-key.fusionbrain.ai/key/api/v1/text2image/status/${uuidVal}`), {
-                    headers: {
-                        'X-Key': 'Key ' + apiKey,
-                        'X-Secret': 'Secret ' + apiSecret
-                    }
-                });
-                
-                if (!statusRes.ok) {
-                    continue;
-                }
-                
-                const statusData = await statusRes.json();
-                if (statusData.status === 'DONE') {
-                    if (statusData.images && statusData.images.length > 0) {
-                        return 'data:image/png;base64,' + statusData.images[0];
-                    }
-                    throw new Error('Список изображений от Kandinsky API пуст');
-                } else if (statusData.status === 'FAIL') {
-                    throw new Error(`Генерация Kandinsky провалилась: ${statusData.errorDescription || 'неизвестная ошибка'}`);
-                }
-            }
-            
-            throw new Error('Превышено время ожидания генерации Kandinsky');
-        }
-
-        async function generateYandexART(promptText, apiKey, folderId, statusCallback) {
-            statusCallback('YandexART: отправка запроса...');
-            
-            const runRes = await fetch(getProxyUrl('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Api-Key ' + apiKey
-                },
-                body: JSON.stringify({
-                    modelUri: `art://${folderId}/yandex-art/latest`,
-                    messages: [
-                        {
-                            weight: 1.0,
-                            text: promptText
-                        }
-                    ],
-                    generationOptions: {
-                        aspectRatio: "1:1",
-                        mimeType: "image/jpeg"
-                    }
-                })
-            });
-
-            if (!runRes.ok) {
-                const errorText = await runRes.text();
-                throw new Error(`Ошибка запуска генерации (${runRes.status}): ${errorText}`);
-            }
-
-            const runData = await runRes.json();
-            const operationId = runData.id;
-            if (!operationId) {
-                throw new Error('Не получен ID операции от Yandex Cloud API');
-            }
-
-            statusCallback('YandexART: генерация изображения... Пожалуйста, подождите.');
-            
-            const pollInterval = 2000;
-            const maxPolls = 30;
-            
-            for (let i = 0; i < maxPolls; i++) {
-                await new Promise(resolve => setTimeout(resolve, pollInterval));
-                statusCallback(`YandexART: генерация (${i * 2} сек)...`);
-                
-                const statusRes = await fetch(getProxyUrl(`https://operation.api.cloud.yandex.net/operations/${operationId}`), {
-                    headers: {
-                        'Authorization': 'Api-Key ' + apiKey
-                    }
-                });
-                
-                if (!statusRes.ok) {
-                    continue;
-                }
-                
-                const statusData = await statusRes.json();
-                if (statusData.done) {
-                    if (statusData.response && statusData.response.image) {
-                        return 'data:image/jpeg;base64,' + statusData.response.image;
-                    } else if (statusData.error) {
-                        throw new Error(`Генерация YandexART завершилась с ошибкой: ${statusData.error.message || JSON.stringify(statusData.error)}`);
-                    }
-                    throw new Error('Изображение не найдено в ответе Yandex Cloud API');
-                }
-            }
-            
-            throw new Error('Превышено время ожидания генерации YandexART');
-        }
-
-        async function generateHuggingFace(promptText, apiToken, statusCallback) {
-            statusCallback('Hugging Face: генерация изображения через FLUX.1-schnell...');
-            
-            const res = await fetch(getProxyUrl('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell'), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiToken
-                },
-                body: JSON.stringify({
-                    inputs: promptText
-                })
-            });
-
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(`Ошибка Hugging Face (${res.status}): ${errorText}`);
-            }
-
-            const blob = await res.blob();
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            });
-        }
-
-        // AI image generation handler
-        form.querySelectorAll('.btn-generate-img-ai').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const promptInput = form.querySelector('.img-ai-prompt-input');
-                const promptText = promptInput ? promptInput.value.trim() : '';
-                const providerSelect = form.querySelector('.img-ai-provider-select');
-                const provider = providerSelect ? providerSelect.value : 'openai';
-                const statusDiv = form.querySelector('.img-ai-generation-status');
-                
-                if (!promptText) {
-                    alert('Пожалуйста, напишите описание картинки.');
-                    return;
-                }
-                
-                let key = '';
-                let extraVal = '';
-                if (provider === 'openai') {
-                    key = localStorage.getItem('aiOpenAIKey') || '';
-                    if (!key) {
-                        alert('Пожалуйста, укажите ваш OpenAI API Key в Настройках ИИ (кнопка в шапке конструктора).');
-                        return;
-                    }
-                } else if (provider === 'gemini') {
-                    key = localStorage.getItem('aiGeminiKey') || '';
-                    if (!key) {
-                        alert('Пожалуйста, укажите ваш Gemini API Key в Настройках ИИ (кнопка в шапке конструктора).');
-                        return;
-                    }
-                } else if (provider === 'kandinsky') {
-                    key = localStorage.getItem('aiKandinskyKey') || '';
-                    extraVal = localStorage.getItem('aiKandinskySecret') || '';
-                    if (!key || !extraVal) {
-                        alert('Пожалуйста, укажите ваши X-Key и X-Secret для Kandinsky в Настройках ИИ.');
-                        return;
-                    }
-                } else if (provider === 'yandexart') {
-                    key = localStorage.getItem('aiYandexKey') || '';
-                    extraVal = localStorage.getItem('aiYandexFolder') || '';
-                    if (!key || !extraVal) {
-                        alert('Пожалуйста, укажите ваши API Key и Folder ID для YandexART в Настройках ИИ.');
-                        return;
-                    }
-                } else if (provider === 'huggingface') {
-                    key = localStorage.getItem('aiHFToken') || '';
-                    if (!key) {
-                        alert('Пожалуйста, укажите ваш Hugging Face API Token в Настройках ИИ.');
-                        return;
-                    }
-                }
-                
-                if (statusDiv) statusDiv.textContent = 'Генерация изображения через ИИ... Пожалуйста, подождите.';
-                btn.disabled = true;
-                
-                const onGenerationSuccess = (dataUrl) => {
-                    block.data.localSrc = dataUrl;
-                    
-                    const slugifiedPrompt = slugify(promptText).substring(0, 20) || 'ai-image';
-                    const filename = `${slugifiedPrompt}-${uuid().substring(1, 5)}.png`;
-                    const pathVal = 'image/catalog/content-constructor/' + filename;
-                    block.data.src = pathVal;
-                    
-                    const pathInput = form.querySelector('[data-field="src"]');
-                    if (pathInput) pathInput.value = pathVal;
-                    
-                    let thumb = form.querySelector('.img-local-thumb');
-                    if (!thumb) {
-                        thumb = document.createElement('div');
-                        thumb.className = 'img-local-thumb';
-                        thumb.style.marginTop = '6px';
-                        btn.parentNode.parentNode.appendChild(thumb);
-                    }
-                    thumb.innerHTML = `<img src="${dataUrl}" style="max-height:80px;border-radius:4px;display:block;">`;
-                    
-                    if (statusDiv) statusDiv.textContent = 'Генерация успешно завершена!';
-                    btn.disabled = false;
-                    updatePreview();
-                };
-
-                const onGenerationError = (err) => {
-                    console.error(err);
-                    let errMsg = err.message || 'Ошибка при генерации';
-                    if (err.stack && err.stack.includes('fetch') || err.message && err.message.includes('Failed to fetch') || (err.constructor && err.constructor.name === 'TypeError')) {
-                        errMsg = 'Ошибка сети (вероятно, блокировка CORS). Провайдер блокирует прямые запросы из браузера. Для обхода CORS используйте расширение CORS в браузере или прокси-сервер.';
-                    }
-                    if (statusDiv) statusDiv.textContent = 'Ошибка: ' + errMsg;
-                    btn.disabled = false;
-                };
-
-                if (provider === 'openai') {
-                    fetch(getProxyUrl('https://api.openai.com/v1/images/generations'), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + key
-                        },
-                        body: JSON.stringify({
-                            model: 'dall-e-3',
-                            prompt: promptText,
-                            n: 1,
-                            size: '1024x1024',
-                            response_format: 'b64_json'
-                        })
-                    })
-                    .then(res => {
-                        if (!res.ok) return res.json().then(err => { throw err; });
-                        return res.json();
-                    })
-                    .then(json => {
-                        const b64 = json.data[0].b64_json;
-                        onGenerationSuccess('data:image/png;base64,' + b64);
-                    })
-                    .catch(onGenerationError);
-                } else if (provider === 'gemini') {
-                    fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${key}`), {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            prompt: promptText,
-                            numberOfImages: 1,
-                            aspectRatio: '1:1',
-                            outputMimeType: 'image/png'
-                        })
-                    })
-                    .then(res => {
-                        if (!res.ok) return res.json().then(err => { throw err; });
-                        return res.json();
-                    })
-                    .then(json => {
-                        const b64 = json.generatedImages[0].image.imageBytes;
-                        onGenerationSuccess('data:image/png;base64,' + b64);
-                    })
-                    .catch(onGenerationError);
-                } else if (provider === 'kandinsky') {
-                    generateKandinsky(promptText, key, extraVal, (msg) => {
-                        if (statusDiv) statusDiv.textContent = msg;
-                    })
-                    .then(onGenerationSuccess)
-                    .catch(onGenerationError);
-                } else if (provider === 'yandexart') {
-                    generateYandexART(promptText, key, extraVal, (msg) => {
-                        if (statusDiv) statusDiv.textContent = msg;
-                    })
-                    .then(onGenerationSuccess)
-                    .catch(onGenerationError);
-                } else if (provider === 'huggingface') {
-                    generateHuggingFace(promptText, key, (msg) => {
-                        if (statusDiv) statusDiv.textContent = msg;
-                    })
-                    .then(onGenerationSuccess)
-                    .catch(onGenerationError);
-                }
-            });
-        });
-
         // Image source type change handler
         form.querySelectorAll('.img-src-type-select').forEach(select => {
             select.addEventListener('change', () => {
@@ -2060,12 +1537,11 @@
                 
                 const pathGroup = form.querySelector('.img-src-path-group');
                 const localGroup = form.querySelector('.img-src-local-group');
-                const aiGroup = form.querySelector('.img-src-ai-group');
                 
-                if (pathGroup) pathGroup.style.display = type === 'path' ? 'block' : 'none';
-                if (localGroup) localGroup.style.display = type === 'local' ? 'block' : 'none';
-                if (aiGroup) aiGroup.style.display = type === 'ai' ? 'block' : 'none';
-                
+                if (pathGroup && localGroup) {
+                    pathGroup.style.display = type === 'path' ? 'block' : 'none';
+                    localGroup.style.display = type === 'local' ? 'block' : 'none';
+                }
                 updatePreview();
             });
         });
@@ -3095,18 +2571,10 @@ ${contentHTML}</div>
 
             const font1Promise = fetch('css/VenrynSans-Regular.woff?v=1.0.3').then(res => res.arrayBuffer());
             const font2Promise = fetch('css/VenrynSans-SemiBold.woff?v=1.0.3').then(res => res.arrayBuffer());
-            const img1Promise = fetch('image/apple-watch.png').then(res => res.arrayBuffer());
-            const img2Promise = fetch('image/activity.png').then(res => res.arrayBuffer());
-            const img3Promise = fetch('image/health.png').then(res => res.arrayBuffer());
-            const img4Promise = fetch('image/notifications.png').then(res => res.arrayBuffer());
 
-            Promise.all([font1Promise, font2Promise, img1Promise, img2Promise, img3Promise, img4Promise]).then(([font1Data, font2Data, img1Data, img2Data, img3Data, img4Data]) => {
+            Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
                 zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", font1Data);
                 zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-SemiBold.woff", font2Data);
-                zip.file("upload/image/catalog/content-constructor/apple-watch.png", img1Data);
-                zip.file("upload/image/catalog/content-constructor/activity.png", img2Data);
-                zip.file("upload/image/catalog/content-constructor/health.png", img3Data);
-                zip.file("upload/image/catalog/content-constructor/notifications.png", img4Data);
 
                 return zip.generateAsync({ type: "blob" });
             }).then((blob) => {
@@ -3232,850 +2700,6 @@ ${contentHTML}</div>
 </modification>`;
             downloadFile(xmlContent, 'content_styles.ocmod.xml', 'text/xml');
         });
-    }
-
-    // ── Clipboard Helper ────────────────────────────────────
-    function copyTextToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            return navigator.clipboard.writeText(text);
-        } else {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                return Promise.resolve();
-            } catch (e) {
-                document.body.removeChild(textarea);
-                return Promise.reject(e);
-            }
-        }
-    }
-
-    // ── Image Block Collection Helper ────────────────────────
-    function collectAllImageBlocks(blocksList) {
-        let imageBlocks = [];
-        blocksList.forEach(block => {
-            if (block.type === 'image') {
-                imageBlocks.push(block);
-            } else if (block.type === 'grid' && block.data && block.data.columns) {
-                block.data.columns.forEach(col => {
-                    if (col.blocks) {
-                        imageBlocks.push(...collectAllImageBlocks(col.blocks));
-                    }
-                });
-            }
-        });
-        return imageBlocks;
-    }
-
-    // ── Image Extension Helpers ─────────────────────────────
-    function getExtensionFromMime(mime) {
-        if (mime.includes('png')) return 'png';
-        if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
-        if (mime.includes('gif')) return 'gif';
-        if (mime.includes('webp')) return 'webp';
-        if (mime.includes('svg')) return 'svg';
-        return 'png';
-    }
-
-    function getExtensionFromPath(path) {
-        const parts = path.split('.');
-        if (parts.length > 1) {
-            const ext = parts.pop().toLowerCase();
-            if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
-                return ext === 'jpeg' ? 'jpg' : ext;
-            }
-        }
-        return 'png';
-    }
-
-    // ── Settings Modal Handlers (AI Keys) ───────────────────
-    const btnSettings = $('#btnSettings');
-    const settingsModal = $('#settingsModal');
-    const btnCloseSettings = $('#btnCloseSettings');
-    const btnSaveSettings = $('#btnSaveSettings');
-    const aiOpenAIKeyInput = $('#aiOpenAIKey');
-    const aiGeminiKeyInput = $('#aiGeminiKey');
-    const aiKandinskyKeyInput = $('#aiKandinskyKey');
-    const aiKandinskySecretInput = $('#aiKandinskySecret');
-    const aiYandexKeyInput = $('#aiYandexKey');
-    const aiYandexFolderInput = $('#aiYandexFolder');
-    const aiHFTokenInput = $('#aiHFToken');
-    const aiCorsProxyInput = $('#aiCorsProxy');
-    const aiDefaultProviderInput = $('#aiDefaultProvider');
-
-    if (btnSettings && settingsModal && btnCloseSettings && btnSaveSettings) {
-        btnSettings.addEventListener('click', () => {
-            if (aiOpenAIKeyInput) {
-                aiOpenAIKeyInput.value = localStorage.getItem('aiOpenAIKey') || '';
-            }
-            if (aiGeminiKeyInput) {
-                aiGeminiKeyInput.value = localStorage.getItem('aiGeminiKey') || '';
-            }
-            if (aiKandinskyKeyInput) {
-                aiKandinskyKeyInput.value = localStorage.getItem('aiKandinskyKey') || '';
-            }
-            if (aiKandinskySecretInput) {
-                aiKandinskySecretInput.value = localStorage.getItem('aiKandinskySecret') || '';
-            }
-            if (aiYandexKeyInput) {
-                aiYandexKeyInput.value = localStorage.getItem('aiYandexKey') || '';
-            }
-            if (aiYandexFolderInput) {
-                aiYandexFolderInput.value = localStorage.getItem('aiYandexFolder') || '';
-            }
-            if (aiHFTokenInput) {
-                aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
-            }
-            if (aiCorsProxyInput) {
-                aiCorsProxyInput.value = localStorage.getItem('aiCorsProxy') || '';
-            }
-            if (aiDefaultProviderInput) {
-                aiDefaultProviderInput.value = localStorage.getItem('aiDefaultProvider') || 'auto';
-            }
-            settingsModal.style.display = 'flex';
-        });
-
-        btnCloseSettings.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                settingsModal.style.display = 'none';
-            }
-        });
-
-        btnSaveSettings.addEventListener('click', () => {
-            const openAIKey = aiOpenAIKeyInput ? aiOpenAIKeyInput.value.trim() : '';
-            const geminiKey = aiGeminiKeyInput ? aiGeminiKeyInput.value.trim() : '';
-            const kandinskyKey = aiKandinskyKeyInput ? aiKandinskyKeyInput.value.trim() : '';
-            const kandinskySecret = aiKandinskySecretInput ? aiKandinskySecretInput.value.trim() : '';
-            const yandexKey = aiYandexKeyInput ? aiYandexKeyInput.value.trim() : '';
-            const yandexFolder = aiYandexFolderInput ? aiYandexFolderInput.value.trim() : '';
-            const hfToken = aiHFTokenInput ? aiHFTokenInput.value.trim() : '';
-            const corsProxy = aiCorsProxyInput ? aiCorsProxyInput.value : '';
-            const defaultProvider = aiDefaultProviderInput ? aiDefaultProviderInput.value : 'auto';
-            
-            localStorage.setItem('aiOpenAIKey', openAIKey);
-            localStorage.setItem('aiGeminiKey', geminiKey);
-            localStorage.setItem('aiKandinskyKey', kandinskyKey);
-            localStorage.setItem('aiKandinskySecret', kandinskySecret);
-            localStorage.setItem('aiYandexKey', yandexKey);
-            localStorage.setItem('aiYandexFolder', yandexFolder);
-            localStorage.setItem('aiHFToken', hfToken);
-            localStorage.setItem('aiCorsProxy', corsProxy);
-            localStorage.setItem('aiDefaultProvider', defaultProvider);
-            
-            alert('Настройки успешно сохранены!');
-            settingsModal.style.display = 'none';
-        });
-
-        // Key verification handlers
-        settingsModal.querySelectorAll('.btn-check-key').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const provider = btn.dataset.provider;
-                const statusDiv = settingsModal.querySelector(`.key-status-msg[data-provider="${provider}"]`);
-                
-                if (!statusDiv) return;
-                
-                statusDiv.style.display = 'block';
-                statusDiv.style.color = '#777';
-                statusDiv.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Проверка ключа...';
-                btn.disabled = true;
-                
-                try {
-                    let success = false;
-                    let errorMsg = '';
-                    
-                    if (provider === 'openai') {
-                        const val = aiOpenAIKeyInput.value.trim();
-                        if (!val) throw new Error('Поле ключа пустое');
-                        
-                        const res = await fetch(getProxyUrl('https://api.openai.com/v1/models'), {
-                            headers: { 'Authorization': `Bearer ${val}` }
-                        });
-                        
-                        if (res.ok) {
-                            success = true;
-                        } else {
-                            const errJson = await res.json().catch(() => ({}));
-                            errorMsg = errJson.error?.message || `Ошибка HTTP ${res.status}`;
-                        }
-                    } else if (provider === 'gemini') {
-                        const val = aiGeminiKeyInput.value.trim();
-                        if (!val) throw new Error('Поле ключа пустое');
-                        
-                        const res = await fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models?key=${val}`));
-                        
-                        if (res.ok) {
-                            success = true;
-                        } else {
-                            const errJson = await res.json().catch(() => ({}));
-                            errorMsg = errJson.error?.message || `Ошибка HTTP ${res.status}`;
-                        }
-                    } else if (provider === 'kandinsky') {
-                        const keyVal = aiKandinskyKeyInput.value.trim();
-                        const secretVal = aiKandinskySecretInput.value.trim();
-                        if (!keyVal || !secretVal) throw new Error('Поля API Key или Secret Key пусты');
-                        
-                        const res = await fetch(getProxyUrl('https://api-key.fusionbrain.ai/key/api/v1/models'), {
-                            headers: {
-                                'X-Key': 'Key ' + keyVal,
-                                'X-Secret': 'Secret ' + secretVal
-                            }
-                        });
-                        
-                        if (res.ok) {
-                            success = true;
-                        } else {
-                            const errText = await res.text().catch(() => '');
-                            errorMsg = errText || `Ошибка HTTP ${res.status}`;
-                        }
-                    } else if (provider === 'yandexart') {
-                        const keyVal = aiYandexKeyInput.value.trim();
-                        const folderVal = aiYandexFolderInput.value.trim();
-                        if (!keyVal || !folderVal) throw new Error('Поля API Key или Folder ID пусты');
-                        
-                        const res = await fetch(getProxyUrl('https://llm.api.cloud.yandex.net/foundationModels/v1/imageGenerationAsync'), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Api-Key ' + keyVal
-                            },
-                            body: JSON.stringify({})
-                        });
-                        
-                        if (res.status === 400) {
-                            success = true;
-                        } else {
-                            const errText = await res.text().catch(() => '');
-                            errorMsg = `Ошибка HTTP ${res.status}: ${errText.substring(0, 100)}`;
-                        }
-                    } else if (provider === 'huggingface') {
-                        const tokenVal = aiHFTokenInput.value.trim();
-                        if (!tokenVal) throw new Error('Поле токена пустое');
-                        
-                        const res = await fetch(getProxyUrl('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell'), {
-                            headers: { 'Authorization': `Bearer ${tokenVal}` }
-                        });
-                        
-                        if (res.ok) {
-                            success = true;
-                        } else {
-                            const errJson = await res.json().catch(() => ({}));
-                            errorMsg = errJson.error || `Ошибка HTTP ${res.status}`;
-                        }
-                    }
-                    
-                    if (success) {
-                        statusDiv.style.color = '#27ae60';
-                        statusDiv.innerHTML = '<i class="fa fa-check-circle"></i> Соединение успешно установлено!';
-                    } else {
-                        statusDiv.style.color = '#c0392b';
-                        statusDiv.innerHTML = `<i class="fa fa-times-circle"></i> Ошибка проверки: ${errorMsg}`;
-                    }
-                } catch (err) {
-                    console.error('Ошибка проверки API-ключа:', err);
-                    statusDiv.style.color = '#c0392b';
-                    let errMsg = err.message || 'Неизвестная ошибка';
-                    if (err.message && err.message.includes('fetch') || err.constructor && err.constructor.name === 'TypeError') {
-                        errMsg = 'Ошибка сети (блокировка CORS). Включите CORS Proxy в настройках ниже для обхода.';
-                    }
-                    statusDiv.innerHTML = `<i class="fa fa-times-circle"></i> ${errMsg}`;
-                } finally {
-                    btn.disabled = false;
-                }
-            });
-        });
-    }
-
-    // ── AI Setup Instruction Modal Handlers ──────────────────
-    const aiSetupInstructionModal = $('#aiSetupInstructionModal');
-    const btnCloseAISetupInstruction = $('#btnCloseAISetupInstruction');
-    const btnCancelAISetupInstruction = $('#btnCancelAISetupInstruction');
-    const btnGoToSettings = $('#btnGoToSettings');
-
-    if (aiSetupInstructionModal && btnCloseAISetupInstruction && btnCancelAISetupInstruction && btnGoToSettings) {
-        const closeSetup = () => {
-            aiSetupInstructionModal.style.display = 'none';
-        };
-        
-        btnCloseAISetupInstruction.addEventListener('click', closeSetup);
-        btnCancelAISetupInstruction.addEventListener('click', closeSetup);
-        
-        aiSetupInstructionModal.addEventListener('click', (e) => {
-            if (e.target === aiSetupInstructionModal) {
-                closeSetup();
-            }
-        });
-
-        btnGoToSettings.addEventListener('click', () => {
-            closeSetup();
-            // Fill existing settings values
-            if (aiOpenAIKeyInput) {
-                aiOpenAIKeyInput.value = localStorage.getItem('aiOpenAIKey') || '';
-            }
-            if (aiGeminiKeyInput) {
-                aiGeminiKeyInput.value = localStorage.getItem('aiGeminiKey') || '';
-            }
-            if (aiKandinskyKeyInput) {
-                aiKandinskyKeyInput.value = localStorage.getItem('aiKandinskyKey') || '';
-            }
-            if (aiKandinskySecretInput) {
-                aiKandinskySecretInput.value = localStorage.getItem('aiKandinskySecret') || '';
-            }
-            if (aiYandexKeyInput) {
-                aiYandexKeyInput.value = localStorage.getItem('aiYandexKey') || '';
-            }
-            if (aiYandexFolderInput) {
-                aiYandexFolderInput.value = localStorage.getItem('aiYandexFolder') || '';
-            }
-            if (aiHFTokenInput) {
-                aiHFTokenInput.value = localStorage.getItem('aiHFToken') || '';
-            }
-            if (aiCorsProxyInput) {
-                aiCorsProxyInput.value = localStorage.getItem('aiCorsProxy') || '';
-            }
-            if (aiDefaultProviderInput) {
-                aiDefaultProviderInput.value = localStorage.getItem('aiDefaultProvider') || 'auto';
-            }
-            // Show settings modal
-            if (settingsModal) {
-                settingsModal.style.display = 'flex';
-            }
-        });
-    }
-
-    // ── AI Prompt Modal Handlers ────────────────────────────
-    const aiPromptModal = $('#aiPromptModal');
-    const btnCloseAIPrompt = $('#btnCloseAIPrompt');
-    const btnCopyAIPrompt = $('#btnCopyAIPrompt');
-    const btnSendAIPromptDirectly = $('#btnSendAIPromptDirectly');
-    const aiPromptStatus = $('#aiPromptStatus');
-    const aiWishesInput = $('#aiWishesInput');
-    const aiPromptTextarea = $('#aiPromptTextarea');
-    let currentPromptBlock = null;
-
-    function showAIPromptModal(block) {
-        currentPromptBlock = block;
-        if (aiWishesInput) {
-            aiWishesInput.value = '';
-        }
-        if (aiPromptStatus) {
-            aiPromptStatus.style.display = 'none';
-            aiPromptStatus.innerHTML = '';
-        }
-        if (btnSendAIPromptDirectly) {
-            const provider = getActiveTextAIProvider();
-            if (provider) {
-                btnSendAIPromptDirectly.innerHTML = `<i class="fa fa-paper-plane"></i> Генерировать через ${provider.id === 'openai' ? 'OpenAI' : 'Gemini'}`;
-                btnSendAIPromptDirectly.title = `Использовать ${provider.name}`;
-                btnSendAIPromptDirectly.style.opacity = '1';
-                btnSendAIPromptDirectly.style.cursor = 'pointer';
-            } else {
-                btnSendAIPromptDirectly.innerHTML = `<i class="fa fa-paper-plane"></i> Генерировать через ИИ`;
-                btnSendAIPromptDirectly.title = 'API ключи не настроены';
-                btnSendAIPromptDirectly.style.opacity = '0.6';
-            }
-        }
-        updateGeneratedPrompt();
-        if (aiPromptModal) {
-            aiPromptModal.style.display = 'flex';
-        }
-    }
-
-    function updateGeneratedPrompt() {
-        if (!currentPromptBlock) return;
-        const wishes = (aiWishesInput && aiWishesInput.value.trim()) || '[Здесь вставьте ваши пожелания по изменению стиля, цветов или структуры...]';
-        const blockHtml = renderBlockContent(currentPromptBlock, 'toHTML', blocks);
-        
-        const prompt = `Ты — эксперт по верстке и дизайну в OpenCart. Твоя задача — модифицировать HTML-код предложенного блока в соответствии с пожеланиями.
-
-Пожелания к изменению:
-${wishes}
-
-Правила ответа:
-1. Верни ТОЛЬКО чистый HTML-код измененного блока. Не пиши никаких пояснений, введений, объяснений или Markdown-разметки (не оборачивай код в блоки \`\`\`html ... \`\`\`). Только HTML-код.
-2. Стилизуй блок с помощью CSS. Можешь использовать встроенные стили (атрибут style) либо вставить тег <style> в самом начале кода блока. Все CSS-правила должны использовать уникальные классы или идентификаторы, специфичные для этого блока, чтобы стили не переопределяли внешние стили сайта.
-3. Сохраняй исходную структуру, тексты и ссылки (включая id и href), если пожелания не требуют их изменения.
-4. Верстка должна быть адаптивной и корректно смотреться на мобильных устройствах.
-
-Исходный HTML-код блока:
-${blockHtml}`;
-
-        if (aiPromptTextarea) {
-            aiPromptTextarea.value = prompt;
-        }
-    }
-
-    if (aiPromptModal && btnCloseAIPrompt && btnCopyAIPrompt) {
-        btnCloseAIPrompt.addEventListener('click', () => {
-            aiPromptModal.style.display = 'none';
-            currentPromptBlock = null;
-        });
-
-        aiPromptModal.addEventListener('click', (e) => {
-            if (e.target === aiPromptModal) {
-                aiPromptModal.style.display = 'none';
-                currentPromptBlock = null;
-            }
-        });
-
-        if (aiWishesInput) {
-            aiWishesInput.addEventListener('input', updateGeneratedPrompt);
-        }
-
-        // Quick wishes tags
-        aiPromptModal.querySelectorAll('.wish-tag-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const wishText = btn.getAttribute('data-wish');
-                if (aiWishesInput) {
-                    const currentVal = aiWishesInput.value.trim();
-                    if (currentVal) {
-                        aiWishesInput.value = currentVal + ', ' + wishText;
-                    } else {
-                        aiWishesInput.value = wishText;
-                    }
-                    updateGeneratedPrompt();
-                }
-            });
-        });
-
-        btnCopyAIPrompt.addEventListener('click', () => {
-            if (aiPromptTextarea) {
-                const text = aiPromptTextarea.value;
-                copyTextToClipboard(text).then(() => {
-                    const originalHTML = btnCopyAIPrompt.innerHTML;
-                    btnCopyAIPrompt.disabled = true;
-                    btnCopyAIPrompt.innerHTML = '<i class="fa fa-check"></i> Скопировано!';
-                    setTimeout(() => {
-                        btnCopyAIPrompt.disabled = false;
-                        btnCopyAIPrompt.innerHTML = originalHTML;
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy prompt:', err);
-                    alert('Не удалось скопировать текст в буфер обмена.');
-                });
-            }
-        });
-
-        if (btnSendAIPromptDirectly) {
-            btnSendAIPromptDirectly.addEventListener('click', async () => {
-                const provider = getActiveTextAIProvider();
-                if (!provider) {
-                    if (aiPromptStatus) {
-                        aiPromptStatus.style.display = 'block';
-                        aiPromptStatus.style.background = '#fdf2f2';
-                        aiPromptStatus.style.borderLeft = '4px solid #ec5b5b';
-                        aiPromptStatus.style.color = '#ec5b5b';
-                        aiPromptStatus.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Провайдер ИИ не настроен. Пожалуйста, укажите API-ключ Gemini или OpenAI в настройках ИИ.';
-                    }
-                    return;
-                }
-
-                if (!aiPromptTextarea || !aiPromptTextarea.value.trim()) {
-                    alert('Промт пуст.');
-                    return;
-                }
-
-                const prompt = aiPromptTextarea.value;
-
-                if (aiPromptStatus) {
-                    aiPromptStatus.style.display = 'block';
-                    aiPromptStatus.style.background = '#f4f3ff';
-                    aiPromptStatus.style.borderLeft = '4px solid #8e44ad';
-                    aiPromptStatus.style.color = '#8e44ad';
-                    aiPromptStatus.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Отправка запроса в ${provider.name}...`;
-                }
-
-                btnSendAIPromptDirectly.disabled = true;
-                btnCopyAIPrompt.disabled = true;
-                const btnInsertAIResponse = $('#btnInsertAIResponse');
-                if (btnInsertAIResponse) btnInsertAIResponse.disabled = true;
-
-                try {
-                    let generatedHtml = '';
-                    if (provider.id === 'openai') {
-                        const key = localStorage.getItem('aiOpenAIKey').trim();
-                        const res = await fetch(getProxyUrl('https://api.openai.com/v1/chat/completions'), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${key}`
-                            },
-                            body: JSON.stringify({
-                                model: 'gpt-4o-mini',
-                                messages: [{ role: 'user', content: prompt }],
-                                temperature: 0.7
-                            })
-                        });
-
-                        if (!res.ok) {
-                            const errJson = await res.json().catch(() => ({}));
-                            throw new Error(errJson.error?.message || `HTTP ${res.status}`);
-                        }
-
-                        const data = await res.json();
-                        generatedHtml = data.choices?.[0]?.message?.content || '';
-                    } else if (provider.id === 'gemini') {
-                        const key = localStorage.getItem('aiGeminiKey').trim();
-                        const res = await fetch(getProxyUrl(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                contents: [{
-                                    parts: [{ text: prompt }]
-                                }]
-                            })
-                        });
-
-                        if (!res.ok) {
-                            const errJson = await res.json().catch(() => ({}));
-                            throw new Error(errJson.error?.message || `HTTP ${res.status}`);
-                        }
-
-                        const data = await res.json();
-                        generatedHtml = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    }
-
-                    if (!generatedHtml) {
-                        throw new Error('Получен пустой ответ от нейросети.');
-                    }
-
-                    const cleanedCode = cleanAIResponseCode(generatedHtml);
-
-                    if (currentPromptBlock) {
-                        const idx = blocks.findIndex(b => b.id === currentPromptBlock.id);
-                        if (idx !== -1) {
-                            blocks[idx].type = 'html';
-                            blocks[idx].data = { html: cleanedCode };
-                        } else {
-                            // Search in grid column blocks
-                            let foundInGrid = false;
-                            for (let b of blocks) {
-                                if (b.type === 'grid' && b.data.columns) {
-                                    for (let col of b.data.columns) {
-                                        const childIdx = col.blocks.findIndex(cb => cb.id === currentPromptBlock.id);
-                                        if (childIdx !== -1) {
-                                            col.blocks[childIdx].type = 'html';
-                                            col.blocks[childIdx].data = { html: cleanedCode };
-                                            foundInGrid = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (foundInGrid) break;
-                            }
-                        }
-                    } else {
-                        // Create a new HTML block
-                        const htmlBlock = { id: uuid(), type: 'html', data: { html: cleanedCode } };
-                        blocks.push(htmlBlock);
-                    }
-
-                    renderBlocks();
-                    updatePreview();
-
-                    if (aiPromptStatus) {
-                        aiPromptStatus.style.background = '#eef9f0';
-                        aiPromptStatus.style.borderLeft = '4px solid #27ae60';
-                        aiPromptStatus.style.color = '#27ae60';
-                        aiPromptStatus.innerHTML = '<i class="fa fa-check-circle"></i> Блок успешно обновлен!';
-                    }
-
-                    setTimeout(() => {
-                        aiPromptModal.style.display = 'none';
-                        currentPromptBlock = null;
-                        if (aiPromptStatus) {
-                            aiPromptStatus.style.display = 'none';
-                            aiPromptStatus.innerHTML = '';
-                        }
-                    }, 1500);
-
-                } catch (err) {
-                    console.error('Ошибка генерации ИИ:', err);
-                    if (aiPromptStatus) {
-                        aiPromptStatus.style.background = '#fdf2f2';
-                        aiPromptStatus.style.borderLeft = '4px solid #ec5b5b';
-                        aiPromptStatus.style.color = '#ec5b5b';
-                        let errMsg = err.message || 'Неизвестная ошибка';
-                        if (err.message && (err.message.includes('fetch') || err.message.includes('TypeError'))) {
-                            errMsg = 'Ошибка сети (блокировка CORS). Включите CORS Proxy в настройках ИИ для обхода.';
-                        }
-                        aiPromptStatus.innerHTML = `<i class="fa fa-times-circle"></i> Ошибка генерации: ${errMsg}`;
-                    }
-                } finally {
-                    btnSendAIPromptDirectly.disabled = false;
-                    btnCopyAIPrompt.disabled = false;
-                    if (btnInsertAIResponse) btnInsertAIResponse.disabled = false;
-                }
-            });
-        }
-
-        // ── "Insert AI Response" button: creates an HTML block, opens editor, focuses textarea ──
-        const btnInsertAIResponse = $('#btnInsertAIResponse');
-        if (btnInsertAIResponse) {
-            btnInsertAIResponse.addEventListener('click', () => {
-                // Close prompt modal
-                aiPromptModal.style.display = 'none';
-                currentPromptBlock = null;
-
-                // Create a new HTML block
-                const htmlBlock = { id: uuid(), type: 'html', data: BLOCK_TYPES.html.defaults() };
-                htmlBlock.data.html = '<!-- Вставьте сюда HTML-код, полученный от нейросети (ChatGPT, Gemini, Claude) -->';
-                blocks.push(htmlBlock);
-                renderBlocks();
-                updatePreview();
-
-                // Find the new block's card and open its editor
-                setTimeout(() => {
-                    const newCard = blocksContainer.querySelector(`.block-card[data-id="${htmlBlock.id}"]`);
-                    if (newCard) {
-                        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        toggleEdit(htmlBlock, newCard);
-
-                        // Focus the code textarea inside the edit form
-                        setTimeout(() => {
-                            const textarea = newCard.querySelector('.edit-form textarea');
-                            if (textarea) {
-                                textarea.focus();
-                                textarea.select();
-                            }
-                        }, 100);
-                    }
-                }, 100);
-            });
-        }
-    }
-
-    // ── Export Article ZIP Handler ──────────────────────────
-    const btnExportZIP = $('#btnExportZIP');
-    if (btnExportZIP) {
-        btnExportZIP.addEventListener('click', () => {
-            if (typeof JSZip === 'undefined') {
-                alert('Библиотека JSZip не загружена. Проверьте подключение к интернету.');
-                return;
-            }
-
-            const title = titleInput ? titleInput.value : 'Статья';
-            const slug = slugInput ? slugInput.value.trim() : slugify(title) || 'article';
-
-            btnExportZIP.disabled = true;
-            btnExportZIP.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
-
-            const copiedBlocks = JSON.parse(JSON.stringify(blocks));
-            const imageBlocks = collectAllImageBlocks(copiedBlocks);
-            const zipPromises = [];
-
-            const zip = new JSZip();
-
-            imageBlocks.forEach((imgBlock, idx) => {
-                let imgPromise = null;
-                let ext = 'png';
-                
-                if (imgBlock.data.srcType === 'local' || imgBlock.data.srcType === 'ai') {
-                    const b64Data = imgBlock.data.localSrc;
-                    if (b64Data && b64Data.startsWith('data:')) {
-                        const mimeMatch = b64Data.match(/^data:(image\/[a-z+]+);base64,/);
-                        if (mimeMatch) {
-                            ext = getExtensionFromMime(mimeMatch[1]);
-                        }
-                        const rawB64 = b64Data.substring(b64Data.indexOf(';base64,') + 8);
-                        imgPromise = Promise.resolve({
-                            data: rawB64,
-                            isBase64: true,
-                            ext: ext
-                        });
-                    }
-                }
-                
-                if (!imgPromise && imgBlock.data.src) {
-                    const srcPath = imgBlock.data.src;
-                    ext = getExtensionFromPath(srcPath);
-                    
-                    let url = srcPath;
-                    if (url.startsWith('image/catalog/content-constructor/')) {
-                        const filename = url.substring('image/catalog/content-constructor/'.length);
-                        url = 'image/' + filename;
-                    }
-                    
-                    imgPromise = fetch(url)
-                        .then(res => {
-                            if (!res.ok) throw new Error('Fetch failed');
-                            return res.arrayBuffer();
-                        })
-                        .then(buf => {
-                            return {
-                                data: buf,
-                                isBase64: false,
-                                ext: ext
-                            };
-                        })
-                        .catch(err => {
-                            console.warn('Could not fetch image for ZIP packaging:', url, err);
-                            return null;
-                        });
-                }
-                
-                if (imgPromise) {
-                    const newFilename = `${slug}-img-${idx + 1}`;
-                    zipPromises.push(
-                        imgPromise.then(res => {
-                            if (res) {
-                                const finalExt = res.ext || ext;
-                                const zipPath = `image/catalog/content-constructor/${newFilename}.${finalExt}`;
-                                
-                                imgBlock.data.src = zipPath;
-                                imgBlock.data.srcType = 'path';
-                                
-                                return {
-                                    path: zipPath,
-                                    data: res.data,
-                                    isBase64: res.isBase64
-                                };
-                            }
-                            return null;
-                        })
-                    );
-                }
-            });
-
-            Promise.all(zipPromises).then(imagesToAdd => {
-                imagesToAdd.forEach(img => {
-                    if (img) {
-                        if (img.isBase64) {
-                            zip.file(img.path, img.data, { base64: true });
-                        } else {
-                            zip.file(img.path, img.data);
-                        }
-                    }
-                });
-
-                // Generate clean HTML
-                const { tocHTML, contentHTML } = renderArticlePartsForBlocks(copiedBlocks, 'toHTML');
-                const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
-
-                // Add HTML to zip
-                zip.file(`content-${slug}.html`, cleanHTML);
-
-                return zip.generateAsync({ type: "blob" });
-            }).then(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `article-${slug}.zip`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-
-                btnExportZIP.disabled = false;
-                btnExportZIP.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать ZIP статьи';
-            }).catch(err => {
-                console.error('Ошибка при экспорте ZIP статьи:', err);
-                alert('Не удалось экспортировать статью в ZIP-архив.');
-                btnExportZIP.disabled = false;
-                btnExportZIP.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать ZIP статьи';
-            });
-        });
-    }
-
-    // Event delegation for AI Image Generation sticker button in workspace
-    if (blocksContainer) {
-        blocksContainer.addEventListener('click', (e) => {
-            const stickerBtn = e.target.closest('.img-ai-sticker-btn');
-            if (stickerBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                const blockId = stickerBtn.getAttribute('data-block-id');
-                handleAIStickerClick(blockId);
-            }
-        });
-    }
-
-    function findBlockById(id) {
-        // Search root level
-        let block = blocks.find(b => b.id === id);
-        if (block) {
-            const card = blocksContainer.querySelector(`.block-card[data-id="${id}"]`);
-            return { block, card };
-        }
-        
-        // Search nested level
-        const nested = findNestedBlock(id);
-        if (nested) {
-            const card = blocksContainer.querySelector(`.grid-child-card[data-child-id="${id}"]`);
-            return { block: nested.block, card };
-        }
-        
-        return null;
-    }
-
-    function handleAIStickerClick(blockId) {
-        const found = findBlockById(blockId);
-        if (!found) return;
-        const { block, card } = found;
-
-        // Check if any keys are configured
-        const keys = [
-            localStorage.getItem('aiOpenAIKey'),
-            localStorage.getItem('aiGeminiKey'),
-            localStorage.getItem('aiKandinskyKey'),
-            localStorage.getItem('aiYandexKey'),
-            localStorage.getItem('aiHFToken')
-        ];
-        const hasAnyKey = keys.some(key => key && key.trim().length > 0);
-
-        if (!hasAnyKey) {
-            const aiSetupInstructionModal = document.getElementById('aiSetupInstructionModal');
-            if (aiSetupInstructionModal) {
-                aiSetupInstructionModal.style.display = 'flex';
-            } else {
-                // Fallback
-                const settingsModal = document.getElementById('settingsModal');
-                if (settingsModal) {
-                    settingsModal.style.display = 'flex';
-                }
-            }
-            return;
-        }
-
-        // Set srcType to 'ai'
-        block.data.srcType = 'ai';
-
-        // Open edit form if not already open
-        const container = card.classList.contains('grid-child-card') 
-            ? card.querySelector('.grid-child-preview') 
-            : card.querySelector('.block-body');
-            
-        if (container && !container.querySelector('.edit-form')) {
-            toggleEdit(block, card);
-        } else if (container) {
-            // If already open, just switch select value and update fields visibility
-            const select = container.querySelector('.img-src-type-select');
-            if (select) {
-                select.value = 'ai';
-                select.dispatchEvent(new Event('change'));
-            }
-        }
-
-        // Focus the prompt textarea
-        setTimeout(() => {
-            const promptInput = card.querySelector('.img-ai-prompt-input');
-            if (promptInput) {
-                promptInput.focus();
-                promptInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }, 150);
     }
 
     // ── Initial Render ───────────────────────────────────────

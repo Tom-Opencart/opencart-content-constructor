@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.0.11">
+    <link rel="stylesheet" href="css/constructor.css?v=1.1.0">
 </head>
 <body>
 
@@ -37,9 +37,6 @@
         </div>
     </div>
     <div class="header-right">
-        <button id="btnSettings" class="btn btn-secondary" title="Настройки ИИ ассистента">
-            <span class="btn-icon"><i class="fa fa-cog"></i></span> Настройки ИИ
-        </button>
         <button id="btnHelp" class="btn btn-secondary" title="Инструкция по интеграции с OpenCart">
             <span class="btn-icon"><i class="fa fa-question-circle"></i></span> Справка
         </button>
@@ -49,9 +46,6 @@
         </button>
         <button id="btnExportTXT" class="btn btn-primary" title="Скачать чистый HTML-код в TXT для импорта" style="background: #e67e22; border-color: #d35400;">
             <span class="btn-icon"><i class="fa fa-file-text-o"></i></span> Скачать TXT
-        </button>
-        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив статьи (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
-            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи
         </button>
         <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML файл">
             <span class="btn-icon">&#60;/&#62;</span> Export HTML
@@ -119,10 +113,6 @@
                 <span class="block-btn-icon">&#9654;</span>
                 <span class="block-btn-label">Вкладки</span>
             </button>
-            <button class="block-btn" data-block-type="html" title="Кастомный HTML / Код от ИИ">
-                <span class="block-btn-icon"><i class="fa fa-code"></i></span>
-                <span class="block-btn-label">HTML-код</span>
-            </button>
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
                 <span class="block-btn-label">Оглавление</span>
@@ -180,7 +170,6 @@
             <button class="help-tab-btn" data-help-tab="help-text"><i class="fa fa-font"></i> Оформление текста</button>
             <button class="help-tab-btn" data-help-tab="help-blocks"><i class="fa fa-cubes"></i> Сложные блоки</button>
             <button class="help-tab-btn" data-help-tab="help-images"><i class="fa fa-picture-o"></i> Ссылки и картинки</button>
-            <button class="help-tab-btn" data-help-tab="help-ai"><i class="fa fa-magic"></i> Работа с ИИ</button>
         </div>
         <div class="modal-body help-modal-body">
             <!-- TAB 1: INSTALLATION -->
@@ -342,65 +331,6 @@
                     </ul>
                 </div>
             </div>
-
-            <!-- TAB 5: WORKING WITH AI -->
-            <div class="help-tab-content" id="help-ai" style="display: none;">
-                <h3 style="margin-top: 0; color: #5446f8;"><i class="fa fa-magic"></i> Как использовать ИИ (ChatGPT, Gemini, Claude)</h3>
-                <p>
-                    Конструктор поддерживает два ключевых направления работы с ИИ:
-                </p>
-                
-                <h4 style="color: #5446f8; margin-top: 15px;"><i class="fa fa-comments"></i> 1. Улучшение структуры и дизайна блоков (Промты)</h4>
-                <p>Вы можете переложить на нейросеть изменение стилей, цветов, адаптивности или внутренней структуры любого блока:</p>
-                <ol class="help-steps-list">
-                    <li>В шапке любого блока нажмите фиолетовую иконку волшебной палочки (<strong>«Создать промт для ИИ»</strong>).</li>
-                    <li>В открывшемся окне напишите ваши пожелания (например, <i>«сделай фон нежно-голубым с рамкой»</i>) или выберите один из готовых шаблонов.</li>
-                    <li>Нажмите кнопку <strong>«Скопировать промт»</strong>. В буфер скопируется подробная инструкция для ИИ вместе с исходным кодом этого блока.</li>
-                    <li>Откройте чат-бот с ИИ (ChatGPT, Claude, Gemini) и отправьте скопированный промт.</li>
-                    <li><strong>Что делать с ответом:</strong> ИИ вернет вам чистый модифицированный HTML-код. Скопируйте этот код, вернитесь в конструктор, добавьте блок <strong>«HTML-код»</strong> из левой панели, нажмите «Редактировать» (карандаш) на нем и вставьте код внутрь.</li>
-                </ol>
-
-                <h4 style="color: #27ae60; margin-top: 20px;"><i class="fa fa-picture-o"></i> 2. Генерация изображений в один клик</h4>
-                <p>В блоке <strong>«Изображение»</strong> вы можете генерировать иллюстрации прямо во время сборки статьи:</p>
-                <ul style="padding-left: 20px; line-height: 1.45;">
-                    <li>Нажмите на иконку-стикер <strong>«AI Генерация»</strong> прямо на пустой картинке-заглушке в рабочей области или в настройках блока выберите источник «Сгенерировать через ИИ».</li>
-                    <li>Введите текстовое описание изображения (промт) и выберите нейросеть-генератор.</li>
-                    <li>Для генерации используются внешние API нейросетей. Вы можете настроить свои ключи (OpenAI, Gemini, Kandinsky, YandexART или Hugging Face) через кнопку <strong>«Настройки ИИ»</strong> в шапке конструктора. Все ключи хранятся локально в вашем браузере.</li>
-                    <li>Сгенерированное изображение сохранится в конструкторе. При скачивании ZIP-архива статьи картинка автоматически будет упакована в архив по правильному пути!</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- AI SETUP INSTRUCTION MODAL -->
-<div id="aiSetupInstructionModal" class="modal-overlay" style="display: none;">
-    <div class="modal-window" style="width: 550px; max-width: 95vw;">
-        <div class="modal-header">
-            <h2><i class="fa fa-info-circle" style="color: #e67e22;"></i> Настройка генерации картинок через ИИ</h2>
-            <button class="modal-close" id="btnCloseAISetupInstruction">&times;</button>
-        </div>
-        <div class="modal-body" style="padding: 20px; line-height: 1.5;">
-            <p style="margin-top: 0; font-size: 14px; color: #333;">
-                Для генерации изображений прямо в конструкторе вам потребуется подключить API одной из нейросетей. Вы можете выбрать любую удобную систему:
-            </p>
-            <ul style="padding-left: 20px; margin-bottom: 15px; font-size: 13px; color: #555;">
-                <li style="margin-bottom: 8px;"><strong>OpenAI (DALL-E 3)</strong>: Генерация качественных картинок от создателей ChatGPT. Требуется API-ключ (<code>sk-...</code>).</li>
-                <li style="margin-bottom: 8px;"><strong>Gemini (Imagen 3)</strong>: Отличная генерация от Google. Можно получить бесплатный API-ключ в Google AI Studio.</li>
-                <li style="margin-bottom: 8px;"><strong>Kandinsky / FusionBrain (Sber)</strong>: Российская нейросеть от Сбера. Требуется бесплатная пара ключей <code>X-Key</code> и <code>X-Secret</code> из личного кабинета FusionBrain API.</li>
-                <li style="margin-bottom: 8px;"><strong>YandexART (Yandex Cloud)</strong>: Российская генеративная сеть Яндекса. Требуется <code>API Key</code> и <code>Folder ID</code> каталога Yandex Cloud.</li>
-                <li style="margin-bottom: 8px;"><strong>Hugging Face (FLUX.1-schnell)</strong>: Сверхбыстрая и качественная модель FLUX. Требуется бесплатный API-токен (<code>hf_...</code>) от Hugging Face.</li>
-            </ul>
-            <div style="background: #fff8e1; border-left: 4px solid #ffb300; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; font-size: 12.5px; color: #6d4c41;">
-                <i class="fa fa-lock"></i> <strong>Безопасность:</strong> Все введённые API-ключи хранятся исключительно в памяти вашего браузера (localStorage) и отправляются только напрямую к серверам ИИ-провайдеров. Мы не собираем и не сохраняем ваши ключи.
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button id="btnCancelAISetupInstruction" class="btn btn-secondary">Закрыть</button>
-                <button id="btnGoToSettings" class="btn btn-primary" style="background: #e67e22; border-color: #d35400;">
-                    <i class="fa fa-cog"></i> Перейти к настройкам
-                </button>
-            </div>
         </div>
     </div>
 </div>
@@ -482,198 +412,7 @@
     </div>
 </div>
 
-<!-- SETTINGS MODAL (AI Configuration) -->
-<div id="settingsModal" class="modal-overlay" style="display: none;">
-    <div class="modal-window settings-modal-window" style="width: 500px; max-width: 95vw;">
-        <div class="modal-header">
-            <h2><i class="fa fa-cog" style="color: #4a90d9;"></i> Настройки ИИ ассистента</h2>
-            <button class="modal-close" id="btnCloseSettings">&times;</button>
-        </div>
-        <div class="modal-body settings-modal-body" style="padding: 20px;">
-            <form id="aiSettingsForm" onsubmit="return false;">
-                <p style="font-size: 12.5px; color: #555; margin-bottom: 15px;">
-                    Ключи API сохраняются локально в вашем браузере (в <code>localStorage</code>) и используются напрямую для отправки запросов к ИИ. Никуда более они не передаются.
-                </p>
-                
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label for="aiOpenAIKey" style="font-weight: 600; display: block; margin-bottom: 6px;">OpenAI API Key (для DALL-E 3)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="password" id="aiOpenAIKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="sk-proj-...">
-                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="openai" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                            <i class="fa fa-refresh"></i> Проверить
-                        </button>
-                    </div>
-                    <div class="key-status-msg" data-provider="openai" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label for="aiGeminiKey" style="font-weight: 600; display: block; margin-bottom: 6px;">Gemini API Key (для Imagen 3 и промтов)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="password" id="aiGeminiKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="AIzaSy...">
-                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="gemini" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                            <i class="fa fa-refresh"></i> Проверить
-                        </button>
-                    </div>
-                    <div class="key-status-msg" data-provider="gemini" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Kandinsky / FusionBrain API (Sber AI)</label>
-                    <div style="display: flex; gap: 8px; margin-bottom: 4px;">
-                        <input type="password" id="aiKandinskyKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Key (API Key)">
-                        <input type="password" id="aiKandinskySecret" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="X-Secret (Secret Key)">
-                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="kandinsky" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                            <i class="fa fa-refresh"></i> Проверить
-                        </button>
-                    </div>
-                    <div class="key-status-msg" data-provider="kandinsky" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">YandexART API (Yandex Cloud)</label>
-                    <div style="display: flex; gap: 8px; margin-bottom: 4px;">
-                        <input type="password" id="aiYandexKey" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="API Key">
-                        <input type="text" id="aiYandexFolder" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="Folder ID">
-                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="yandexart" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                            <i class="fa fa-refresh"></i> Проверить
-                        </button>
-                    </div>
-                    <div class="key-status-msg" data-provider="yandexart" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="aiHFToken" style="font-weight: 600; display: block; margin-bottom: 6px;">Hugging Face API Token (для FLUX.1-schnell)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="password" id="aiHFToken" class="form-control" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" placeholder="hf_...">
-                        <button type="button" class="btn btn-secondary btn-check-key" data-provider="huggingface" style="padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 4px; border: 1px solid #ccc; background: #f8f9fa;">
-                            <i class="fa fa-refresh"></i> Проверить
-                        </button>
-                    </div>
-                    <div class="key-status-msg" data-provider="huggingface" style="font-size: 11px; margin-top: 4px; display: none;"></div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="aiDefaultProvider" style="font-weight: 600; display: block; margin-bottom: 6px;">Активный провайдер ИИ для картинок</label>
-                    <select id="aiDefaultProvider" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-                        <option value="auto">Автоопределение (первый настроенный)</option>
-                        <option value="openai">OpenAI (DALL-E 3)</option>
-                        <option value="gemini">Gemini (Imagen 3)</option>
-                        <option value="kandinsky">Kandinsky (Sber)</option>
-                        <option value="yandexart">YandexART (Yandex)</option>
-                        <option value="huggingface">Hugging Face (FLUX.1)</option>
-                    </select>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="aiCorsProxy" style="font-weight: 600; display: block; margin-bottom: 6px;">CORS Proxy (для обхода блокировок браузера)</label>
-                    <select id="aiCorsProxy" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
-                        <option value="">Не использовать (прямые запросы)</option>
-                        <option value="https://corsproxy.io/?">corsproxy.io (рекомендуется для localhost и github.io)</option>
-                        <option value="https://api.allorigins.win/raw?url=">allorigins.win (альтернативный)</option>
-                    </select>
-                    <small style="color:#777;font-size:11px;margin-top:4px;display:block;line-height:1.35;">
-                        <i class="fa fa-info-circle"></i> Большинство провайдеров ИИ блокируют прямые запросы из браузера (CORS). Прокси позволяет обойти это ограничение.
-                    </small>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button id="btnSaveSettings" class="btn btn-primary" style="background: #27ae60; border-color: #27ae60;">
-                        <i class="fa fa-check"></i> Сохранить настройки
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- AI PROMPT MODAL -->
-<div id="aiPromptModal" class="modal-overlay" style="display: none;">
-    <div class="modal-window ai-prompt-modal-window" style="width: 700px; max-width: 95vw;">
-        <div class="modal-header">
-            <h2><i class="fa fa-magic" style="color: #5446f8;"></i> Генератор промтов для ИИ (AI Prompt)</h2>
-            <button class="modal-close" id="btnCloseAIPrompt">&times;</button>
-        </div>
-        <div class="modal-body ai-prompt-modal-body" style="padding: 20px;">
-            <!-- VISUAL STEP-BY-STEP WORKFLOW -->
-            <div class="ai-steps-flow" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                <div class="ai-step-item" style="text-align: center; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
-                    <div style="width: 28px; height: 28px; background: #5446f8; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: bold; font-size: 13px;">1</div>
-                    <div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 3px;">Скопируйте промт</div>
-                    <div style="font-size: 10px; color: #666; line-height: 1.3;">Нажмите фиолетовую кнопку внизу</div>
-                </div>
-                <div class="ai-step-item" style="text-align: center; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
-                    <div style="width: 28px; height: 28px; background: #5446f8; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: bold; font-size: 13px;">2</div>
-                    <div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 3px;">Отправьте в ИИ</div>
-                    <div style="font-size: 10px; color: #666; line-height: 1.3;">Вставьте в ChatGPT, Gemini или Claude</div>
-                </div>
-                <div class="ai-step-item" style="text-align: center; background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef;">
-                    <div style="width: 28px; height: 28px; background: #5446f8; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: bold; font-size: 13px;">3</div>
-                    <div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 3px;">Скопируйте код</div>
-                    <div style="font-size: 10px; color: #666; line-height: 1.3;">Получите готовый HTML/CSS от нейросети</div>
-                </div>
-                <div class="ai-step-item" style="text-align: center; background: #eef9f0; padding: 10px; border-radius: 6px; border: 1px solid #c3e6cb;">
-                    <div style="width: 28px; height: 28px; background: #27ae60; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; font-weight: bold; font-size: 13px;">4</div>
-                    <div style="font-size: 11px; font-weight: 600; color: #27ae60; margin-bottom: 3px;">Вставьте в блок</div>
-                    <div style="font-size: 10px; color: #27ae60; line-height: 1.3;">Добавьте «HTML-код» блок и вставьте код</div>
-                </div>
-            </div>
-            
-            <div class="ai-workflow-guide" style="background: #f4f3ff; border: 1px solid #dcd9ff; border-radius: 6px; padding: 12px; margin-bottom: 15px; font-size: 12.5px; line-height: 1.45; color: #3b2fb3;">
-                <h4 style="margin: 0 0 6px 0; font-weight: 700; color: #5446f8;"><i class="fa fa-info-circle"></i> Инструкция: Что делать с ответом от нейросети (AI)?</h4>
-                <p style="margin: 0 0 8px 0; font-size: 12.5px;">
-                    После того, как вы вставили скопированный промт в нейросеть, она пришлет вам изменённый код. Выполните следующие шаги:
-                </p>
-                <ol style="margin: 0; padding-left: 18px;">
-                    <li style="margin-bottom: 4px;"><strong>Скопируйте изменённый HTML-код</strong> (включая стили <code>&lt;style&gt;</code>, если ИИ их добавил).</li>
-                    <li style="margin-bottom: 4px;">Вернитесь в этот Конструктор и закройте это окно.</li>
-                    <li style="margin-bottom: 4px;">В левой панели нажмите на кнопку <strong>«HTML-код»</strong> (самая нижняя кнопка в блоке инструментов с иконкой <code>&lt;/&gt;</code>) — создастся новый блок.</li>
-                    <li>Нажмите на иконку <strong>«Редактировать» (карандаш)</strong> на этом новом HTML-блоке, вставьте в текстовое поле скопированный от ИИ код и нажмите <strong>«Сохранить»</strong>.</li>
-                </ol>
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Быстрые пожелания (кликните, чтобы добавить в промт):</label>
-                <div class="quick-wishes-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                    <button class="wish-tag-btn" data-wish="сделай фон нежно-голубым, скругление углов 12px и добавь тень">🌟 Нежно-голубой фон и тень</button>
-                    <button class="wish-tag-btn" data-wish="сделай кнопки оранжевыми с белым текстом и анимацией при наведении">🌟 Оранжевые кнопки</button>
-                    <button class="wish-tag-btn" data-wish="добавь рамку цвета accent и сделай отступы внутри побольше">🌟 Рамка и отступы</button>
-                    <button class="wish-tag-btn" data-wish="сделай этот блок более компактным по высоте и уменьши шрифты">🌟 Компактный вид</button>
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label for="aiWishesInput" style="font-weight: 600; display: block; margin-bottom: 6px;">Ваши пожелания к изменению:</label>
-                <input type="text" id="aiWishesInput" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 13px;" placeholder="Например: сделай фон зеленым и кнопки со скруглением...">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 12px;">
-                <label style="font-weight: 600; display: block; margin-bottom: 6px;">Итоговый промт для копирования:</label>
-                <textarea id="aiPromptTextarea" rows="12" class="form-control" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 12px; background: #f9f9f9; resize: none;"></textarea>
-            </div>
-
-            <div id="aiPromptStatus" style="font-size: 12.5px; margin-bottom: 12px; display: none; padding: 10px; border-radius: 4px; line-height: 1.45;"></div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <div style="font-size: 11.5px; color: #888; line-height: 1.3; max-width: 250px;">
-                    <i class="fa fa-info-circle"></i> Скопируйте промт → вставьте в ИИ → получите код → нажмите зелёную кнопку (или используйте прямую генерацию)
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button id="btnSendAIPromptDirectly" class="btn btn-primary" style="background: #8e44ad; border-color: #7d3c98;">
-                        <i class="fa fa-paper-plane"></i> Генерировать через ИИ
-                    </button>
-                    <button id="btnCopyAIPrompt" class="btn btn-primary" style="background: #5446f8; border-color: #5446f8;">
-                        <i class="fa fa-clipboard"></i> Скопировать промт
-                    </button>
-                    <button id="btnInsertAIResponse" class="btn btn-primary" style="background: #27ae60; border-color: #219a52;">
-                        <i class="fa fa-code"></i> Вставить ответ ИИ
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.0.11"></script>
+<script src="js/app.js?v=1.1.0"></script>
 </body>
 </html>
