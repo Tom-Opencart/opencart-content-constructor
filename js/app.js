@@ -1413,12 +1413,26 @@
                 e.preventDefault();
                 card.classList.remove('drag-over');
                 const fromId = e.dataTransfer.getData('text/plain');
-                const fromBlock = blocks.find(b => b.id === fromId);
-                const toBlock = block;
-                if (fromBlock && fromBlock.id !== toBlock.id) {
-                    const fromIdx = blocks.indexOf(fromBlock);
-                    const toIdx = blocks.indexOf(toBlock);
-                    moveBlock(fromIdx, toIdx);
+                if (fromId === block.id) return;
+
+                let movedBlock = null;
+                const topIdx = blocks.findIndex(b => b.id === fromId);
+                if (topIdx !== -1) {
+                    movedBlock = blocks[topIdx];
+                    blocks.splice(topIdx, 1);
+                } else {
+                    const nested = findNestedBlock(fromId);
+                    if (nested) {
+                        movedBlock = nested.block;
+                        nested.column.blocks.splice(nested.idx, 1);
+                    }
+                }
+
+                if (movedBlock) {
+                    const toIdx = blocks.indexOf(block);
+                    blocks.splice(toIdx, 0, movedBlock);
+                    renderBlocks();
+                    updatePreview();
                 }
             });
 
@@ -1456,6 +1470,7 @@
 
         card.querySelectorAll('.grid-child-card').forEach(childCard => {
             childCard.addEventListener('dragstart', (e) => {
+                dragState.dragging = childCard.dataset.childId;
                 e.stopPropagation();
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', childCard.dataset.childId);
@@ -1463,6 +1478,7 @@
             });
             childCard.addEventListener('dragend', () => {
                 childCard.classList.remove('dragging');
+                dragState.dragging = null;
             });
         });
 
@@ -3201,6 +3217,40 @@ ${contentHTML}</div>
             });
         });
     }
+
+    // ── Global Drag & Drop workspace targets ─────────────────
+    blocksContainer.addEventListener('dragover', (e) => {
+        if (dragState.dragging) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+    });
+
+    blocksContainer.addEventListener('drop', (e) => {
+        if (e.target === blocksContainer || e.target === workspaceEmpty || e.target.classList.contains('blocks-container')) {
+            e.preventDefault();
+            const fromId = e.dataTransfer.getData('text/plain');
+            
+            let movedBlock = null;
+            const topIdx = blocks.findIndex(b => b.id === fromId);
+            if (topIdx !== -1) {
+                movedBlock = blocks[topIdx];
+                blocks.splice(topIdx, 1);
+            } else {
+                const nested = findNestedBlock(fromId);
+                if (nested) {
+                    movedBlock = nested.block;
+                    nested.column.blocks.splice(nested.idx, 1);
+                }
+            }
+            
+            if (movedBlock) {
+                blocks.push(movedBlock);
+                renderBlocks();
+                updatePreview();
+            }
+        }
+    });
 
     // ── Initial Render ───────────────────────────────────────
     renderBlocks();
