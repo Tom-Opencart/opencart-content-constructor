@@ -1932,10 +1932,10 @@
         const question = e.target.closest('.article-faq-question');
         if (!question) return;
         
-        const targetId = question.getAttribute('data-target');
-        if (!targetId) return;
+        const item = question.closest('.article-faq-item');
+        if (!item) return;
         
-        const targetEl = document.querySelector(targetId);
+        const targetEl = item.querySelector('.article-faq-collapse');
         if (!targetEl) return;
         
         const isCollapsed = targetEl.classList.contains('in');
