@@ -37,27 +37,27 @@
         </div>
     </div>
     <div class="header-right">
-        <button id="btnHelp" class="btn btn-secondary" title="Инструкция по интеграции с OpenCart">
-            <span class="btn-icon"><i class="fa fa-question-circle"></i></span> Справка
+        <button id="btnHelp" class="btn btn-secondary" title="Справка — как пользоваться конструктором">
+            <span class="btn-icon"><i class="fa fa-question-circle"></i></span>
         </button>
 
-        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать чистый HTML для OpenCart" style="background: #27ae60;">
-            <span class="btn-icon"><i class="fa fa-clipboard"></i></span> Копировать код
+        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60;">
+            <span class="btn-icon"><i class="fa fa-clipboard"></i></span>
         </button>
-        <button id="btnExportTXT" class="btn btn-primary" title="Скачать чистый HTML-код в TXT для импорта" style="background: #e67e22; border-color: #d35400;">
-            <span class="btn-icon"><i class="fa fa-file-text-o"></i></span> Скачать TXT
+        <button id="btnExportTXT" class="btn btn-primary" title="Скачать HTML-код в TXT-файле" style="background: #e67e22; border-color: #d35400;">
+            <span class="btn-icon"><i class="fa fa-file-text-o"></i></span>
         </button>
-        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив статьи (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
-            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи
+        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
+            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span>
         </button>
-        <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML файл">
-            <span class="btn-icon">&#60;/&#62;</span> Export HTML
+        <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML-файл для просмотра">
+            <span class="btn-icon">&#60;/&#62;</span>
         </button>
-        <button id="btnExportCSS" class="btn btn-secondary" title="Скачать CSS файл">
-            <span class="btn-icon">{ }</span> Export CSS
+        <button id="btnExportCSS" class="btn btn-secondary" title="Скачать CSS-файл стилей">
+            <span class="btn-icon">{ }</span>
         </button>
-        <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать / Скрыть превью">
-            <span class="btn-icon"><i class="fa fa-eye"></i></span> Превью
+        <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать или скрыть превью">
+            <span class="btn-icon"><i class="fa fa-eye"></i></span>
         </button>
     </div>
 </header>
@@ -177,161 +177,399 @@
         <div class="modal-body help-modal-body">
             <!-- TAB 1: INSTALLATION -->
             <div class="help-tab-content active" id="help-install">
-                <h3 style="margin-top: 0; color: #27ae60;"><i class="fa fa-check-circle"></i> Автоматическая установка (Рекомендуется)</h3>
+                <h3 style="margin-top: 0; color: #27ae60;"><i class="fa fa-check-circle"></i> Как подключить конструктор к вашему сайту</h3>
                 <p>
-                    Для интеграции конструктора с вашим сайтом на <strong>OpenCart 3</strong> скачайте готовый ZIP-архив. Он содержит все необходимые стили и добавляет удобную кнопку импорта в стандартный текстовый редактор Summernote в админке.
+                    Чтобы статьи, созданные в конструкторе, красиво отображались на вашем сайте, нужно один раз подключить стили. Есть два способа — выбрать можно любой.
                 </p>
-                
+
+                <h3 style="color: #27ae60; margin-top: 20px;"><i class="fa fa-magic"></i> Способ 1: Автоматический (самый простой)</h3>
+                <p>
+                    Этот способ подходит для тех, кто работает с <strong>OpenCart 3</strong>. Вам нужно скачать один файл и загрузить его на сайт — конструктор сам всё сделает.
+                </p>
+
                 <div class="download-box" style="background: #eef9f0; border-color: #c3e6cb; padding: 15px; margin: 12px 0;">
                     <div class="download-box-text">
-                        <div class="download-box-title" style="font-size: 14px; color: #27ae60; font-weight: bold;">Интеграционный ZIP-архив (.ocmod.zip)</div>
+                        <div class="download-box-title" style="font-size: 14px; color: #27ae60; font-weight: bold;">Готовый файл для установки</div>
                         <div class="download-box-desc" style="font-size: 12px; color: #555; margin-top: 4px;">
-                            Содержит файл стилей <code>content-constructor.css</code> и модификатор <code>install.xml</code>.
+                            Нажмите кнопку — скачается ZIP-файл. Внутри: стили для статей + специальная кнопка импорта в редактор.
                         </div>
                     </div>
                     <button class="btn-download-xml" id="btnDownloadZip" style="background: #27ae60; padding: 10px 16px; font-size: 12px;">
-                        <i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip
+                        <i class="fa fa-file-archive-o"></i> Скачать ZIP-файл
                     </button>
                 </div>
 
-                <p><strong>Пошаговая инструкция для новичков:</strong></p>
+                <p><strong>Что делать пошагово:</strong></p>
                 <ol class="help-steps-list">
-                    <li>Нажмите зелёную кнопку выше и скачайте файл <code>content_constructor.ocmod.zip</code>.</li>
-                    <li>Войдите в админ-панель вашего сайта OpenCart.</li>
-                    <li>Перейдите в раздел <strong>«Расширения» ➔ «Установка расширений»</strong> и загрузите скачанный файл.</li>
-                    <li>Перейдите в раздел <strong>«Расширения» ➔ «Менеджер модификаторов»</strong> и нажмите кнопку <strong>«Обновить»</strong> (синяя кнопка с круговыми стрелками в верхнем правом углу).</li>
-                    <li>После этого очистите кэш вашего браузера (кликните <code>Ctrl + F5</code> на странице с редактором Summernote), чтобы обновить кэш редактора.</li>
+                    <li>Нажмите зелёную кнопку выше и скачайте файл на компьютер.</li>
+                    <li>Откройте админ-панель вашего сайта (обычно <code>ваш-сайт.ru/admin</code>).</li>
+                    <li>Слева в меню найдите раздел <strong>«Расширения»</strong> и нажмите <strong>«Установка расширений»</strong>.</li>
+                    <li>Нажмите кнопку <strong>«Загрузить»</strong> (синяя кнопка вверху справа) и выберите скачанный ZIP-файл.</li>
+                    <li>Теперь перейдите в <strong>«Расширения» → «Менеджер модификаторов»</strong> и нажмите синюю кнопку <strong>«Обновить»</strong> (с круговыми стрелками).</li>
+                    <li>Готово! Теперь откройте редактор товара или статьи в админке — рядом с обычными кнопками появится <span style="color: #27ae60; font-weight: bold;">зелёная иконка файла</span>. Нажмите на неё, чтобы загрузить готовый HTML из конструктора.</li>
                 </ol>
 
-                <h3 style="color: #e67e22; margin-top: 20px;"><i class="fa fa-info-circle"></i> Ручная настройка стилей</h3>
-                <p>Если вы не хотите устанавливать плагин, вы можете подключить стили статьи вручную:</p>
-                <ul>
-                    <li>Нажмите кнопку <strong>Export CSS</strong> в шапке конструктора и скопируйте код.</li>
-                    <li>Вставьте его в поле «Пользовательские CSS стили» в настройках вашей темы OpenCart или в конец файла стилей вашего шаблона (обычно <code>catalog/view/theme/название_темы/stylesheet/stylesheet.css</code>).</li>
-                </ul>
+                <div class="help-example-box" style="background: #fff8e1; border-color: #ffe082;">
+                    <p style="margin: 0;"><strong>Подсказка:</strong> Если после установки кнопка не появилась — нажмите <code>Ctrl + F5</code> на странице редактора. Это очистит кэш браузера.</p>
+                </div>
+
+                <h3 style="color: #e67e22; margin-top: 20px;"><i class="fa fa-hand-paper-o"></i> Способ 2: Ручной (без установки плагина)</h3>
+                <p>
+                    Если вы не хотите устанавливать файлы на сайт, можно просто скопировать стили и вставить их вручную:
+                </p>
+                <ol class="help-steps-list">
+                    <li>В шапке конструктора нажмите кнопку <strong>«Export CSS»</strong> — откроется/скачается файл со стилями.</li>
+                    <li>Скопируйте весь текст из этого файла.</li>
+                    <li>В админке OpenCart зайдите в настройки вашей темы и найдите поле <strong>«Пользовательские CSS»</strong> или <strong>«Custom CSS»</strong>.</li>
+                    <li>Вставьте скопированные стили в это поле и сохраните.</li>
+                </ol>
+                <p style="color: #888; font-size: 12px;">
+                    Если такого поля нет — добавьте стили в конец файла <code>catalog/view/theme/ВАША_ТЕМА/stylesheet/stylesheet.css</code> через файловый менеджер или FTP.
+                </p>
             </div>
 
             <!-- TAB 2: TEXT FORMATTING -->
             <div class="help-tab-content" id="help-text" style="display: none;">
-                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-edit"></i> Простое форматирование текста</h3>
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-edit"></i> Как писать и оформлять текст</h3>
                 <p>
-                    В полях ввода текстовых блоков (Параграфы, Спойлеры, Вкладки) вы можете форматировать текст с помощью простых Markdown-символов. Конструктор автоматически превратит их в красивый HTML.
+                    Конструктор понимает простые символы для форматирования. Вы пишете их обычным текстом, а конструктор автоматически превращает их в красивое оформление. Вот что можно делать:
                 </p>
-                
-                <table class="help-table-guide">
-                    <thead>
-                        <tr>
-                            <th>Что вы пишете в поле</th>
-                            <th>Результат на сайте</th>
-                            <th>Для чего используется</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><code>**Ваш жирный текст**</code></td>
-                            <td><strong>Ваш жирный текст</strong></td>
-                            <td>Выделение важных мыслей</td>
-                        </tr>
-                        <tr>
-                            <td><code>*Курсивный текст*</code></td>
-                            <td><em>Курсивный текст</em></td>
-                            <td>Сноски, цитирование терминов</td>
-                        </tr>
-                        <tr>
-                            <td><code>[Название ссылки](https://site.ru)</code></td>
-                            <td><a href="#" style="color:#5446f8;text-decoration:underline;">Название ссылки</a></td>
-                            <td>Ссылка на любой внешний сайт или страницу</td>
-                        </tr>
-                        <tr>
-                            <td><code>- Пункт 1<br>- Пункт 2</code></td>
-                            <td><ul><li>Пункт 1</li><li>Пункт 2</li></ul></td>
-                            <td>Обычный маркированный список списком внутри текста</td>
-                        </tr>
-                        <tr>
-                            <td><code>1. Первый пункт<br>2. Второй пункт</code></td>
-                            <td><ol><li>Первый пункт</li><li>Второй пункт</li></ol></td>
-                            <td>Нумерованный список по шагам</td>
-                        </tr>
-                    </tbody>
-                </table>
 
-                <h3 style="color: #4a90d9; margin-top: 20px;"><i class="fa fa-list-alt"></i> Списки параметров (Списки определений)</h3>
-                <p>
-                    Идеально подходит для перечисления характеристик или терминов в формате «Параметр :: Значение». Вставьте двоеточия <code>::</code> между параметром и его описанием:
-                </p>
+                <h3 style="color: #333; margin-top: 18px;"><strong>Жирный текст</strong></h3>
+                <p>Оберните текст в две звёздочки с каждой стороны:</p>
                 <div class="help-example-box">
                     <div class="help-example-input">
-                        <strong>Пример ввода:</strong><br>
-                        <code>Время работы :: До 18 часов в активном режиме</code><br>
-                        <code>Дисплей :: Сенсорный OLED-экран Retina</code>
+                        <strong>Вы пишете:</strong><br>
+                        <code>Это очень <strong>важная</strong> информация</code>
                     </div>
                     <div class="help-example-output">
-                        <strong>Результат на сайте:</strong><br>
+                        <strong>На сайте будет:</strong><br>
+                        <span style="font-size:14px;">Это очень <strong>важная</strong> информация</span>
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Когда нужно выделить ключевое слово, название продукта, цену или любую важную мысль.</p>
+
+                <h3 style="color: #333; margin-top: 18px;"><em>Курсивный текст</em></h3>
+                <p>Оберните текст в одну звёздочку с каждой стороны:</p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Вы пишете:</strong><br>
+                        <code>Модель <em>Pro Max</em> отличается увеличенным экраном</code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>На сайте будет:</strong><br>
+                        <span style="font-size:14px;">Модель <em>Pro Max</em> отличается увеличенным экраном</span>
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Для названий моделей, иностранных слов, цитат или терминов.</p>
+
+                <h3 style="color: #333; margin-top: 18px;">Ссылки</h3>
+                <p>Напишите текст ссылки в квадратных скобках, а адрес — в круглых:</p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Вы пишете:</strong><br>
+                        <code>Подробнее на <a href="#" style="color:#5446f8;text-decoration:underline;">нашем сайте</a></code><br><br>
+                        <span style="color: #888;">или так:</span><br>
+                        <code>[Подробнее на нашем сайте](https://example.ru/catalog)</code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>На сайте будет:</strong><br>
+                        <span style="font-size:14px;">Подробнее на <a href="#" style="color:#5446f8;text-decoration:underline;">нашем сайте</a></span>
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Ссылки на другие страницы вашего каталога, на инструкции, на сторонние ресурсы.</p>
+
+                <h3 style="color: #333; margin-top: 18px;">Маркированный список (с тире)</h3>
+                <p>Каждый пункт начинайте с тире или минуса:</p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Вы пишете:</strong><br>
+                        <code>
+- Алюминиевый корпус<br>
+- Влагозащита IP68<br>
+- Батарея на 2 дня
+                        </code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>На сайте будет:</strong><br>
+                        <ul style="margin: 5px 0 0 0;">
+                            <li>Алюминиевый корпус</li>
+                            <li>Влагозащита IP68</li>
+                            <li>Батарея на 2 дня</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Для перечисления характеристик, преимуществ, комплектации.</p>
+
+                <h3 style="color: #333; margin-top: 18px;">Нумерованный список (по порядку)</h3>
+                <p>Каждый пункт начинайте с цифры и точки:</p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Вы пишете:</strong><br>
+                        <code>
+1. Включите устройство<br>
+2. Подключитесь к Wi-Fi<br>
+3. Следуйте инструкциям на экране
+                        </code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>На сайте будет:</strong><br>
+                        <ol style="margin: 5px 0 0 0;">
+                            <li>Включите устройство</li>
+                            <li>Подключитесь к Wi-Fi</li>
+                            <li>Следуйте инструкциям на экране</li>
+                        </ol>
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Для пошаговых инструкций, порядка действий, этапов установки.</p>
+
+                <h3 style="color: #333; margin-top: 18px;">Список характеристик (Параметр :: Значение)</h3>
+                <p>Введите два двоеточия между названием параметра и его значением:</p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Вы пишете:</strong><br>
+                        <code>
+Вес :: 52 грамма<br>
+Экран :: 1.9 дюйма AMOLED<br>
+Время работы :: до 18 часов<br>
+Водозащита :: 50 метров
+                        </code>
+                    </div>
+                    <div class="help-example-output">
+                        <strong>На сайте будет:</strong><br>
                         <dl class="preview-dl" style="margin: 5px 0 0 0;">
+                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Вес</dt>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">52 грамма</dd>
+                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Экран</dt>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">1.9 дюйма AMOLED</dd>
                             <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Время работы</dt>
-                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">До 18 часов в активном режиме</dd>
-                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Дисплей</dt>
-                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">Сенсорный OLED-экран Retina</dd>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">до 18 часов</dd>
+                            <dt style="font-weight:bold; color:#1a1a1a; margin-top: 4px; font-size:13px; font-family: sans-serif;">Водозащита</dt>
+                            <dd style="margin-left: 10px; color:#555; font-size:13px; font-family: sans-serif; margin-bottom: 5px;">50 метров</dd>
                         </dl>
                     </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">Идеально для описания характеристик товара — получается аккуратный список «название — значение».</p>
+
+                <div class="help-example-box" style="background: #fff8e1; border-color: #ffe082;">
+                    <p style="margin: 0;"><strong>Важно:</strong> Markdown-форматирование работает в блоках «Параграф», «Спойлер» и «Вкладки». В заголовках, цитатах и таблицах оно не нужно — там текст и так форматируется.</p>
                 </div>
             </div>
 
             <!-- TAB 3: COMPLEX BLOCKS -->
             <div class="help-tab-content" id="help-blocks" style="display: none;">
-                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-columns"></i> Сетка (Разметка на несколько колонок)</h3>
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-columns"></i> Сетка — размещение контента в колонки</h3>
                 <p>
-                    Позволяет разместить контент (например, картинку слева и текст справа) в несколько колонок.
+                    Блок «Сетка» позволяет расположить картинку слева, а текст справа (или наоборот). Или разбить контент на 3-4 колонки. Это как таблица, но для произвольного контента.
                 </p>
+
+                <p><strong>Как использовать — пошагово:</strong></p>
                 <ol class="help-steps-list">
-                    <li>Добавьте блок <strong>«Сетка»</strong> в конструктор.</li>
-                    <li>В настройках блока выберите шаблон колонок (например, <strong>«6 + 6»</strong> для двух равных колонок, или <strong>«4 + 4 + 4»</strong> для трех).</li>
-                    <li>Перетаскивайте другие блоки (Параграфы, Картинки, Цитаты) из левой панели прямо внутрь появившихся пустых серых полей колонок.</li>
-                    <li>В экспортируемом коде используется сетка Bootstrap 3, которая автоматически адаптируется под экраны телефонов (колонки выстраиваются вертикально).</li>
+                    <li>В левой панели нажмите <strong>«Сетка»</strong> — в рабочей области появится блок с пустыми колонками.</li>
+                    <li>Нажмите на блок сетки кнопку <strong>«Редактировать»</strong> (карандаш) и настройте:
+                        <ul style="margin-top: 5px;">
+                            <li><strong>Сколько колонок:</strong> 2, 3 или 4</li>
+                            <li><strong>Ширина колонок:</strong> например, <code>6 + 6</code> — две равные половины; <code>4 + 4 + 4</code> — три равных трети; <code>3 + 9</code> — узкая левая и широкая правая</li>
+                            <li><strong>На телефоне:</strong> 1 в ряд (колонки по очереди) или 2 в ряд</li>
+                        </ul>
+                    </li>
+                    <li>Перетащите нужные блоки (картинку, текст, цитату) из левой панели <strong>прямо внутрь</strong> серой области нужной колонки.</li>
                 </ol>
 
-                <h3 style="color: #4a90d9; margin-top: 20px;"><i class="fa fa-folder-open-o"></i> Спойлеры и Вкладки (Tabs)</h3>
-                <p>Помогают скрыть длинные тексты, чтобы статья выглядела аккуратно:</p>
+                <div class="help-example-box">
+                    <strong>Пример 1:</strong> Картинка слева + текст справа
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-picture-o" style="font-size: 24px;"></i><br>Изображение<br><small>col-md-6</small>
+                        </div>
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-align-left" style="font-size: 24px;"></i><br>Текст<br><small>col-md-6</small>
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Настройки: 2 колонки, схема <code>6 + 6</code></p>
+                </div>
+
+                <div class="help-example-box">
+                    <strong>Пример 2:</strong> Три картинки рядом
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-picture-o" style="font-size: 20px;"></i><br><small>col-md-4</small>
+                        </div>
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-picture-o" style="font-size: 20px;"></i><br><small>col-md-4</small>
+                        </div>
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-picture-o" style="font-size: 20px;"></i><br><small>col-md-4</small>
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Настройки: 3 колонки, схема <code>4 + 4 + 4</code>, на телефоне «2 в ряд»</p>
+                </div>
+
+                <div class="help-example-box">
+                    <strong>Пример 3:</strong> Узкий текстовый блок слева, широкий контент справа
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <div style="flex: 0 0 25%; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-align-left" style="font-size: 20px;"></i><br>Цитата<br><small>col-md-3</small>
+                        </div>
+                        <div style="flex: 1; background: #f0f4ff; border: 1px dashed #4a90d9; border-radius: 6px; padding: 10px; text-align: center; color: #4a90d9; font-size: 12px;">
+                            <i class="fa fa-align-left" style="font-size: 24px;"></i><br>Основной текст<br><small>col-md-9</small>
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Настройки: 2 колонки, схема <code>3 + 9</code></p>
+                </div>
+
+                <h3 style="color: #4a90d9; margin-top: 24px;"><i class="fa fa-toggle-down"></i> Спойлер (аккордеон) — скрытый текст</h3>
+                <p>
+                    Спойлер прячет длинный текст под заголовком. Пользователь видит только заголовок и нажимает на него, чтобы развернуть содержимое. Очень удобно для вопросов и ответов.
+                </p>
+
+                <p><strong>Где использовать:</strong></p>
                 <ul>
-                    <li><strong>Спойлер (Аккордеон):</strong> Скрывает текст под заголовком. Разворачивается при клике на стрелочку. Отлично подходит для раздела «Часто задаваемые вопросы (FAQ)».</li>
-                    <li><strong>Вкладки:</strong> Группируют контент по вкладкам. Пользователь может переключаться между ними в один клик (например: «Характеристики», «Описание», «Комплектация»).</li>
+                    <li>Раздел «Часто задаваемые вопросы (FAQ)»</li>
+                    <li>Длинные описания характеристик, которые не всем нужны</li>
+                    <li>Скрытые инструкции или подробности</li>
                 </ul>
+
+                <div class="help-example-box">
+                    <strong>Как выглядит для пользователя:</strong>
+                    <details style="margin-top: 8px; border: 1px solid #e0e0e0; border-radius: 5px; background: #fafafa;">
+                        <summary style="padding: 10px; cursor: pointer; font-weight: 600;">Можно ли использовать эти часы с Android?</summary>
+                        <div style="padding: 10px 30px; background: #fff;">
+                            К сожалению, нет. Apple Watch работают только с iPhone. Для активации нужен iPhone модели 6s или новее.
+                        </div>
+                    </details>
+                    <details style="margin-top: 4px; border: 1px solid #e0e0e0; border-radius: 5px; background: #fafafa;">
+                        <summary style="padding: 10px; cursor: pointer; font-weight: 600;">Какое время работы от батареи?</summary>
+                        <div style="padding: 10px 30px; background: #fff;">
+                            До 18 часов в обычном режиме. При активном использовании GPS — до 7 часов.
+                        </div>
+                    </details>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Пользователь видит только заголовки. Нажал — развернулся текст.</p>
+                </div>
+
+                <h3 style="color: #4a90d9; margin-top: 24px;"><i class="fa fa-folder-open-o"></i> Вкладки — группировка контента</h3>
+                <p>
+                    Вкладки позволяют разнести информацию по нескольким «страничкам» внутри одного блока. Пользователь нажимает на вкладку и видит только её содержимое.
+                </p>
+
+                <p><strong>Где использовать:</strong></p>
+                <ul>
+                    <li>«Характеристики» / «Описание» / «Комплектация» — для товара</li>
+                    <li>«Для кого» / «Противопоказания» / «Дозировка» — для лекарств</li>
+                    <li>Любая информация, которую удобно разделить на категории</li>
+                </ul>
+
+                <div class="help-example-box">
+                    <strong>Как выглядит для пользователя:</strong>
+                    <div class="article-tabs" style="margin-top: 8px;">
+                        <div class="article-tabs-nav">
+                            <button class="active">Характеристики</button>
+                            <button>Описание</button>
+                            <button>Комплектация</button>
+                        </div>
+                        <div class="article-tabs-panels">
+                            <div class="article-tabs-panel">
+                                <p style="margin: 0; font-size: 13px;">Экран 1.9", процессор S9, вес 52 г, водозащита 50м.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">Пользователь переключается между вкладками одним кликом.</p>
+                </div>
+
+                <div class="help-example-box" style="background: #fff8e1; border-color: #ffe082;">
+                    <p style="margin: 0;"><strong>Совет:</strong> Во время редактирования вкладок можно добавлять и удалять их, менять заголовки и содержимое. Каждая вкладка — это отдельное поле для текста.</p>
+                </div>
             </div>
 
             <!-- TAB 4: IMAGES AND LINKS -->
             <div class="help-tab-content" id="help-images" style="display: none;">
-                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-picture-o"></i> Работа с изображениями</h3>
+                <h3 style="margin-top: 0; color: #4a90d9;"><i class="fa fa-picture-o"></i> Как добавлять картинки</h3>
                 <p>
-                    Поскольку изображения хранятся на вашем сервере OpenCart, следуйте этим рекомендациям:
+                    Есть два способа работать с картинками. Выбирайте тот, который удобнее:
                 </p>
-                <ul>
-                    <li>
-                        <strong>Автоматический путь (Скачать ZIP статьи):</strong> При выгрузке архива (кнопка «Скачать ZIP статьи»), все добавленные в конструктор картинки автоматически пакуются и сохраняются в папку <code>image/catalog/content-constructor/{slug}/</code>. При импорте TXT-файла в OpenCart правильные пути к картинкам формируются автоматически. Вам не нужно указывать пути вручную, кроме случаев подключения уже загруженных на ваш сервер картинок.
-                    </li>
-                    <li>
-                        <strong>Временный просмотр:</strong> Чтобы картинка отображалась в превью во время сборки, вы можете:
-                        <ol style="margin-top: 5px; padding-left: 15px;">
-                            <li>Ввести в шапке конструктора домен вашего сайта (например, <code>https://myshop.ru/</code>), и он автоматически подставится в превью.</li>
-                            <li>Или нажать кнопку «Выбрать локальный файл» и загрузить картинку с компьютера (она отобразится в превью временно, но при экспорте останется правильный относительный путь).</li>
-                        </ol>
-                    </li>
-                </ul>
 
-                <h3 style="color: #27ae60; margin-top: 20px;"><i class="fa fa-window-restore"></i> Всплывающие статьи OpenCart (agree)</h3>
+                <h3 style="color: #333; margin-top: 18px;"><strong>Способ 1: Указать путь к картинке на сервере</strong></h3>
                 <p>
-                    В OpenCart есть функция показа информационных статей (например, «Условия соглашения» или «Политика конфиденциальности») во всплывающем окне (попапе). Вы можете привязать такой попап к любому слову в тексте!
+                    Если картинка уже загружена на ваш сайт (или вы знаете, где она лежит), укажите путь к ней:
                 </p>
                 <div class="help-example-box">
-                    <p>Для создания такой ссылки используйте формат:</p>
-                    <code>[Ваш текст соглашения](agree:ID)</code>
-                    <p style="margin-top: 6px; font-size: 12px; color: #555;">
-                        Где вместо <code>ID</code> укажите числовой номер информационной статьи из админки OpenCart (Статьи ➔ ID).
-                    </p>
-                    <p><strong>Примеры:</strong></p>
-                    <ul>
-                        <li><code>[политикой конфиденциальности](agree:3)</code> ➔ откроет статью с ID = 3.</li>
-                        <li><code>[условиями доставки](agree:6)</code> ➔ откроет статью с ID = 6.</li>
-                    </ul>
+                    <div class="help-example-input">
+                        <strong>Примеры путей:</strong><br>
+                        <code>image/catalog/my-product.jpg</code> — картинка в папке каталога<br>
+                        <code>image/catalog/photos/watch-front.png</code> — картинка в подпапке<br>
+                        <code>https://example.ru/picture.jpg</code> — полная ссылка на интернет-ресурс
+                    </div>
+                </div>
+                <p style="color: #888; font-size: 12px;">В превью картинка будет отображаться только если в шапке конструктора указан домен вашего сайта (например, <code>https://ваш-сайт.ru/</code>).</p>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Способ 2: Загрузить картинку с компьютера</strong></h3>
+                <p>Самый простой способ — загрузить картинку прямо из конструктора:</p>
+                <ol class="help-steps-list">
+                    <li>Добавьте блок «Изображение» в конструктор.</li>
+                    <li>Нажмите «Редактировать» (карандаш).</li>
+                    <li>В поле «Источник изображения» выберите <strong>«Загрузить локальный файл»</strong>.</li>
+                    <li>Нажмите «Выберите файл» и найдите картинку на компьютере.</li>
+                    <li>Картинка появится в превью!</li>
+                </ol>
+
+                <div class="help-example-box" style="background: #fff3e0; border-color: #ffcc80;">
+                    <p style="margin: 0;"><strong>Что происходит «под капотом»:</strong> Конструктор запоминает картинку как специальный код (base64). При экспорте ZIP-архива картинка автоматически сохраняется в правильную папку на сервере. Вам не нужно ничего делать вручную!</p>
+                </div>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Что делать с готовой картинкой:</strong></h3>
+                <ul>
+                    <li><strong>«Скачать ZIP статьи»</strong> — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
+                    <li><strong>«Копировать код»</strong> или <strong>«Скачать TXT»</strong> — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
+                </ul>
+
+                <h3 style="color: #27ae60; margin-top: 24px;"><i class="fa fa-window-restore"></i> Кнопки-ссылки для открытых статей (agree)</h3>
+                <p>
+                    В OpenCart есть функция показывать информационные страницы (например, «Политика конфиденциальности» или «Условия доставки») во всплывающем окне. Конструктор позволяет сделать такую ссылку на любое слово в тексте.
+                </p>
+
+                <p><strong>Как сделать ссылку на статью:</strong></p>
+                <div class="help-example-box">
+                    <div class="help-example-input">
+                        <strong>Простой формат:</strong><br>
+                        <code>[текст ссылки](agree:номер_статьи)</code><br><br>
+                        <strong>Пример 1:</strong><br>
+                        <code>[политикой конфиденциальности](agree:3)</code><br>
+                        На сайте появится ссылка: <a class="agree" href="#" style="color:#5446f8;font-weight:bold;">политикой конфиденциальности</a> — при клике откроется статья с номером 3.<br><br>
+                        <strong>Пример 2:</strong><br>
+                        <code>[условиями доставки](agree:6)</code><br>
+                        На сайте появится ссылка: <a class="agree" href="#" style="color:#5446f8;font-weight:bold;">условиями доставки</a> — при клике откроется статья с номером 6.<br><br>
+                        <strong>Пример 3:</strong><br>
+                        <code>[правилами возврата](agree:12)</code><br>
+                        На сайте появится ссылка: <a class="agree" href="#" style="color:#5446f8;font-weight:bold;">правилами возврата</a> — при клике откроется статья с номером 12.
+                    </div>
+                </div>
+
+                <p style="margin-top: 12px;"><strong>Где найти номер статьи (ID)?</strong></p>
+                <ol class="help-steps-list">
+                    <li>В админке OpenCart зайдите в <strong>«Каталог» → «Статьи (Информация)»</strong>.</li>
+                    <li>Найдите нужную статью — например, «Политика конфиденциальности».</li>
+                    <li>Посмотрите на число в первой колонке — это и есть ID (номер). Запишите его.</li>
+                    <li>Используйте этот номер в ссылке: <code>[ваш текст](agree:номер)</code>.</li>
+                </ol>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Альтернатива: отдельная кнопка-попап</strong></h3>
+                <p>
+                    Если хотите сделать не текстовую ссылку, а яркую кнопку — используйте блок <strong>«Попап окно»</strong> из левой панели:
+                </p>
+                <ol class="help-steps-list">
+                    <li>Добавьте блок «Попап окно».</li>
+                    <li>Введите текст кнопки (например, «Принять условия»).</li>
+                    <li>Укажите номер статьи (ID).</li>
+                    <li>Выберите стиль: <strong>текстовая ссылка</strong> или <strong>кнопка</strong>.</li>
+                    <li>Если выбрали кнопку — можно выбрать цвет (синий, зелёный, красный) и размер (маленькая, обычная, большая, на всю ширину).</li>
+                </ol>
+
+                <div class="help-example-box">
+                    <strong>Как выглядит кнопка:</strong>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <a class="btn btn-primary agree" href="#" style="color: #fff; text-decoration: none;">Принять условия</a>
+                    </div>
+                    <p style="margin: 8px 0 0; font-size: 12px; color: #888;">При нажатии откроется всплывающее окно с текстом статьи из OpenCart.</p>
                 </div>
             </div>
         </div>

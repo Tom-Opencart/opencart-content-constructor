@@ -117,6 +117,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 }
 .header-domain-input:focus { color: #333; }
 .header-right { display: flex; flex-shrink: 0; gap: 5px; }
+.header-right .btn { padding: 7px 10px; min-width: 36px; justify-content: center; }
 
 /* --- Buttons --- */
 .btn {

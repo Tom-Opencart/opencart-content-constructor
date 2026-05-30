@@ -2573,12 +2573,32 @@ ${contentHTML}</div>
             btnDownloadZip.disabled = true;
             btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
 
-            const font1Promise = fetch('css/VenrynSans-Regular.woff?v=1.0.3').then(res => res.arrayBuffer());
-            const font2Promise = fetch('css/VenrynSans-SemiBold.woff?v=1.0.3').then(res => res.arrayBuffer());
+            const fontPaths = [
+                { zip: "upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", local: "css/VenrynSans-Regular.woff?v=1.0.3" },
+                { zip: "upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-SemiBold.woff", local: "css/VenrynSans-SemiBold.woff?v=1.0.3" }
+            ];
 
-            Promise.all([font1Promise, font2Promise]).then(([font1Data, font2Data]) => {
-                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", font1Data);
-                zip.file("upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-SemiBold.woff", font2Data);
+            const isLocal = location.protocol === 'file:';
+
+            const loadFonts = isLocal
+                ? Promise.all(fontPaths.map(fp => {
+                    return new Promise((resolve) => {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', fp.local, true);
+                        xhr.responseType = 'arraybuffer';
+                        xhr.onload = () => resolve(xhr.status === 200 ? { data: xhr.response, path: fp.zip } : null);
+                        xhr.onerror = () => resolve(null);
+                        xhr.send();
+                    });
+                }))
+                : Promise.all(fontPaths.map(fp =>
+                    fetch(fp.local).then(res => res.ok ? res.arrayBuffer().then(d => ({ data: d, path: fp.zip })) : null).catch(() => null)
+                ));
+
+            loadFonts.then(results => {
+                results.forEach(item => {
+                    if (item) zip.file(item.path, item.data);
+                });
 
                 return zip.generateAsync({ type: "blob" });
             }).then((blob) => {
