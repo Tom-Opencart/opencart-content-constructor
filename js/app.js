@@ -2820,7 +2820,7 @@ document.addEventListener('click', function(event) {
 .article-faq-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .article-faq-item {
@@ -2838,12 +2838,12 @@ document.addEventListener('click', function(event) {
     font-family: var(--description-font-bold), sans-serif;
     font-weight: 500;
     font-size: 16px !important;
-    padding: 14px 48px 14px 16px !important;
+    padding: 10px 40px 10px 12px !important;
     cursor: pointer;
     outline: none;
     display: flex !important;
     align-items: center !important;
-    gap: 16px;
+    gap: 12px;
     transition: color 0.2s;
     background: transparent;
     position: relative !important;
@@ -2863,12 +2863,12 @@ document.addEventListener('click', function(event) {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     border: 1px solid #cfd8dc;
     color: #78909c;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     flex-shrink: 0;
     box-sizing: border-box;
@@ -2901,7 +2901,7 @@ document.addEventListener('click', function(event) {
 }
 
 .article-faq-answer {
-    padding: 0px 16px 16px 64px;
+    padding: 0px 12px 12px 50px;
     background: transparent;
     font-size: 16px !important;
     line-height: 1.6;
@@ -2911,6 +2911,7 @@ document.addEventListener('click', function(event) {
 
 .article-faq-answer p {
     margin: 0 0 8px 0;
+    text-indent: 0 !important;
 }
 
 .article-faq-answer p:last-child {
