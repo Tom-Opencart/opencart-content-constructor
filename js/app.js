@@ -466,7 +466,14 @@
                 condensed: false
             }),
             editForm(block) {
-                let html = `<div class="table-editor"><table><thead><tr>`;
+                const classes = [];
+                if (block.data.striped) classes.push('table-striped');
+                if (block.data.bordered) classes.push('table-bordered');
+                if (block.data.hover) classes.push('table-hover');
+                if (block.data.condensed) classes.push('table-condensed');
+                const classStr = classes.join(' ');
+
+                let html = `<div class="table-editor"><table class="${classStr}"><thead><tr>`;
                 block.data.headers.forEach((h, i) => {
                     html += `<th><input class="th-input" data-col="${i}" value="${escapeHtml(h)}"></th>`;
                 });
@@ -1676,9 +1683,32 @@
     function bindFormEvents(block, form, body) {
         // Generic field bindings
         form.querySelectorAll('[data-field]').forEach(el => {
-            el.addEventListener('input', () => {
-                // Live update block data on input for instant feedback
-            });
+            const updateField = () => {
+                const field = el.dataset.field;
+                if (el.type === 'checkbox') {
+                    block.data[field] = el.checked;
+                    
+                    // Special behavior for table editor classes
+                    if (block.type === 'table') {
+                        const editorTable = form.querySelector('.table-editor table');
+                        if (editorTable) {
+                            const className = `table-${field}`;
+                            if (el.checked) {
+                                editorTable.classList.add(className);
+                            } else {
+                                editorTable.classList.remove(className);
+                            }
+                        }
+                    }
+                } else if (el.tagName === 'SELECT' && field === 'level') {
+                    block.data[field] = parseInt(el.value);
+                } else {
+                    block.data[field] = el.value;
+                }
+                updatePreview();
+            };
+            el.addEventListener('input', updateField);
+            el.addEventListener('change', updateField);
         });
 
         form.querySelectorAll('[data-action="insert-agree-link"]').forEach(btn => {
@@ -1827,6 +1857,7 @@
                 } else if (ci !== undefined) {
                     block.data.headers[parseInt(ci)] = input.value;
                 }
+                updatePreview();
             });
         });
 
