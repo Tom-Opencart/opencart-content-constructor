@@ -345,6 +345,42 @@
                     { question: 'Какой размер дисплея лучше выбрать?', answer: 'Зависит от запястья:\n* 40/42 мм — для тонких запястий (от 130 мм)\n* 44/46 мм — средние и крупные запястья\n* 49 мм (Ultra) — для активного спорта и крупных запястий' }
                 ]
             }
+        },
+        {
+            id: uuid(),
+            type: 'callout',
+            data: {
+                style: 'success',
+                title: 'Руководство пользователя Apple Watch.pdf',
+                text: 'Официальная полная инструкция по эксплуатации со всеми техническими характеристиками и описанием скрытых функций.',
+                btnText: 'Скачать PDF',
+                btnLink: '#',
+                btnIcon: 'fa-file-pdf-o'
+            }
+        },
+        {
+            id: uuid(),
+            type: 'callout',
+            data: {
+                style: 'info',
+                title: 'Обратите внимание',
+                text: 'Для работы функции ЭКГ необходимо, чтобы на вашем сопряженном iPhone была установлена последняя версия iOS.',
+                btnText: 'Подробнее на Apple Support',
+                btnLink: 'https://support.apple.com',
+                btnIcon: 'fa-info-circle'
+            }
+        },
+        {
+            id: uuid(),
+            type: 'callout',
+            data: {
+                style: 'warning',
+                title: 'Важная рекомендация по эксплуатации',
+                text: 'Не используйте неофициальные зарядные устройства во избежание перегрева аккумулятора и повреждения датчиков.',
+                btnText: 'Оригинальные аксессуары',
+                btnLink: '#',
+                btnIcon: 'fa-exclamation-triangle'
+            }
         }
     ];
     let dragState = { dragging: null, over: null };
