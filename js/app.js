@@ -908,7 +908,7 @@
                 const id = 'tabs-' + block.id;
                 let html = `<div class="article-tabs" id="${id}"><div class="article-tabs-nav">`;
                 block.data.tabs.forEach((tab, i) => {
-                    html += `<button class="${i===0?'active':''}" data-tab="${i}">${escapeHtml(tab.title)}</button>`;
+                    html += `<button type="button" class="article-tabs-btn ${i===0?'active':''}" data-tab="${i}">${escapeHtml(tab.title)}</button>`;
                 });
                 html += `</div><div class="article-tabs-panels">`;
                 block.data.tabs.forEach((tab, i) => {
@@ -921,7 +921,7 @@
                 const id = 'preview-' + block.id;
                 let html = `<div class="article-tabs" id="${id}"><div class="article-tabs-nav">`;
                 block.data.tabs.forEach((tab, i) => {
-                    html += `<button class="${i===0?'active':''}" data-tab="${i}">${escapeHtml(tab.title)}</button>`;
+                    html += `<button type="button" class="article-tabs-btn ${i===0?'active':''}" data-tab="${i}">${escapeHtml(tab.title)}</button>`;
                 });
                 html += `</div><div class="article-tabs-panels">`;
                 block.data.tabs.forEach((tab, i) => {
@@ -1877,6 +1877,14 @@
     const btnHidePreview   = $('#btnHidePreview');
     const btnShowPreview   = $('#btnShowPreview');
     const previewPanel     = $('#previewPanel');
+    const headerEl         = document.querySelector('.header');
+
+    function syncMobileHeaderHeight() {
+        if (!headerEl) return;
+
+        document.documentElement.style.setProperty('--mobile-header-height', `${headerEl.offsetHeight}px`);
+    }
+
     function resetPreviewFullscreen() {
         if (!previewPanel || !btnToggleFullscreen) return;
 
@@ -1891,6 +1899,10 @@
     function setPreviewHidden(hidden) {
         document.body.classList.toggle('preview-hidden', hidden);
 
+        if (window.innerWidth <= 768) {
+            document.body.classList.toggle('preview-mobile-open', !hidden);
+        }
+
         // Update toggle button state
         if (btnHidePreview) {
             const icon  = btnHidePreview.querySelector('i');
@@ -1901,8 +1913,13 @@
                 btnHidePreview.classList.add('is-hidden');
                 btnHidePreview.title = 'Показать превью';
             } else {
-                if (icon)  { icon.className = 'fa fa-eye-slash'; }
-                if (label) { label.textContent = 'Скрыть'; }
+                if (window.innerWidth <= 768) {
+                    if (icon)  { icon.className = 'fa fa-arrow-left'; }
+                    if (label) { label.textContent = 'В конструктор'; }
+                } else {
+                    if (icon)  { icon.className = 'fa fa-eye-slash'; }
+                    if (label) { label.textContent = 'Скрыть'; }
+                }
                 btnHidePreview.classList.remove('is-hidden');
                 btnHidePreview.title = 'Скрыть превью';
             }
@@ -1970,26 +1987,109 @@
         });
     }
 
+    syncMobileHeaderHeight();
+    window.addEventListener('resize', syncMobileHeaderHeight);
+
+    // ── Mobile Hamburger Palette ─────────────────────────────
+    const btnTogglePalette = $('#btnTogglePalette');
+    const blockPalette = $('#blockPalette');
+    const paletteOverlay = document.createElement('div');
+    paletteOverlay.className = 'palette-overlay';
+    document.body.appendChild(paletteOverlay);
+    const btnToggleHeaderFields = $('#btnToggleHeaderFields');
+    const mobileActions = document.querySelector('.mobile-actions');
+    const btnToggleActions = $('#btnToggleActions');
+    const mobileActionsMenu = $('#mobileActionsMenu');
+
+    function closePalette() {
+        if (blockPalette) {
+            blockPalette.classList.remove('open');
+        }
+
+        paletteOverlay.classList.remove('open');
+    }
+
+    if (btnTogglePalette && blockPalette) {
+        btnTogglePalette.addEventListener('click', () => {
+            blockPalette.classList.toggle('open');
+            paletteOverlay.classList.toggle('open');
+        });
+
+        paletteOverlay.addEventListener('click', closePalette);
+    }
+
+    function closeMobileActions() {
+        if (mobileActions) {
+            mobileActions.classList.remove('open');
+        }
+    }
+
+    if (btnToggleActions && mobileActions) {
+        btnToggleActions.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            mobileActions.classList.toggle('open');
+        });
+    }
+
+    if (btnToggleHeaderFields) {
+        btnToggleHeaderFields.addEventListener('click', (event) => {
+            event.preventDefault();
+            document.body.classList.toggle('mobile-header-fields-open');
+            syncMobileHeaderHeight();
+        });
+    }
+
+    if (mobileActionsMenu) {
+        mobileActionsMenu.querySelectorAll('[data-forward-click]').forEach((item) => {
+            item.addEventListener('click', () => {
+                const target = document.querySelector(item.dataset.forwardClick);
+
+                closeMobileActions();
+
+                if (target) {
+                    target.click();
+                }
+            });
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        if (mobileActions && !mobileActions.contains(event.target)) {
+            closeMobileActions();
+        }
+    });
+
     // ── Block palette clicks ─────────────────────────────────
     $$('.block-btn').forEach(btn => {
-        btn.addEventListener('click', () => addBlock(btn.dataset.blockType));
+        btn.addEventListener('click', () => {
+            addBlock(btn.dataset.blockType);
+
+            if (window.innerWidth <= 768) {
+                closePalette();
+            }
+        });
     });
 
     // ── Tab switching (event delegation) ─────────────────────
     document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.article-tabs-nav button');
+        const btn = e.target.closest('.article-tabs-nav [data-tab]');
         if (!btn) return;
+        e.preventDefault();
         const nav = btn.parentNode;
         const wrapper = nav.parentNode;
         const panels = wrapper.querySelector('.article-tabs-panels');
         if (!panels) return;
         const idx = btn.dataset.tab;
         // deactivate all
-        nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        nav.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
         panels.querySelectorAll('.article-tabs-panel').forEach(p => p.style.display = 'none');
         // activate clicked
         btn.classList.add('active');
-        panels.children[parseInt(idx)].style.display = 'block';
+        const panel = panels.children[parseInt(idx, 10)];
+        if (panel) {
+            panel.style.display = 'block';
+        }
     });
 
     // ── FAQ collapse toggle (event delegation for preview) ────
@@ -2087,6 +2187,51 @@
 <body>
 ${tocHTML}<div class="description">
 ${contentHTML}</div>
+<script type="text/javascript">
+document.addEventListener('click', function(event) {
+  // 1. FAQ Accordion Toggle
+  var question = event.target.closest('.article-faq-question');
+  if (question) {
+    var item = question.closest('.article-faq-item');
+    if (item) {
+      var targetEl = item.querySelector('.article-faq-collapse');
+      if (targetEl) {
+        var isCollapsed = targetEl.classList.contains('in');
+        if (isCollapsed) {
+          targetEl.classList.remove('in');
+          question.classList.add('collapsed');
+        } else {
+          targetEl.classList.add('in');
+          question.classList.remove('collapsed');
+        }
+      }
+    }
+  }
+
+  // 2. Tabs Switcher
+  var tabBtn = event.target.closest('.article-tabs-nav button');
+  if (tabBtn) {
+    var nav = tabBtn.parentNode;
+    var wrapper = nav.parentNode;
+    var panels = wrapper.querySelector('.article-tabs-panels');
+    if (nav && panels) {
+      var idx = tabBtn.getAttribute('data-tab');
+      var buttons = nav.querySelectorAll('[data-tab]');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+      }
+      for (var j = 0; j < panels.children.length; j++) {
+        panels.children[j].style.display = 'none';
+      }
+      tabBtn.classList.add('active');
+      var panel = panels.children[parseInt(idx, 10)];
+      if (panel) {
+        panel.style.display = 'block';
+      }
+    }
+  }
+});
+</script>
 </body>
 </html>`;
 
@@ -2502,6 +2647,7 @@ ${contentHTML}</div>
     color: #2c2c2c;
     width: 100% !important;
     box-sizing: border-box !important;
+    text-align: left;
 }
 
 .article-faq-question:hover {
@@ -2569,30 +2715,41 @@ ${contentHTML}</div>
 }
 
 /* --- Вкладки (Tabs) --- */
-.article-tabs {
+.description .article-tabs {
     margin: 20px 0;
 }
 
-.article-tabs-nav {
+.description .article-tabs-nav {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
     border-bottom: 2px solid #eee;
 }
 
-.article-tabs-nav button {
+.description .article-tabs-nav [data-tab] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px 20px;
+    margin: 0;
     border: 1px solid transparent;
     border-bottom: none;
     border-radius: 6px 6px 0 0;
     background: #f5f5f5;
     cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    line-height: 1.35;
     font-size: 14px;
     font-weight: 500;
     color: #666;
+    box-shadow: none;
     transition: all .15s;
 }
 
-.article-tabs-nav button.active {
+.description .article-tabs-nav [data-tab].active {
     background: #fff;
     color: #4a90d9;
     border-color: #ddd;
@@ -2600,13 +2757,13 @@ ${contentHTML}</div>
     margin-bottom: -2px;
 }
 
-.article-tabs-panels {
+.description .article-tabs-panels {
     border: 1px solid #ddd;
     border-top: none;
     border-radius: 0 0 6px 6px;
 }
 
-.article-tabs-panel {
+.description .article-tabs-panel {
     padding: 16px 20px;
 }
 
@@ -2648,12 +2805,12 @@ ${contentHTML}</div>
         padding: 8px 10px;
     }
 
-    .article-tabs-nav button {
+    .description .article-tabs-nav [data-tab] {
         padding: 8px 14px;
         font-size: 13px;
     }
 
-    .article-tabs-panel {
+    .description .article-tabs-panel {
         padding: 12px 14px;
     }
 }`;
@@ -2841,7 +2998,7 @@ ${contentHTML}</div>
                 reader.onload = function(evt) {
                   var contents = evt.target.result;
                   if (contents.indexOf('<body') !== -1) {
-                    var match = contents.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                    var match = contents.match(/<body[^>]*>([\\s\\S]*?)<\\/body>/i);
                     if (match && match[1]) {
                       contents = match[1];
                     }
@@ -2881,11 +3038,88 @@ ${contentHTML}</div>
     </file>
 
     <!-- 2. Storefront Stylesheet Link Injection -->
-    <file path="catalog/view/template/common/header.twig">
+    <file path="catalog/view/theme/*/template/common/header.twig">
         <operation>
             <search><![CDATA[</head>]]></search>
             <add position="before"><![CDATA[
 <link href="catalog/view/theme/default/stylesheet/content-constructor.css" rel="stylesheet" />
+            ]]></add>
+        </operation>
+    </file>
+
+    <!-- 3. Storefront Anchor Scroll Handler, FAQ & Tabs -->
+    <file path="catalog/view/theme/*/template/common/footer.twig">
+        <operation>
+            <search><![CDATA[</body>]]></search>
+            <add position="before"><![CDATA[
+<script type="text/javascript"><!--
+document.addEventListener('click', function(event) {
+  // 1. Smooth Scroll for anchors
+  var link = event.target.closest('a.anchor[data-destination]');
+  if (link) {
+    var selector = link.getAttribute('data-destination');
+    if (selector && selector.charAt(0) === '#') {
+      var target = document.querySelector(selector);
+      if (target) {
+        event.preventDefault();
+        if (window.history && window.history.pushState) {
+          window.history.pushState(null, '', selector);
+        } else {
+          window.location.hash = selector;
+        }
+        var targetTop = target.getBoundingClientRect().top + window.pageYOffset - 20;
+        try {
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        } catch (e) {
+          window.scrollTo(0, targetTop);
+        }
+      }
+    }
+  }
+
+  // 2. FAQ Accordion Toggle
+  var question = event.target.closest('.article-faq-question');
+  if (question) {
+    var item = question.closest('.article-faq-item');
+    if (item) {
+      var targetEl = item.querySelector('.article-faq-collapse');
+      if (targetEl) {
+        var isCollapsed = targetEl.classList.contains('in');
+        if (isCollapsed) {
+          targetEl.classList.remove('in');
+          question.classList.add('collapsed');
+        } else {
+          targetEl.classList.add('in');
+          question.classList.remove('collapsed');
+        }
+      }
+    }
+  }
+
+  // 3. Tabs Switcher
+  var tabBtn = event.target.closest('.article-tabs-nav button');
+  if (tabBtn) {
+    var nav = tabBtn.parentNode;
+    var wrapper = nav.parentNode;
+    var panels = wrapper.querySelector('.article-tabs-panels');
+    if (nav && panels) {
+      var idx = tabBtn.getAttribute('data-tab');
+      var buttons = nav.querySelectorAll('[data-tab]');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+      }
+      for (var j = 0; j < panels.children.length; j++) {
+        panels.children[j].style.display = 'none';
+      }
+      tabBtn.classList.add('active');
+      var panel = panels.children[parseInt(idx, 10)];
+      if (panel) {
+        panel.style.display = 'block';
+      }
+    }
+  }
+});
+//--></script>
             ]]></add>
         </operation>
     </file>
@@ -2984,7 +3218,7 @@ ${contentHTML}</div>
                 reader.onload = function(evt) {
                   var contents = evt.target.result;
                   if (contents.indexOf('<body') !== -1) {
-                    var match = contents.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                    var match = contents.match(/<body[^>]*>([\\s\\S]*?)<\\/body>/i);
                     if (match && match[1]) {
                       contents = match[1];
                     }
@@ -3034,14 +3268,89 @@ ${contentHTML}</div>
 <modification>
     <name>OpenCart Content Constructor - Global Stylesheet</name>
     <code>content_constructor_styles</code>
-    <version>1.0</version>
+    <version>1.1</version>
     <author>Tom</author>
     <link>https://opencartforum.com.ru/</link>
-    <file path="catalog/view/template/common/header.twig">
+    <file path="catalog/view/theme/*/template/common/header.twig">
         <operation>
             <search><![CDATA[</head>]]></search>
             <add position="before"><![CDATA[
 <link href="catalog/view/theme/default/stylesheet/content-constructor.css" rel="stylesheet" />
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/common/footer.twig">
+        <operation>
+            <search><![CDATA[</body>]]></search>
+            <add position="before"><![CDATA[
+<script type="text/javascript"><!--
+document.addEventListener('click', function(event) {
+  // 1. Smooth Scroll for anchors
+  var link = event.target.closest('a.anchor[data-destination]');
+  if (link) {
+    var selector = link.getAttribute('data-destination');
+    if (selector && selector.charAt(0) === '#') {
+      var target = document.querySelector(selector);
+      if (target) {
+        event.preventDefault();
+        if (window.history && window.history.pushState) {
+          window.history.pushState(null, '', selector);
+        } else {
+          window.location.hash = selector;
+        }
+        var targetTop = target.getBoundingClientRect().top + window.pageYOffset - 20;
+        try {
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        } catch (e) {
+          window.scrollTo(0, targetTop);
+        }
+      }
+    }
+  }
+
+  // 2. FAQ Accordion Toggle
+  var question = event.target.closest('.article-faq-question');
+  if (question) {
+    var item = question.closest('.article-faq-item');
+    if (item) {
+      var targetEl = item.querySelector('.article-faq-collapse');
+      if (targetEl) {
+        var isCollapsed = targetEl.classList.contains('in');
+        if (isCollapsed) {
+          targetEl.classList.remove('in');
+          question.classList.add('collapsed');
+        } else {
+          targetEl.classList.add('in');
+          question.classList.remove('collapsed');
+        }
+      }
+    }
+  }
+
+  // 3. Tabs Switcher
+  var tabBtn = event.target.closest('.article-tabs-nav button');
+  if (tabBtn) {
+    var nav = tabBtn.parentNode;
+    var wrapper = nav.parentNode;
+    var panels = wrapper.querySelector('.article-tabs-panels');
+    if (nav && panels) {
+      var idx = tabBtn.getAttribute('data-tab');
+      var buttons = nav.querySelectorAll('[data-tab]');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+      }
+      for (var j = 0; j < panels.children.length; j++) {
+        panels.children[j].style.display = 'none';
+      }
+      tabBtn.classList.add('active');
+      var panel = panels.children[parseInt(idx, 10)];
+      if (panel) {
+        panel.style.display = 'block';
+      }
+    }
+  }
+});
+//--></script>
             ]]></add>
         </operation>
     </file>
@@ -3255,5 +3564,11 @@ ${contentHTML}</div>
     // ── Initial Render ───────────────────────────────────────
     renderBlocks();
     updatePreview();
+
+    if (window.innerWidth <= 768) {
+        document.body.classList.add('preview-hidden');
+    }
+
+    syncMobileHeaderHeight();
 
 })();

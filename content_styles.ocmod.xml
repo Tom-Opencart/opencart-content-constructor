@@ -2,14 +2,89 @@
 <modification>
     <name>OpenCart Content Constructor - Global Stylesheet</name>
     <code>content_constructor_styles</code>
-    <version>1.0</version>
+    <version>1.1</version>
     <author>Tom</author>
     <link>https://opencartforum.com.ru/</link>
-    <file path="catalog/view/template/common/header.twig">
+    <file path="catalog/view/theme/*/template/common/header.twig">
         <operation>
             <search><![CDATA[</head>]]></search>
             <add position="before"><![CDATA[
 <link href="catalog/view/theme/default/stylesheet/content-constructor.css" rel="stylesheet" />
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/common/footer.twig">
+        <operation>
+            <search><![CDATA[</body>]]></search>
+            <add position="before"><![CDATA[
+<script type="text/javascript"><!--
+document.addEventListener('click', function(event) {
+  // 1. Smooth Scroll for anchors
+  var link = event.target.closest('a.anchor[data-destination]');
+  if (link) {
+    var selector = link.getAttribute('data-destination');
+    if (selector && selector.charAt(0) === '#') {
+      var target = document.querySelector(selector);
+      if (target) {
+        event.preventDefault();
+        if (window.history && window.history.pushState) {
+          window.history.pushState(null, '', selector);
+        } else {
+          window.location.hash = selector;
+        }
+        var targetTop = target.getBoundingClientRect().top + window.pageYOffset - 20;
+        try {
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        } catch (e) {
+          window.scrollTo(0, targetTop);
+        }
+      }
+    }
+  }
+
+  // 2. FAQ Accordion Toggle
+  var question = event.target.closest('.article-faq-question');
+  if (question) {
+    var item = question.closest('.article-faq-item');
+    if (item) {
+      var targetEl = item.querySelector('.article-faq-collapse');
+      if (targetEl) {
+        var isCollapsed = targetEl.classList.contains('in');
+        if (isCollapsed) {
+          targetEl.classList.remove('in');
+          question.classList.add('collapsed');
+        } else {
+          targetEl.classList.add('in');
+          question.classList.remove('collapsed');
+        }
+      }
+    }
+  }
+
+  // 3. Tabs Switcher
+  var tabBtn = event.target.closest('.article-tabs-nav button');
+  if (tabBtn) {
+    var nav = tabBtn.parentNode;
+    var wrapper = nav.parentNode;
+    var panels = wrapper.querySelector('.article-tabs-panels');
+    if (nav && panels) {
+      var idx = tabBtn.getAttribute('data-tab');
+      var buttons = nav.querySelectorAll('[data-tab]');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+      }
+      for (var j = 0; j < panels.children.length; j++) {
+        panels.children[j].style.display = 'none';
+      }
+      tabBtn.classList.add('active');
+      var panel = panels.children[parseInt(idx, 10)];
+      if (panel) {
+        panel.style.display = 'block';
+      }
+    }
+  }
+});
+//--></script>
             ]]></add>
         </operation>
     </file>

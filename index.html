@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.2.2">
+    <link rel="stylesheet" href="css/constructor.css?v=1.2.9">
 </head>
 <body>
 
 <header class="header">
     <div class="header-left">
-        <h1 class="header-title">Content Constructor</h1>
-        <div style="font-size: 11px; font-style: italic; color: #999; margin-top: -2px;">Автор Tom</div>
+        <button id="btnTogglePalette" class="btn-hamburger" title="Блоки контента">
+            <i class="fa fa-bars"></i>
+        </button>
+        <div class="header-brand">
+            <h1 class="header-title">Content Constructor</h1>
+            <div class="header-meta">Автор Tom</div>
+        </div>
     </div>
     <div class="header-center">
         <div class="hint-wrapper hint-wrapper--title">
@@ -38,6 +43,9 @@
         </div>
     </div>
     <div class="header-right">
+        <button id="btnToggleHeaderFields" class="btn btn-secondary btn-mobile-fields" title="Поля статьи">
+            <span class="btn-icon"><i class="fa fa-sliders"></i></span>
+        </button>
         <button id="btnHelp" class="btn btn-secondary" title="Справка — как пользоваться конструктором">
             <span class="btn-icon"><i class="fa fa-question-circle"></i></span>
         </button>
@@ -60,6 +68,28 @@
         <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать или скрыть превью">
             <span class="btn-icon"><i class="fa fa-eye"></i></span>
         </button>
+        <div class="mobile-actions">
+            <button id="btnToggleActions" class="btn btn-secondary btn-mobile-actions" title="Дополнительные действия">
+                <span class="btn-icon"><i class="fa fa-ellipsis-h"></i></span>
+            </button>
+            <div id="mobileActionsMenu" class="mobile-actions-menu">
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnCopyHTML">
+                    <i class="fa fa-clipboard"></i><span>Копировать HTML</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportTXT">
+                    <i class="fa fa-file-text-o"></i><span>Скачать TXT</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportZIP">
+                    <i class="fa fa-file-archive-o"></i><span>Скачать ZIP статьи</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportHTML">
+                    <i class="fa fa-code"></i><span>Скачать HTML</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportCSS">
+                    <i class="fa fa-css3"></i><span>Скачать CSS</span>
+                </button>
+            </div>
+        </div>
     </div>
 </header>
 
@@ -772,8 +802,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.2.2"></script>
+<script src="js/app.js?v=1.2.9"></script>
 </body>
 </html>
-
-
