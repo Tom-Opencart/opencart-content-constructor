@@ -929,10 +929,9 @@
                 }
                 html += `<div class="article-faq-list">`;
                 block.data.items.forEach((item, i) => {
-                    const faqId = `${id}-${i}`;
                     html += `<div class="article-faq-item">
-                        <div class="article-faq-question collapsed" data-toggle="collapse" data-target="#${faqId}">${escapeHtml(item.question)}</div>
-                        <div id="${faqId}" class="article-faq-collapse collapse">
+                        <div class="article-faq-question collapsed">${escapeHtml(item.question)}</div>
+                        <div class="article-faq-collapse collapse">
                             <div class="article-faq-answer">${markdownToHtml(item.answer, false)}</div>
                         </div>
                     </div>`;
@@ -948,10 +947,9 @@
                 }
                 html += `<div class="article-faq-list">`;
                 block.data.items.forEach((item, i) => {
-                    const faqId = `${id}-${i}`;
                     html += `<div class="article-faq-item">
-                        <div class="article-faq-question collapsed" data-toggle="collapse" data-target="#${faqId}">${escapeHtml(item.question)}</div>
-                        <div id="${faqId}" class="article-faq-collapse collapse">
+                        <div class="article-faq-question collapsed">${escapeHtml(item.question)}</div>
+                        <div class="article-faq-collapse collapse">
                             <div class="article-faq-answer">${markdownToHtml(item.answer, true)}</div>
                         </div>
                     </div>`;
