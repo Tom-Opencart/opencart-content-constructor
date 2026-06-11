@@ -292,6 +292,22 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .block-preview table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .block-preview th, .block-preview td { border: 1px solid #ddd; padding: 5px 8px; text-align: left; }
 .block-preview th { background: #f5f5f5; font-weight: 600; }
+
+/* Bootstrap 3 Table Styles inside cards */
+.block-preview table.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: #f9f9f9;
+}
+.block-preview table.table-bordered th,
+.block-preview table.table-bordered td {
+    border: 1px solid #ddd;
+}
+.block-preview table.table-hover tbody tr:hover td {
+    background-color: #f5f5f5;
+}
+.block-preview table.table-condensed th,
+.block-preview table.table-condensed td {
+    padding: 3px 5px;
+}
 .block-preview ul, .block-preview ol { padding-left: 20px; margin: 0; }
 .block-preview img.img-responsive { max-width: 100%; max-height: 120px; border-radius: 4px; }
 .block-preview .link-preview { color: #4a90d9; text-decoration: underline; }
@@ -685,7 +701,7 @@ body.preview-hidden .workspace {
 .preview-content .description th, 
 .preview-content .description td {
     border: 1px solid var(--background_main_color, #F3F2FF);
-    padding: 5px;
+    padding: 8px 10px;
     text-align: left;
     font-size: 16px;
 }
@@ -696,6 +712,25 @@ body.preview-hidden .workspace {
 }
 .preview-content .description td {
     background: #ffffff;
+}
+
+/* Bootstrap 3 Table Styles */
+.preview-content .description table.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: #f9f9f9;
+}
+.preview-content .description table.table-bordered {
+    border: 1px solid #ddd;
+}
+.preview-content .description table.table-bordered th,
+.preview-content .description table.table-bordered td {
+    border: 1px solid #ddd;
+}
+.preview-content .description table.table-hover tbody tr:hover td {
+    background-color: #f5f5f5;
+}
+.preview-content .description table.table-condensed th,
+.preview-content .description table.table-condensed td {
+    padding: 5px;
 }
 .preview-content .description ul, 
 .preview-content .description ol {

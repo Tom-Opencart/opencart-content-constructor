@@ -457,7 +457,14 @@
 
         table: {
             label: 'Таблица',
-            defaults: () => ({ headers: ['Заголовок 1', 'Заголовок 2'], rows: [['Ячейка 1', 'Ячейка 2'], ['Ячейка 3', 'Ячейка 4']] }),
+            defaults: () => ({
+                headers: ['Заголовок 1', 'Заголовок 2'],
+                rows: [['Ячейка 1', 'Ячейка 2'], ['Ячейка 3', 'Ячейка 4']],
+                striped: false,
+                bordered: false,
+                hover: false,
+                condensed: false
+            }),
             editForm(block) {
                 let html = `<div class="table-editor"><table><thead><tr>`;
                 block.data.headers.forEach((h, i) => {
@@ -477,11 +484,36 @@
                     <button class="btn btn-sm btn-ghost" data-action="add-row">+ Строка</button>
                     <button class="btn btn-sm btn-ghost" data-action="remove-col">− Столбец</button>
                     <button class="btn btn-sm btn-ghost" data-action="remove-row">− Строка</button>
+                </div>`;
+
+                // Add Bootstrap 3 style option checkboxes
+                html += `<div class="table-styles-options" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; border-top: 1px dashed #eee; padding-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; font-size: 12px; margin: 0; user-select: none;">
+                        <input type="checkbox" data-field="striped" ${block.data.striped ? 'checked' : ''}> Zebra (striped)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; font-size: 12px; margin: 0; user-select: none;">
+                        <input type="checkbox" data-field="bordered" ${block.data.bordered ? 'checked' : ''}> Сетка (bordered)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; font-size: 12px; margin: 0; user-select: none;">
+                        <input type="checkbox" data-field="hover" ${block.data.hover ? 'checked' : ''}> Подсветка (hover)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; font-size: 12px; margin: 0; user-select: none;">
+                        <input type="checkbox" data-field="condensed" ${block.data.condensed ? 'checked' : ''}> Компактная (condensed)
+                    </label>
                 </div></div>`;
+
                 return html;
             },
             toHTML(block) {
-                let html = `<div class="table-responsive"><table><thead><tr>`;
+                const classes = ['table'];
+                if (block.data.striped) classes.push('table-striped');
+                if (block.data.bordered) classes.push('table-bordered');
+                if (block.data.hover) classes.push('table-hover');
+                if (block.data.condensed) classes.push('table-condensed');
+
+                const classStr = classes.join(' ');
+
+                let html = `<div class="table-responsive"><table class="${classStr}"><thead><tr>`;
                 block.data.headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>`; });
                 html += `</tr></thead><tbody>`;
                 block.data.rows.forEach(row => {
@@ -1909,7 +1941,9 @@
     function readFormData(block, form) {
         form.querySelectorAll('[data-field]').forEach(el => {
             const field = el.dataset.field;
-            if (el.tagName === 'SELECT' && field === 'level') {
+            if (el.type === 'checkbox') {
+                block.data[field] = el.checked;
+            } else if (el.tagName === 'SELECT' && field === 'level') {
                 block.data[field] = parseInt(el.value);
             } else {
                 block.data[field] = el.value;
@@ -2640,7 +2674,7 @@ document.addEventListener('click', function(event) {
 .description table th,
 .description table td {
     border: 1px solid var(--background_main_color, #F3F2FF);
-    padding: 5px;
+    padding: 8px 10px;
     text-align: left;
     font-size: 16px;
 }
@@ -2653,6 +2687,25 @@ document.addEventListener('click', function(event) {
 
 .description table tbody tr td {
     background: #ffffff;
+}
+
+/* Bootstrap 3 Table Styles */
+.description table.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: #f9f9f9;
+}
+.description table.table-bordered {
+    border: 1px solid #ddd;
+}
+.description table.table-bordered th,
+.description table.table-bordered td {
+    border: 1px solid #ddd;
+}
+.description table.table-hover tbody tr:hover td {
+    background-color: #f5f5f5;
+}
+.description table.table-condensed th,
+.description table.table-condensed td {
+    padding: 5px;
 }
 
 /* --- Списки --- */
@@ -3005,6 +3058,11 @@ document.addEventListener('click', function(event) {
     .description table th,
     .description table td {
         padding: 8px 10px;
+    }
+
+    .description table.table-condensed th,
+    .description table.table-condensed td {
+        padding: 5px;
     }
 
     .description .article-tabs-nav [data-tab] {
