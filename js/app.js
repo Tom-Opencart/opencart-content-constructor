@@ -932,6 +932,89 @@
             },
         },
 
+        callout: {
+            label: 'Инфо-блок',
+            defaults: () => ({
+                style: 'well',
+                title: 'Шаблон статьи.zip',
+                text: 'Описание файла или полезные инструкции к действию.',
+                btnText: 'Скачать',
+                btnLink: '#',
+                btnIcon: 'fa-download'
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-row">
+                        <div class="form-group" style="flex:0 0 150px">
+                            <label>Стиль оформления</label>
+                            <select data-field="style">
+                                <option value="well" ${block.data.style === 'well' ? 'selected' : ''}>Серый (Well)</option>
+                                <option value="info" ${block.data.style === 'info' ? 'selected' : ''}>Синий (Info)</option>
+                                <option value="success" ${block.data.style === 'success' ? 'selected' : ''}>Зеленый (Success)</option>
+                                <option value="warning" ${block.data.style === 'warning' ? 'selected' : ''}>Желтый (Warning)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex:0 0 150px">
+                            <label>Иконка</label>
+                            <select data-field="btnIcon">
+                                <option value="fa-download" ${block.data.btnIcon === 'fa-download' ? 'selected' : ''}>Скачать (fa-download)</option>
+                                <option value="fa-link" ${block.data.btnIcon === 'fa-link' ? 'selected' : ''}>Ссылка (fa-link)</option>
+                                <option value="fa-file-pdf-o" ${block.data.btnIcon === 'fa-file-pdf-o' ? 'selected' : ''}>PDF (fa-file-pdf-o)</option>
+                                <option value="fa-info-circle" ${block.data.btnIcon === 'fa-info-circle' ? 'selected' : ''}>Инфо (fa-info-circle)</option>
+                                <option value="fa-exclamation-triangle" ${block.data.btnIcon === 'fa-exclamation-triangle' ? 'selected' : ''}>Внимание (fa-exclamation-triangle)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Заголовок плашки</label>
+                        <input type="text" data-field="title" value="${escapeHtml(block.data.title)}">
+                    </div>
+                    <div class="form-group">
+                        <label>Текст описания</label>
+                        <textarea data-field="text" rows="3">${escapeHtml(block.data.text)}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Текст кнопки</label>
+                            <input type="text" data-field="btnText" value="${escapeHtml(block.data.btnText)}">
+                        </div>
+                        <div class="form-group">
+                            <label>Ссылка кнопки (URL)</label>
+                            <input type="text" data-field="btnLink" value="${escapeHtml(block.data.btnLink)}">
+                        </div>
+                    </div>`;
+            },
+            toHTML(block) {
+                const styleClass = block.data.style || 'well';
+                const btnIcon = block.data.btnIcon || 'fa-download';
+                const hasBtn = block.data.btnText ? true : false;
+                
+                let iconHTML = '';
+                let btnIconHTML = '';
+                
+                if (styleClass === 'well') {
+                    btnIconHTML = `<i class="fa ${escapeHtml(btnIcon)}"></i> `;
+                } else {
+                    iconHTML = `<i class="fa ${escapeHtml(btnIcon)}"></i> `;
+                }
+
+                return `<div class="article-callout style-${escapeHtml(styleClass)}">
+    <div class="article-callout-row">
+        <div class="article-callout-text-col">
+            <h4 class="article-callout-title">${iconHTML}${escapeHtml(block.data.title)}</h4>
+            <p class="article-callout-desc">${escapeHtml(block.data.text)}</p>
+        </div>
+        ${hasBtn ? `<div class="article-callout-btn-col">
+            <a href="${escapeHtml(block.data.btnLink)}" class="article-callout-btn" target="_blank">${btnIconHTML}${escapeHtml(block.data.btnText)}</a>
+        </div>` : ''}
+    </div>
+</div>`;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
         toc: {
             label: 'Оглавление',
             defaults: () => ({}),
@@ -2785,6 +2868,89 @@ document.addEventListener('click', function(event) {
     color: #c7254e;
 }
 
+/* --- Инфо-блок (Callout) --- */
+.description .article-callout {
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.description .article-callout.style-well {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+}
+.description .article-callout.style-info {
+    background: #f0f7ff;
+    border: 1px solid #d0e7ff;
+    border-left: 5px solid #3182ce;
+}
+.description .article-callout.style-success {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+    border-left: 5px solid #38a169;
+}
+.description .article-callout.style-warning {
+    background: #fffaf0;
+    border: 1px solid #feebc8;
+    border-left: 5px solid #dd6b20;
+}
+.description .article-callout-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.description .article-callout-text-col {
+    flex: 1;
+    min-width: 250px;
+}
+.description .article-callout-btn-col {
+    flex-shrink: 0;
+}
+.description .article-callout-title {
+    font-family: var(--description-font-bold), sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+    text-align: left;
+}
+.description .article-callout.style-well .article-callout-title { color: #2c3e50; }
+.description .article-callout.style-info .article-callout-title { color: #2b6cb0; }
+.description .article-callout.style-success .article-callout-title { color: #2f855a; }
+.description .article-callout.style-warning .article-callout-title { color: #c05621; }
+
+.description .article-callout-desc {
+    margin: 0 !important;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #4a5568;
+    text-indent: 0 !important;
+    text-align: left;
+}
+.description .article-callout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: var(--description-font-bold), sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none !important;
+    transition: background 0.2s, transform 0.1s;
+    cursor: pointer;
+}
+.description .article-callout.style-well .article-callout-btn { background: #4a90d9; color: #fff; }
+.description .article-callout.style-well .article-callout-btn:hover { background: #3a7bc8; }
+.description .article-callout.style-info .article-callout-btn { background: #3182ce; color: #fff; }
+.description .article-callout.style-info .article-callout-btn:hover { background: #2b6cb0; }
+.description .article-callout.style-success .article-callout-btn { background: #38a169; color: #fff; }
+.description .article-callout.style-success .article-callout-btn:hover { background: #2f855a; }
+.description .article-callout.style-warning .article-callout-btn { background: #dd6b20; color: #fff; }
+.description .article-callout.style-warning .article-callout-btn:hover { background: #c05621; }
+
 /* --- Адаптивность --- */
 @media (max-width: 768px) {
     .description {
@@ -2812,6 +2978,18 @@ document.addEventListener('click', function(event) {
 
     .description .article-tabs-panel {
         padding: 12px 14px;
+    }
+
+    .description .article-callout-row {
+        display: block !important;
+    }
+    .description .article-callout-btn-col {
+        margin-top: 15px;
+    }
+    .description .article-callout-btn {
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
 }`;
     }
