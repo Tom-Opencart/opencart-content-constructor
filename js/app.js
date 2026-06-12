@@ -1475,6 +1475,11 @@
                                 <i class="fa fa-refresh"></i> Автозаполнение
                             </button>
                         </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 10px; padding: 10px; background: #fcf8e3; border: 1px solid #faebcc; border-radius: 4px; color: #8a6d3b; font-size: 11px; line-height: 1.4;">
+                        <i class="fa fa-info-circle" style="font-size: 13px; margin-right: 6px; float: left; margin-top: 2px;"></i>
+                        <strong>Подсказка:</strong> Для корректной работы автозаполнения укажите адрес вашего сайта в поле «Домен» (вверху страницы). 
+                        Путь к картинке автоматически очищается от кэша OpenCart (<code>/image/cache/...</code>) и приводится к оригиналу. После импорта статьи картинка отобразится на вашем сайте автоматически.
                     </div>`;
             },
             toHTML(block) {
