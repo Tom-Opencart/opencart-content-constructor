@@ -1142,20 +1142,23 @@
             editForm(block) {
                 return `
                     <div class="form-group">
-                        <label>Ссылка на видео (YouTube / Vimeo)</label>
-                        <input type="text" class="video-url-input" data-field="url" value="${escapeHtml(block.data.url || '')}" placeholder="Например: https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-                        <small style="color: #666; font-size: 11px;">Поддерживаются ссылки вида youtube.com, youtu.be, vimeo.com</small>
+                        <label>Ссылка на видео (YouTube / RuTube / VK / Vimeo / Kinescope)</label>
+                        <input type="text" class="video-url-input" data-field="url" value="${escapeHtml(block.data.url || '')}" placeholder="Например: https://rutube.ru/video/... или https://vk.com/video...">
+                        <small style="color: #666; font-size: 11px;">Поддерживаются: YouTube, Vimeo, RuTube, Kinescope, VK Видео</small>
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="flex: 1;">
                             <label>Платформа</label>
                             <select class="video-type-select" data-field="type">
                                 <option value="youtube" ${block.data.type === 'youtube' ? 'selected' : ''}>YouTube</option>
+                                <option value="rutube" ${block.data.type === 'rutube' ? 'selected' : ''}>RuTube</option>
+                                <option value="vk" ${block.data.type === 'vk' ? 'selected' : ''}>VK Видео</option>
+                                <option value="kinescope" ${block.data.type === 'kinescope' ? 'selected' : ''}>Kinescope</option>
                                 <option value="vimeo" ${block.data.type === 'vimeo' ? 'selected' : ''}>Vimeo</option>
                             </select>
                         </div>
                         <div class="form-group" style="flex: 1;">
-                            <label>ID видео</label>
+                            <label>ID видео / Параметры</label>
                             <input type="text" class="video-id-input" data-field="videoId" value="${escapeHtml(block.data.videoId || '')}">
                         </div>
                     </div>`;
@@ -1168,6 +1171,12 @@
                     embedUrl = `https://www.youtube.com/embed/${escapeHtml(videoId)}`;
                 } else if (type === 'vimeo') {
                     embedUrl = `https://player.vimeo.com/video/${escapeHtml(videoId)}`;
+                } else if (type === 'rutube') {
+                    embedUrl = `https://rutube.ru/play/embed/${escapeHtml(videoId)}`;
+                } else if (type === 'kinescope') {
+                    embedUrl = `https://kinescope.io/embed/${escapeHtml(videoId)}`;
+                } else if (type === 'vk') {
+                    embedUrl = `https://vk.com/video_ext.php?${escapeHtml(videoId)}`;
                 }
                 
                 return `<div class="article-video-wrapper">
@@ -2374,29 +2383,56 @@
         const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
         const ytMatch = url.match(ytRegex);
         if (ytMatch) {
-            type = 'youtube';
-            videoId = ytMatch[1];
-        } else {
-            // Vimeo
-            const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i;
-            const vimeoMatch = url.match(vimeoRegex);
-            if (vimeoMatch) {
-                type = 'vimeo';
-                videoId = vimeoMatch[1];
-            } else {
-                if (url.length === 11) {
-                    type = 'youtube';
-                    videoId = url;
-                } else if (/^\d+$/.test(url)) {
-                    type = 'vimeo';
-                    videoId = url;
-                } else {
-                    type = 'youtube';
-                    videoId = url;
-                }
-            }
+            return { type: 'youtube', videoId: ytMatch[1] };
         }
-        return { type, videoId };
+        
+        // Vimeo
+        const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i;
+        const vimeoMatch = url.match(vimeoRegex);
+        if (vimeoMatch) {
+            return { type: 'vimeo', videoId: vimeoMatch[1] };
+        }
+        
+        // RuTube
+        const rutubeRegex = /(?:rutube\.ru\/(?:video|play\/embed)\/)([a-zA-Z0-9]{32})/i;
+        const rutubeMatch = url.match(rutubeRegex);
+        if (rutubeMatch) {
+            return { type: 'rutube', videoId: rutubeMatch[1] };
+        }
+        
+        // Kinescope
+        const kinescopeRegex = /(?:kinescope\.(?:ru|io)\/(?:embed\/)?)([a-zA-Z0-9-]+)/i;
+        const kinescopeMatch = url.match(kinescopeRegex);
+        if (kinescopeMatch) {
+            return { type: 'kinescope', videoId: kinescopeMatch[1] };
+        }
+        
+        // VK Video (ext player)
+        const vkExtMatch = url.match(/vk\.com\/video_ext\.php\?([^"\s>]+)/i);
+        if (vkExtMatch) {
+            const query = vkExtMatch[1].replace(/&amp;/g, '&');
+            return { type: 'vk', videoId: query };
+        }
+        
+        // VK Video (page link)
+        const vkPageMatch = url.match(/vk\.com\/video([0-9_-]+)/i);
+        if (vkPageMatch) {
+            const parts = vkPageMatch[1].split('_');
+            return { type: 'vk', videoId: `oid=${parts[0]}&id=${parts[1]}` };
+        }
+        
+        // Fallbacks
+        if (url.length === 11) {
+            return { type: 'youtube', videoId: url };
+        } else if (/^\d+$/.test(url)) {
+            return { type: 'vimeo', videoId: url };
+        } else if (/^[a-zA-Z0-9]{32}$/.test(url)) {
+            return { type: 'rutube', videoId: url };
+        } else if (url.includes('oid=') && url.includes('id=')) {
+            return { type: 'vk', videoId: url };
+        }
+        
+        return { type: 'youtube', videoId: url };
     }
 
     function readFormData(block, form) {
