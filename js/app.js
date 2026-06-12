@@ -2465,12 +2465,28 @@
                 btnParse.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Загрузка...';
                 btnParse.disabled = true;
                 
+                let htmlText = '';
                 try {
                     const response = await fetch(url);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    const htmlText = await response.text();
+                    htmlText = await response.text();
+                } catch (err) {
+                    console.log('Direct fetch failed (likely CORS). Trying CORS proxy...');
+                    try {
+                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url);
+                        const response = await fetch(proxyUrl);
+                        if (!response.ok) {
+                            throw new Error(`Proxy HTTP error! status: ${response.status}`);
+                        }
+                        htmlText = await response.text();
+                    } catch (proxyErr) {
+                        console.error('CORS proxy also failed:', proxyErr);
+                        throw err; // throw original fetch error to trigger the CORS alert
+                    }
+                }
+                try {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
                     
