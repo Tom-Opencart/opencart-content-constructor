@@ -134,6 +134,37 @@
     }
 
 
+    function getClosestColorEmoji(hex) {
+        if (!hex) return '🎨';
+        const rgb = hexToRgb(hex);
+        if (!rgb) return '🎨';
+        
+        const presets = [
+            { emoji: '🟪', r: 84,  g: 70,  b: 248 }, // default purple
+            { emoji: '🟦', r: 46,  g: 134, b: 222 }, // blue
+            { emoji: '🟩', r: 16,  g: 172, b: 132 }, // emerald
+            { emoji: '🟧', r: 255, g: 159, b: 67  }, // orange
+            { emoji: '🟥', r: 238, g: 82,  b: 83  }, // red
+            { emoji: '⬛', r: 30,  g: 39,  b: 46  }, // dark
+            { emoji: '⬜', r: 255, g: 255, b: 255 }  // white
+        ];
+        
+        let minDiff = Infinity;
+        let bestEmoji = '🎨';
+        presets.forEach(p => {
+            const diff = Math.sqrt(
+                Math.pow(rgb.r - p.r, 2) +
+                Math.pow(rgb.g - p.g, 2) +
+                Math.pow(rgb.b - p.b, 2)
+            );
+            if (diff < minDiff) {
+                minDiff = diff;
+                bestEmoji = p.emoji;
+            }
+        });
+        return bestEmoji;
+    }
+
     function updateThemeSelectOptions(selectedVal) {
         const themeSelect = document.getElementById('themeSelect');
         if (!themeSelect) return;
@@ -141,12 +172,12 @@
         const activeVal = selectedVal || themeSelect.value || 'default';
         
         const basePresets = [
-            { val: 'default', text: 'Фиолетовая (базовая)' },
-            { val: 'blue', text: 'Синяя классика' },
-            { val: 'emerald', text: 'Изумрудный зеленый' },
-            { val: 'orange', text: 'Теплый оранжевый' },
-            { val: 'red', text: 'Свежий красный' },
-            { val: 'dark', text: 'Темная тема (Modern Dark)' }
+            { val: 'default', text: 'Фиолетовая (базовая) 🟪' },
+            { val: 'blue', text: 'Синяя классика 🟦' },
+            { val: 'emerald', text: 'Изумрудный зеленый 🟩' },
+            { val: 'orange', text: 'Теплый оранжевый 🟧' },
+            { val: 'red', text: 'Свежий красный 🟥' },
+            { val: 'dark', text: 'Темная тема ⬛' }
         ];
         
         themeSelect.innerHTML = '';
@@ -165,7 +196,9 @@
             customKeys.forEach(key => {
                 const opt = document.createElement('option');
                 opt.value = key;
-                opt.textContent = key;
+                const themeData = customThemes[key];
+                const emoji = themeData ? getClosestColorEmoji(themeData.accent) : '🎨';
+                opt.textContent = `${key} ${emoji}`;
                 groupOpt.appendChild(opt);
             });
             themeSelect.appendChild(groupOpt);
@@ -173,7 +206,7 @@
         
         const customOpt = document.createElement('option');
         customOpt.value = 'custom';
-        customOpt.textContent = 'Пользовательская...';
+        customOpt.textContent = 'Пользовательская... 🎨';
         themeSelect.appendChild(customOpt);
         
         themeSelect.value = activeVal;
