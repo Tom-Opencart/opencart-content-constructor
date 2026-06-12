@@ -3418,11 +3418,14 @@
     $('#btnExportHTML').addEventListener('click', () => {
         const title = titleInput.value || 'Контент';
         const slug = slugInput.value || slugify(title) || 'content';
-        const cssFile = `content-constructor.css`;
 
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
         const theme = getCurrentThemeColors();
         const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
+
+        let embeddedCSS = getExportedCSS();
+        // Replace relative font paths with absolute CDN paths for standalone local preview
+        embeddedCSS = embeddedCSS.replace(/url\('fonts\//g, "url('https://tom-opencart.github.io/opencart-content-constructor/css/");
 
         const fullHTML = `<!DOCTYPE html>
 <html lang="ru">
@@ -3431,7 +3434,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="${cssFile}">
+    <style>
+${embeddedCSS}
+    </style>
 </head>
 <body>
 ${tocHTML}<div class="description" ${styleAttr}>
