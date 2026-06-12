@@ -5127,22 +5127,6 @@ document.addEventListener('click', function(event) {
     }
 
     // ── Article ZIP Exporter ──────────────────────────────────
-    function collectAllImageBlocks(blocksList) {
-        let imageBlocks = [];
-        blocksList.forEach(block => {
-            if (block.type === 'image') {
-                imageBlocks.push(block);
-            } else if (block.type === 'grid' && block.data && block.data.columns) {
-                block.data.columns.forEach(col => {
-                    if (col.blocks) {
-                        imageBlocks.push(...collectAllImageBlocks(col.blocks));
-                    }
-                });
-            }
-        });
-        return imageBlocks;
-    }
-
     function getExtensionFromMime(mime) {
         if (mime.includes('png')) return 'png';
         if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
@@ -5178,17 +5162,91 @@ document.addEventListener('click', function(event) {
             btnExportZIP.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
 
             const copiedBlocks = JSON.parse(JSON.stringify(blocks));
-            const imageBlocks = collectAllImageBlocks(copiedBlocks);
-            const zipPromises = [];
+            
+            const imagesToPack = [];
+            function collectAllImages(blocksList) {
+                blocksList.forEach(block => {
+                    if (block.type === 'image') {
+                        if (block.data.srcType === 'local' && block.data.localSrc) {
+                            imagesToPack.push({
+                                src: block.data.localSrc,
+                                isLocal: true,
+                                update: (newUrl) => {
+                                    block.data.src = newUrl;
+                                    block.data.srcType = 'path';
+                                }
+                            });
+                        } else if (block.data.src) {
+                            imagesToPack.push({
+                                src: block.data.src,
+                                isLocal: false,
+                                update: (newUrl) => {
+                                    block.data.src = newUrl;
+                                    block.data.srcType = 'path';
+                                }
+                            });
+                        }
+                    } else if (block.type === 'carousel' && block.data.items) {
+                        block.data.items.forEach(item => {
+                            if (item.src && !item.src.startsWith('data:')) {
+                                imagesToPack.push({
+                                    src: item.src,
+                                    isLocal: false,
+                                    update: (newUrl) => {
+                                        item.src = newUrl;
+                                    }
+                                });
+                            }
+                        });
+                    } else if (block.type === 'before-after') {
+                        if (block.data.beforeImg && !block.data.beforeImg.startsWith('data:')) {
+                            imagesToPack.push({
+                                src: block.data.beforeImg,
+                                isLocal: false,
+                                update: (newUrl) => {
+                                    block.data.beforeImg = newUrl;
+                                }
+                            });
+                        }
+                        if (block.data.afterImg && !block.data.afterImg.startsWith('data:')) {
+                            imagesToPack.push({
+                                src: block.data.afterImg,
+                                isLocal: false,
+                                update: (newUrl) => {
+                                    block.data.afterImg = newUrl;
+                                }
+                            });
+                        }
+                    } else if (block.type === 'product-card') {
+                        if (block.data.img && !block.data.img.startsWith('data:')) {
+                            imagesToPack.push({
+                                src: block.data.img,
+                                isLocal: false,
+                                update: (newUrl) => {
+                                    block.data.img = newUrl;
+                                }
+                            });
+                        }
+                    } else if (block.type === 'grid' && block.data && block.data.columns) {
+                        block.data.columns.forEach(col => {
+                            if (col.blocks) {
+                                collectAllImages(col.blocks);
+                            }
+                        });
+                    }
+                });
+            }
 
+            collectAllImages(copiedBlocks);
+            const zipPromises = [];
             const zip = new JSZip();
 
-            imageBlocks.forEach((imgBlock, idx) => {
+            imagesToPack.forEach((imgItem, idx) => {
                 let imgPromise = null;
                 let ext = 'png';
                 
-                if (imgBlock.data.srcType === 'local') {
-                    const b64Data = imgBlock.data.localSrc;
+                if (imgItem.isLocal) {
+                    const b64Data = imgItem.src;
                     if (b64Data && b64Data.startsWith('data:')) {
                         const mimeMatch = b64Data.match(/^data:(image\/[a-z+]+);base64,/);
                         if (mimeMatch) {
@@ -5201,10 +5259,8 @@ document.addEventListener('click', function(event) {
                             ext: ext
                         });
                     }
-                }
-                
-                if (!imgPromise && imgBlock.data.src) {
-                    const srcPath = imgBlock.data.src;
+                } else if (imgItem.src) {
+                    const srcPath = imgItem.src;
                     ext = getExtensionFromPath(srcPath);
                     
                     let url = srcPath;
@@ -5239,8 +5295,7 @@ document.addEventListener('click', function(event) {
                                 const finalExt = res.ext || ext;
                                 const zipPath = `image/catalog/content-constructor/${slug}/${newFilename}.${finalExt}`;
                                 
-                                imgBlock.data.src = zipPath;
-                                imgBlock.data.srcType = 'path';
+                                imgItem.update(zipPath);
                                 
                                 return {
                                     path: zipPath,
