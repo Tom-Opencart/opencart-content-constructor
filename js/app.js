@@ -21,6 +21,11 @@
         return d.innerHTML;
     }
 
+    function safeSvgPlaceholder(width, height, bg, fg, text) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="${bg}"/><text x="50%" y="50%" font-family="sans-serif" font-size="${width > 300 ? 24 : 14}" fill="${fg}" dominant-baseline="middle" text-anchor="middle">${text}</text></svg>`;
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
     const GRID_PC_PRESETS = {
         2: [[6, 6], [4, 8], [8, 4], [3, 9], [9, 3]],
         3: [[4, 4, 4], [3, 6, 3], [6, 3, 3], [3, 3, 6]],
@@ -627,7 +632,7 @@
                 
                 // If both are empty, use SVG placeholder
                 if (!imgUrl) {
-                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23f5f5f5"/><text x="50%" y="50%" font-family="sans-serif" font-size="24" fill="%23888" dominant-baseline="middle" text-anchor="middle">Изображение OpenCart (${escapeHtml(block.data.alt || 'Заглушка')})</text></svg>`;
+                    imgUrl = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Изображение OpenCart (' + (block.data.alt || 'Заглушка') + ')');
                 }
                 
                 let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
@@ -655,7 +660,7 @@
                 
                 if (!imgUrl) {
                     // Inline SVG placeholder
-                    imgUrl = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400"><rect width="800" height="400" fill="%23F3F2FF"/><text x="50%" y="50%" font-family="sans-serif" font-size="20" fill="%235446f8" dominant-baseline="middle" text-anchor="middle">Заглушка: ${escapeHtml(block.data.src || 'файл не выбран')}</text></svg>`;
+                    imgUrl = safeSvgPlaceholder(800, 400, '#F3F2FF', '#5446f8', 'Заглушка: ' + (block.data.src || 'файл не выбран'));
                 }
                 
                 let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
@@ -1194,7 +1199,7 @@
             label: 'Слайдер изображений',
             defaults: () => ({
                 items: [
-                    { src: 'image/catalog/demo/slide1.jpg', alt: 'Слайд 1', caption: 'Заголовок первого слайда' }
+                    { src: '', alt: 'Слайд 1', caption: 'Заголовок первого слайда' }
                 ]
             }),
             editForm(block) {
@@ -1224,6 +1229,12 @@
                 return html;
             },
             toHTML(block) {
+                return this.renderCarousel(block, false);
+            },
+            preview(block) {
+                return this.renderCarousel(block, true);
+            },
+            renderCarousel(block, isPreview) {
                 const id = 'carousel-' + block.id;
                 const items = block.data.items || [];
                 if (items.length === 0) {
@@ -1234,9 +1245,26 @@
                 let slides = '';
                 
                 items.forEach((item, i) => {
+                    let imgUrl = item.src || '';
+                    if (isPreview) {
+                        if (imgUrl && !imgUrl.startsWith('http://') && !imgUrl.startsWith('https://') && !imgUrl.startsWith('data:')) {
+                            const domainInputEl = document.getElementById('articleDomain');
+                            const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
+                            if (domainVal) {
+                                const base = domainVal.endsWith('/') ? domainVal : domainVal + '/';
+                                const path = imgUrl.startsWith('/') ? imgUrl.substring(1) : imgUrl;
+                                imgUrl = base + path;
+                            }
+                        }
+                    }
+                    
+                    if (!imgUrl) {
+                        imgUrl = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Слайд ' + (i + 1) + ' (' + (item.alt || 'Заглушка') + ')');
+                    }
+                    
                     indicators += `<li data-target="#${id}" data-slide-to="${i}" class="${i === 0 ? 'active' : ''}"></li>`;
                     slides += `<div class="item ${i === 0 ? 'active' : ''}">
-                        <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt || '')}" style="width:100%; max-height:450px; object-fit:cover;">
+                        <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.alt || '')}" style="width:100%; max-height:450px; object-fit:cover;">
                         ${item.caption ? `<div class="carousel-caption"><h3>${escapeHtml(item.caption)}</h3></div>` : ''}
                     </div>`;
                 });
@@ -1257,17 +1285,14 @@
         <span class="sr-only">Следующий</span>
     </a>
 </div>`;
-            },
-            preview(block) {
-                return this.toHTML(block);
             }
         },
 
         'before-after': {
             label: 'Слайдер До/После',
             defaults: () => ({
-                beforeImg: 'image/catalog/demo/before.jpg',
-                afterImg: 'image/catalog/demo/after.jpg',
+                beforeImg: '',
+                afterImg: '',
                 beforeLabel: 'До',
                 afterLabel: 'После'
             }),
@@ -1293,23 +1318,51 @@
                     </div>`;
             },
             toHTML(block) {
+                return this.renderBA(block, false);
+            },
+            preview(block) {
+                return this.renderBA(block, true);
+            },
+            renderBA(block, isPreview) {
                 const id = 'ba-' + block.id;
-                const beforeImg = escapeHtml(block.data.beforeImg || '');
-                const afterImg = escapeHtml(block.data.afterImg || '');
+                let beforeImg = block.data.beforeImg || '';
+                let afterImg = block.data.afterImg || '';
+                
+                if (isPreview) {
+                    const domainInputEl = document.getElementById('articleDomain');
+                    const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
+                    const prependDomain = (url) => {
+                        if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('data:')) {
+                            if (domainVal) {
+                                const base = domainVal.endsWith('/') ? domainVal : domainVal + '/';
+                                const path = url.startsWith('/') ? url.substring(1) : url;
+                                return base + path;
+                            }
+                        }
+                        return url;
+                    };
+                    beforeImg = prependDomain(beforeImg);
+                    afterImg = prependDomain(afterImg);
+                }
+                
                 const beforeLabel = escapeHtml(block.data.beforeLabel || 'До');
                 const afterLabel = escapeHtml(block.data.afterLabel || 'После');
                 
+                if (!beforeImg) {
+                    beforeImg = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Изображение ДО (Заглушка)');
+                }
+                if (!afterImg) {
+                    afterImg = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Изображение ПОСЛЕ (Заглушка)');
+                }
+                
                 return `<div class="article-ba-slider" id="${id}">
-    <div class="ba-image ba-after-img" style="background-image: url('${afterImg}');"></div>
-    <div class="ba-image ba-before-img" style="background-image: url('${beforeImg}');"></div>
+    <div class="ba-image ba-after-img" style="background-image: url('${escapeHtml(afterImg)}');"></div>
+    <div class="ba-image ba-before-img" style="background-image: url('${escapeHtml(beforeImg)}');"></div>
     <div class="ba-label ba-label-before">${beforeLabel}</div>
     <div class="ba-label ba-label-after">${afterLabel}</div>
     <input type="range" min="0" max="100" value="50" class="ba-handle-slider">
     <div class="ba-handle-bar"></div>
 </div>`;
-            },
-            preview(block) {
-                return this.toHTML(block);
             }
         },
 
@@ -1390,7 +1443,7 @@
             defaults: () => ({
                 name: 'Название товара',
                 price: '7 500.00р.',
-                img: 'image/catalog/demo/product.jpg',
+                img: '',
                 link: '#',
                 btnText: 'Купить'
             }),
@@ -1420,15 +1473,37 @@
                     </div>`;
             },
             toHTML(block) {
+                return this.renderCard(block, false);
+            },
+            preview(block) {
+                return this.renderCard(block, true);
+            },
+            renderCard(block, isPreview) {
                 const name = escapeHtml(block.data.name || '');
                 const price = escapeHtml(block.data.price || '');
-                const img = escapeHtml(block.data.img || '');
+                let img = block.data.img || '';
                 const link = escapeHtml(block.data.link || '#');
                 const btnText = escapeHtml(block.data.btnText || 'Купить');
                 
+                if (isPreview) {
+                    if (img && !img.startsWith('http://') && !img.startsWith('https://') && !img.startsWith('data:')) {
+                        const domainInputEl = document.getElementById('articleDomain');
+                        const domainVal = domainInputEl ? domainInputEl.value.trim() : '';
+                        if (domainVal) {
+                            const base = domainVal.endsWith('/') ? domainVal : domainVal + '/';
+                            const path = img.startsWith('/') ? img.substring(1) : img;
+                            img = base + path;
+                        }
+                    }
+                }
+                
+                if (!img) {
+                    img = safeSvgPlaceholder(200, 200, '#f5f5f5', '#888', 'Товар');
+                }
+                
                 return `<div class="article-product-card">
     <div class="product-card-img-wrap">
-        <a href="${link}"><img src="${img}" alt="${name}"></a>
+        <a href="${link}"><img src="${escapeHtml(img)}" alt="${name}"></a>
     </div>
     <div class="product-card-info">
         <h4 class="product-card-title"><a href="${link}">${name}</a></h4>
@@ -1438,9 +1513,6 @@
         </div>
     </div>
 </div>`;
-            },
-            preview(block) {
-                return this.toHTML(block);
             }
         },
     };
