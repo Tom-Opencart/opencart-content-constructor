@@ -3300,6 +3300,21 @@
         }
     });
 
+    // ── Before/After Slider range listener in editor preview ─
+    document.addEventListener('input', (event) => {
+        const slider = event.target;
+        if (slider && slider.classList.contains('ba-handle-slider')) {
+            const container = slider.closest('.article-ba-slider');
+            if (container) {
+                const val = slider.value;
+                const beforeImg = container.querySelector('.ba-before-img');
+                const handleBar = container.querySelector('.ba-handle-bar');
+                if (beforeImg) beforeImg.style.width = val + '%';
+                if (handleBar) handleBar.style.left = val + '%';
+            }
+        }
+    });
+
     // ── Copy HTML to Clipboard ───────────────────────────────
     $('#btnCopyHTML').addEventListener('click', () => {
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
