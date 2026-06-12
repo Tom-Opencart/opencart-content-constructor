@@ -306,6 +306,7 @@
             <button class="help-tab-btn" data-help-tab="help-text"><i class="fa fa-font"></i> Оформление текста</button>
             <button class="help-tab-btn" data-help-tab="help-blocks"><i class="fa fa-cubes"></i> Сложные блоки</button>
             <button class="help-tab-btn" data-help-tab="help-images"><i class="fa fa-picture-o"></i> Ссылки и картинки</button>
+            <button class="help-tab-btn" data-help-tab="help-ai"><i class="fa fa-magic"></i> AI функции</button>
         </div>
         <div class="modal-body help-modal-body">
             <!-- TAB 1: INSTALLATION -->
@@ -934,6 +935,131 @@
                     <p style="margin: 8px 0 0; font-size: 12px; color: #888;">При нажатии откроется всплывающее окно с текстом статьи из OpenCart.</p>
                 </div>
             </div>
+
+            <!-- TAB 5: AI FUNCTIONS -->
+            <div class="help-tab-content" id="help-ai" style="display: none;">
+                <h3 style="margin-top: 0; color: #333;"><i class="fa fa-magic"></i> Совместная работа с искусственным интеллектом</h3>
+                <p>
+                    Конструктор поддерживает <strong>двустороннюю интеграцию с ИИ (ChatGPT, Claude, Gemini)</strong> через файлы импорта и экспорта в формате JSON. Каждый экспортированный файл содержит встроенную самодокументируемую схему <code>ai_specification</code>. Она сообщает нейросети все технические возможности конструктора и правила генерации блоков, гарантируя безошибочную работу при обратном импорте.
+                </p>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Как это работает (Пошагово)</strong></h3>
+                <ol class="help-steps-list">
+                    <li><strong>Экспорт JSON:</strong> Нажмите кнопку <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:12px; font-weight:600;"><i class="fa fa-download"></i> Экспорт JSON</span> в шапке конструктора, чтобы сохранить текущую структуру статьи.</li>
+                    <li><strong>Передача в ИИ:</strong> Загрузите полученный файл (например, <code>constructor-article.json</code>) в чат с ChatGPT, Claude или Gemini. Либо просто скопируйте его текстовое содержимое и отправьте в чат.</li>
+                    <li><strong>Промпт (Запрос):</strong> Опишите ИИ задачу на русском языке (перевод, добавление блоков, оптимизация, переформулирование). <em>ИИ сам прочитает спецификацию внутри файла и создаст корректную структуру JSON.</em></li>
+                    <li><strong>Импорт JSON:</strong> Сохраните ответ ИИ как <code>.json</code> файл, вернитесь в конструктор, нажмите <span style="background:#f1f5f9; border:1px solid #cbd5e1; padding:2px 6px; border-radius:4px; font-size:12px; font-weight:600;"><i class="fa fa-upload"></i> Импорт JSON</span> и выберите этот файл. Ваша статья мгновенно обновится на экране!</li>
+                </ol>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Спецификация блоков (ai_specification)</strong></h3>
+                <p>Благодаря встроенной спецификации, ИИ точно знает, как собирать следующие блоки:</p>
+                <table class="help-table-guide">
+                    <thead>
+                        <tr>
+                            <th>Тип блока (type)</th>
+                            <th>Назначение</th>
+                            <th>Поля в data (схема)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>heading</code></td>
+                            <td>Заголовки (H1-H6)</td>
+                            <td><code>level</code> (число 1-6), <code>text</code> (текст с поддержкой Markdown)</td>
+                        </tr>
+                        <tr>
+                            <td><code>paragraph</code></td>
+                            <td>Текст абзацев</td>
+                            <td><code>text</code> (поддерживает **жирный**, *курсив*, списки и [ссылки](url))</td>
+                        </tr>
+                        <tr>
+                            <td><code>list</code></td>
+                            <td>Списки</td>
+                            <td><code>ordered</code> (true/false), <code>items</code> (массив строк)</td>
+                        </tr>
+                        <tr>
+                            <td><code>quote</code></td>
+                            <td>Цитаты с автором</td>
+                            <td><code>text</code> (строка), <code>author</code> (строка, опционально)</td>
+                        </tr>
+                        <tr>
+                            <td><code>table</code></td>
+                            <td>Таблицы данных</td>
+                            <td><code>headers</code> (массив заголовков), <code>rows</code> (массив массивов ячеек)</td>
+                        </tr>
+                        <tr>
+                            <td><code>image</code></td>
+                            <td>Изображение</td>
+                            <td><code>path</code> (путь к файлу на сервере), <code>caption</code> (подпись)</td>
+                        </tr>
+                        <tr>
+                            <td><code>before-after</code></td>
+                            <td>Слайдер До/После</td>
+                            <td><code>beforeImg</code>, <code>afterImg</code> (пути), <code>beforeLabel</code>, <code>afterLabel</code> (подписи)</td>
+                        </tr>
+                        <tr>
+                            <td><code>spoiler</code></td>
+                            <td>Сворачиваемый FAQ</td>
+                            <td><code>title</code> (вопрос), <code>text</code> (ответ), <code>opened</code> (true/false)</td>
+                        </tr>
+                        <tr>
+                            <td><code>tabs</code></td>
+                            <td>Вкладки (Табы)</td>
+                            <td><code>tabs</code> (массив объектов с <code>title</code> и <code>content</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><code>product-card</code></td>
+                            <td>Карточка товара</td>
+                            <td><code>url</code>, <code>image</code>, <code>name</code>, <code>price</code>, <code>buttonText</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>grid</code></td>
+                            <td>Сетка (Bootstrap 3)</td>
+                            <td><code>pcPattern</code> (пропорции, сумма = 12), <code>columns</code> (массив колонок с nested blocks)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Важные правила при работе с ИИ</strong></h3>
+                <div class="help-example-box" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        <li><strong>Автоматические ID:</strong> Нейросети <strong>не нужно</strong> генерировать новые UUID или следить за уникальностью ключей <code>id</code>. При импорте конструктор сам создаст валидные и уникальные ID для всех блоков и колонок.</li>
+                        <li><strong>Использование Markdown:</strong> Внутри полей <code>text</code> (для параграфов, цитат, спойлеров и вкладок) ИИ может смело использовать форматирование Markdown: жирный текст, курсив, списки и гиперссылки. Конструктор автоматически преобразует их в HTML.</li>
+                        <li><strong>Сложные структуры (Grid):</strong> ИИ умеет вкладывать одни блоки внутрь других в блоке <code>grid</code>. Спецификация показывает ему, как объявлять дочерние элементы в массиве <code>columns[i].blocks</code>.</li>
+                    </ul>
+                </div>
+
+                <h3 style="color: #4a90d9; margin-top: 24px;"><i class="fa fa-copy"></i> Готовые промпты для ChatGPT / Claude / Gemini</h3>
+                <p>Скопируйте один из этих промптов и отправьте его ИИ вместе со своим файлом JSON:</p>
+
+                <!-- PROMPT 1 -->
+                <div class="help-example-box" style="margin-top: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 6px; color: #3b82f6;"><i class="fa fa-language"></i> Вариант 1: Перевод статьи на другой язык</div>
+                    <textarea readonly onclick="this.select();" class="prompt-textarea" style="width:100%; height:90px; font-family:inherit; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; padding:6px; resize:none; background:#fafafa; color:#333;">Изучи структуру приложенного файла JSON. Не меняя схему данных, переведи весь контент на английский язык. Изменяй только текстовые значения в полях title, slug и в массиве blocks (поля text, title, headers, rows, items, name и т.д.). Верни строго валидный JSON-код статьи.</textarea>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">Кликните в поле, чтобы выделить весь текст для копирования.</div>
+                </div>
+
+                <!-- PROMPT 2 -->
+                <div class="help-example-box" style="margin-top: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 6px; color: #10b981;"><i class="fa fa-question-circle"></i> Вариант 2: Генерация блока Частых Вопросов (FAQ)</div>
+                    <textarea readonly onclick="this.select();" class="prompt-textarea" style="width:100%; height:110px; font-family:inherit; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; padding:6px; resize:none; background:#fafafa; color:#333;">Проанализируй текст этой статьи в файле JSON. Напиши 4 релевантных вопроса и подробных ответа к ней. Сгенерируй их в виде новых блоков типа "spoiler" (аккордеонов) и добавь их в конец массива "blocks". Поле "opened" для всех спойлеров сделай false. Верни измененный JSON-код статьи.</textarea>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">Кликните в поле, чтобы выделить весь текст для копирования.</div>
+                </div>
+
+                <!-- PROMPT 3 -->
+                <div class="help-example-box" style="margin-top: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 6px; color: #f59e0b;"><i class="fa fa-line-chart"></i> Вариант 3: SEO оптимизация и расширение статьи</div>
+                    <textarea readonly onclick="this.select();" class="prompt-textarea" style="width:100%; height:130px; font-family:inherit; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; padding:6px; resize:none; background:#fafafa; color:#333;">Выступи в роли экспертного копирайтера и SEO-специалиста. Прочитай статью в JSON. Оптимизируй заголовки и тексты блоков под ключевой запрос [КУПИТЬ УМНЫЕ ЧАСЫ]. Расширь абзацы полезными деталями, добавь 1-2 блока привлекательных цитат (quote), а также блок сравнения характеристик в виде таблицы (table). Верни обновленный JSON-код статьи.</textarea>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">Кликните в поле, чтобы выделить весь текст для копирования.</div>
+                </div>
+
+                <!-- PROMPT 4 -->
+                <div class="help-example-box" style="margin-top: 12px; margin-bottom: 12px;">
+                    <div style="font-weight: 700; margin-bottom: 6px; color: #ec4899;"><i class="fa fa-shopping-cart"></i> Вариант 4: Добавление товарных рекомендаций</div>
+                    <textarea readonly onclick="this.select();" class="prompt-textarea" style="width:100%; height:110px; font-family:inherit; font-size:12px; border:1px solid #cbd5e1; border-radius:4px; padding:6px; resize:none; background:#fafafa; color:#333;">Добавь в конец этой статьи блок сетки (grid) с двумя колонками (pcPattern: [6, 6]). Внутри каждой колонки создай по одному блоку товара (product-card). Подбери подходящие по смыслу товары, заполни для них поля url, image, name, price и buttonText. Верни готовый JSON.</textarea>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">Кликните в поле, чтобы выделить весь текст для копирования.</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1056,6 +1182,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.5.8"></script>
+<script src="js/app.js?v=1.5.9"></script>
 </body>
 </html>
