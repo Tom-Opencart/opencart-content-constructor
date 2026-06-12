@@ -226,6 +226,60 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     border-top: 1px solid #eee;
     background: #fff;
 }
+.panel-theme {
+    padding: 12px 10px;
+    border-top: 1px solid #eee;
+    background: #fff;
+}
+.panel-theme-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #888;
+    margin-bottom: 8px;
+}
+.theme-select {
+    width: 100%;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+}
+.theme-select:focus {
+    border-color: #4a90d9;
+}
+.theme-custom-colors {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #fdfdfd;
+    padding: 8px;
+    border: 1px dashed #ddd;
+    border-radius: 4px;
+}
+.color-picker-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #555;
+}
+.color-picker-group input[type="color"] {
+    width: 32px;
+    height: 22px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+}
 .palette-group-title {
     font-size: 10px;
     font-weight: 700;
@@ -2399,7 +2453,7 @@ body.preview-hidden .workspace {
 .product-card-title a:hover,
 .preview-content .product-card-title a:hover,
 .block-preview .product-card-title a:hover {
-    color: #5446f8;
+    color: var(--accent_background_color, #5446f8);
 }
 .product-card-footer,
 .preview-content .product-card-footer,
@@ -2423,20 +2477,20 @@ body.preview-hidden .workspace {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #5446f8;
+    background: var(--accent_background_color, #5446f8);
     color: #fff !important;
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
     text-decoration: none !important;
-    transition: background 0.15s;
+    transition: filter 0.15s, background 0.15s;
     cursor: pointer;
 }
 .product-card-btn:hover,
 .preview-content .product-card-btn:hover,
 .block-preview .product-card-btn:hover {
-    background: #4335e6;
+    filter: brightness(90%);
 }
 
 @media (max-width: 767px) {
@@ -2458,6 +2512,186 @@ body.preview-hidden .workspace {
         flex-direction: row;
         width: 100%;
     }
+}
+
+/* ── Start Screen ─────────────────────────────────────────── */
+.start-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+}
+.start-screen-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+    padding: 36px 40px;
+    max-width: 600px;
+    width: 100%;
+    animation: startFadeIn 0.35s ease;
+    box-sizing: border-box;
+    text-align: left;
+}
+@keyframes startFadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.start-screen-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.start-screen-icon {
+    font-size: 36px;
+    color: #5446f8;
+    margin-bottom: 10px;
+    display: block;
+}
+.start-screen-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px;
+}
+.start-screen-header p {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+}
+.start-field-group {
+    margin-bottom: 20px;
+}
+.start-field-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.start-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+.start-input:focus {
+    border-color: #5446f8;
+    box-shadow: 0 0 0 3px rgba(84,70,248,0.10);
+}
+.start-url-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.start-url-row .start-input {
+    flex: 1;
+}
+.start-remember-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: normal;
+    margin-bottom: 0 !important;
+}
+.start-remember-label input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+.start-theme-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+}
+.start-theme-card {
+    flex: 1 1 80px;
+    min-width: 80px;
+    max-width: 110px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    padding: 12px 8px 8px;
+    cursor: pointer;
+    transition: border-color 0.18s, box-shadow 0.18s;
+    text-align: center;
+    background: #fafafa;
+    box-sizing: border-box;
+}
+.start-theme-card:hover {
+    border-color: #bbb;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.start-theme-card.active {
+    border-color: var(--card-accent, #5446f8);
+    box-shadow: 0 0 0 3px rgba(84,70,248,0.15);
+}
+.start-theme-card-preview {
+    height: 32px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.start-theme-card-btn {
+    height: 12px;
+    border-radius: 3px;
+    width: 50%;
+}
+.start-theme-card-name {
+    font-size: 10px;
+    color: #555;
+    font-weight: 500;
+}
+.start-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 28px;
+}
+.start-btn-primary {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    background: #5446f8;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.start-btn-primary:hover {
+    background: #4335d5;
+}
+.start-btn-skip {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+.start-btn-skip:hover {
+    color: #666;
 }
 
 

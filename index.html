@@ -221,6 +221,40 @@
                 <span class="block-btn-label">Карточка товара</span>
             </button>
         </div>
+        <div class="panel-theme">
+            <div class="panel-theme-title"><i class="fa fa-paint-brush" style="color: #4a90d9; margin-right: 4px;"></i> Тема оформления</div>
+            <select id="themeSelect" class="theme-select" title="Выберите цветовую тему">
+                <option value="default" selected>Фиолетовая (базовая)</option>
+                <option value="blue">Синяя классика</option>
+                <option value="emerald">Изумрудный зеленый</option>
+                <option value="orange">Теплый оранжевый</option>
+                <option value="red">Свежий красный</option>
+                <option value="dark">Темная тема (Modern Dark)</option>
+                <option value="custom">Пользовательская...</option>
+            </select>
+            <div id="themeCustomColors" class="theme-custom-colors" style="display: none;">
+                <div class="color-picker-group">
+                    <span>Акцент:</span>
+                    <input type="color" id="colorAccent" value="#5446f8" title="Цвет кнопок, ссылок и акцентов">
+                </div>
+                <div class="color-picker-group">
+                    <span>Фон:</span>
+                    <input type="color" id="colorBg" value="#F3F2FF" title="Цвет фона блоков и таблиц">
+                </div>
+                <div class="color-picker-group">
+                    <span>Текст:</span>
+                    <input type="color" id="colorText" value="#1A1A1A" title="Цвет текста">
+                </div>
+                <div class="theme-custom-actions" style="margin-top: 8px; display: flex; gap: 6px;">
+                    <button id="btnSaveTheme" class="btn-theme-action" style="flex: 1; font-size: 11px; padding: 5px 8px; border-radius: 4px; border: 1px solid #ccc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-weight: 500;" title="Сохранить цвета как новую тему">
+                        <i class="fa fa-save"></i> Сохранить тему
+                    </button>
+                    <button id="btnDeleteTheme" class="btn-theme-action" style="font-size: 11px; padding: 5px 8px; border-radius: 4px; border: 1px solid #ffcccc; background: #fff5f5; color: #d63031; cursor: pointer; display: none; align-items: center; justify-content: center;" title="Удалить эту пользовательскую тему">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="panel-support">
             <button class="block-btn donate-btn" id="btnDonate" title="Отблагодарить автора">
                 <span class="block-btn-icon"><i class="fa fa-heart"></i></span>
@@ -232,7 +266,44 @@
     <!-- CENTER: Workspace -->
     <main class="workspace" id="workspace">
         <div class="workspace-empty" id="workspaceEmpty">
-            <p>Добавьте блоки из панели слева</p>
+            <div id="startScreen" class="start-screen">
+                <div class="start-screen-card">
+                    <div class="start-screen-header">
+                        <i class="fa fa-magic start-screen-icon"></i>
+                        <h2>Новый проект</h2>
+                        <p>Настройте параметры перед началом работы</p>
+                    </div>
+                    <!-- Article title -->
+                    <div class="start-field-group">
+                        <label for="startTitle">Название статьи</label>
+                        <input type="text" id="startTitle" class="start-input" placeholder="Например: Обзор Apple Watch Series 9">
+                    </div>
+                    <!-- Site URL -->
+                    <div class="start-field-group">
+                        <label for="startSiteUrl">Адрес сайта</label>
+                        <div class="start-url-row">
+                            <input type="url" id="startSiteUrl" class="start-input" placeholder="https://example.ru/">
+                            <label class="start-remember-label">
+                                <input type="checkbox" id="startRememberUrl" checked> Запомнить
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Theme selection -->
+                    <div class="start-field-group">
+                        <label>Цветовая тема</label>
+                        <div class="start-theme-cards" id="startThemeCards">
+                            <!-- rendered by JS -->
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="start-actions">
+                        <button id="btnStartProject" class="btn btn-primary start-btn-primary">
+                            <i class="fa fa-rocket"></i> Начать создание
+                        </button>
+                        <button id="btnSkipStart" class="start-btn-skip">Пропустить</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="blocks-container" id="blocksContainer"></div>
     </main>
@@ -685,15 +756,23 @@
 
                 <div class="help-example-box">
                     <strong>Как выглядит для пользователя:</strong>
-                    <div class="article-tabs" style="margin-top: 8px;">
-                        <div class="article-tabs-nav">
-                            <button class="active">Характеристики</button>
-                            <button>Описание</button>
-                            <button>Комплектация</button>
-                        </div>
-                        <div class="article-tabs-panels">
-                            <div class="article-tabs-panel">
-                                <p style="margin: 0; font-size: 13px;">Экран 1.9", процессор S9, вес 52 г, водозащита 50м.</p>
+                    <div class="preview-content" id="helpTabsPreview" style="padding: 0; background: transparent; margin-top: 8px;">
+                        <div class="article-tabs" style="margin: 0;">
+                            <div class="article-tabs-nav">
+                                <button class="active" data-tab="0">Характеристики</button>
+                                <button data-tab="1">Описание</button>
+                                <button data-tab="2">Комплектация</button>
+                            </div>
+                            <div class="article-tabs-panels">
+                                <div class="article-tabs-panel" style="display: block;">
+                                    <p style="margin: 0; font-size: 13px;">Экран 1.9", процессор S9, вес 52 г, водозащита IP68, аккумулятор 410 мАч.</p>
+                                </div>
+                                <div class="article-tabs-panel" style="display: none;">
+                                    <p style="margin: 0; font-size: 13px;">Смарт-часы нового поколения с продвинутым датчиком пульса, встроенным GPS и уведомлениями от смартфона.</p>
+                                </div>
+                                <div class="article-tabs-panel" style="display: none;">
+                                    <p style="margin: 0; font-size: 13px;">В комплекте: смарт-часы, магнитный кабель зарядки, инструкция по эксплуатации.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

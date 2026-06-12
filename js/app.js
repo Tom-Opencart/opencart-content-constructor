@@ -26,6 +26,256 @@
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
+    const PRESET_THEMES = {
+        default: {
+            accent: '#5446f8',
+            bg: '#F3F2FF',
+            text: '#1A1A1A',
+            bgAdditional: '#F9F8FF',
+            textAdditional: '#3e3e3e'
+        },
+        blue: {
+            accent: '#2e86de',
+            bg: '#f0f6fc',
+            text: '#1f2328',
+            bgAdditional: '#f6f8fa',
+            textAdditional: '#57606a'
+        },
+        emerald: {
+            accent: '#10ac84',
+            bg: '#e6f4ea',
+            text: '#202124',
+            bgAdditional: '#f1f8f5',
+            textAdditional: '#5f6368'
+        },
+        orange: {
+            accent: '#ff9f43',
+            bg: '#fff9f2',
+            text: '#2d3436',
+            bgAdditional: '#fffefb',
+            textAdditional: '#525252'
+        },
+        red: {
+            accent: '#ee5253',
+            bg: '#fff5f5',
+            text: '#2d3748',
+            bgAdditional: '#fffafa',
+            textAdditional: '#4a5568'
+        },
+        dark: {
+            accent: '#00d2d3',
+            bg: '#1e272e',
+            text: '#f5f6fa',
+            bgAdditional: '#2f3640',
+            textAdditional: '#dcdde1'
+        }
+    };
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    let customThemes = {};
+    try {
+        const stored = localStorage.getItem('constructor_custom_themes');
+        if (stored) {
+            customThemes = JSON.parse(stored);
+        }
+    } catch (e) {
+        console.error('Failed to load custom themes:', e);
+    }
+
+    // ── Project Settings Storage ─────────────────────────────────
+    const PROJECT_SESSION_KEY = 'constructor_session';
+    const PROJECT_URL_KEY = 'constructor_site_url';
+
+    function loadProjectSession() {
+        try {
+            const raw = sessionStorage.getItem(PROJECT_SESSION_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+    }
+
+    function saveProjectSession(data) {
+        try {
+            sessionStorage.setItem(PROJECT_SESSION_KEY, JSON.stringify(data));
+        } catch (e) {}
+    }
+
+    function loadSavedUrl() {
+        try { return localStorage.getItem(PROJECT_URL_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    function saveSiteUrl(url) {
+        try { localStorage.setItem(PROJECT_URL_KEY, url); } catch (e) {}
+    }
+
+    function applyProjectToHeader(project) {
+        const titleEl = document.getElementById('articleTitle');
+        const domainEl = document.getElementById('articleDomain');
+        const slugEl = document.getElementById('articleSlug');
+        if (titleEl && project.title !== undefined) titleEl.value = project.title;
+        if (domainEl && project.siteUrl !== undefined) domainEl.value = project.siteUrl;
+        if (slugEl && project.slug !== undefined) slugEl.value = project.slug;
+        if (project.theme) {
+            updateThemeSelectOptions(project.theme);
+            updateThemeUI();
+            applyThemeToPreview();
+        }
+    }
+
+
+    function updateThemeSelectOptions(selectedVal) {
+        const themeSelect = document.getElementById('themeSelect');
+        if (!themeSelect) return;
+        
+        const activeVal = selectedVal || themeSelect.value || 'default';
+        
+        const basePresets = [
+            { val: 'default', text: 'Фиолетовая (базовая)' },
+            { val: 'blue', text: 'Синяя классика' },
+            { val: 'emerald', text: 'Изумрудный зеленый' },
+            { val: 'orange', text: 'Теплый оранжевый' },
+            { val: 'red', text: 'Свежий красный' },
+            { val: 'dark', text: 'Темная тема (Modern Dark)' }
+        ];
+        
+        themeSelect.innerHTML = '';
+        
+        basePresets.forEach(preset => {
+            const opt = document.createElement('option');
+            opt.value = preset.val;
+            opt.textContent = preset.text;
+            themeSelect.appendChild(opt);
+        });
+        
+        const customKeys = Object.keys(customThemes);
+        if (customKeys.length > 0) {
+            const groupOpt = document.createElement('optgroup');
+            groupOpt.label = 'Пользовательские темы';
+            customKeys.forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = key;
+                groupOpt.appendChild(opt);
+            });
+            themeSelect.appendChild(groupOpt);
+        }
+        
+        const customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = 'Пользовательская...';
+        themeSelect.appendChild(customOpt);
+        
+        themeSelect.value = activeVal;
+        
+        if (themeSelect.value !== activeVal) {
+            themeSelect.value = 'default';
+        }
+    }
+
+    function updateThemeUI() {
+        const themeSelect = document.getElementById('themeSelect');
+        if (!themeSelect) return;
+        
+        const themeVal = themeSelect.value;
+        const themeCustomColors = document.getElementById('themeCustomColors');
+        const btnDeleteTheme = document.getElementById('btnDeleteTheme');
+        
+        const isCustomPickerVisible = (themeVal === 'custom' || customThemes[themeVal] !== undefined);
+        
+        if (themeCustomColors) {
+            themeCustomColors.style.display = isCustomPickerVisible ? 'block' : 'none';
+        }
+        
+        if (btnDeleteTheme) {
+            btnDeleteTheme.style.display = (customThemes[themeVal] !== undefined) ? 'flex' : 'none';
+        }
+        
+        if (themeVal !== 'custom') {
+            const colors = customThemes[themeVal] || PRESET_THEMES[themeVal] || PRESET_THEMES.default;
+            const colorAccent = document.getElementById('colorAccent');
+            const colorBg = document.getElementById('colorBg');
+            const colorText = document.getElementById('colorText');
+            if (colorAccent) colorAccent.value = colors.accent;
+            if (colorBg) colorBg.value = colors.bg;
+            if (colorText) colorText.value = colors.text;
+        }
+        
+        applyThemeToPreview();
+    }
+
+    function getCurrentThemeColors() {
+        const themeSelect = document.getElementById('themeSelect');
+        const themeVal = themeSelect ? themeSelect.value : 'default';
+        
+        if (themeVal !== 'custom') {
+            return customThemes[themeVal] || PRESET_THEMES[themeVal] || PRESET_THEMES.default;
+        }
+        
+        const colorAccent = document.getElementById('colorAccent');
+        const colorBg = document.getElementById('colorBg');
+        const colorText = document.getElementById('colorText');
+        
+        const accent = colorAccent ? colorAccent.value : '#5446f8';
+        const bg = colorBg ? colorBg.value : '#F3F2FF';
+        const text = colorText ? colorText.value : '#1A1A1A';
+        
+        let bgAdditional = bg;
+        const bgRgb = hexToRgb(bg);
+        if (bgRgb) {
+            const brightness = (bgRgb.r * 299 + bgRgb.g * 587 + bgRgb.b * 114) / 1000;
+            if (brightness > 128) {
+                bgAdditional = rgbToHex(Math.max(0, bgRgb.r - 8), Math.max(0, bgRgb.g - 8), Math.max(0, bgRgb.b - 8));
+            } else {
+                bgAdditional = rgbToHex(Math.min(255, bgRgb.r + 15), Math.min(255, bgRgb.g + 15), Math.min(255, bgRgb.b + 15));
+            }
+        }
+        
+        let textAdditional = text;
+        const textRgb = hexToRgb(text);
+        if (textRgb) {
+            const brightness = (textRgb.r * 299 + textRgb.g * 587 + textRgb.b * 114) / 1000;
+            if (brightness > 128) {
+                textAdditional = rgbToHex(Math.max(0, textRgb.r - 20), Math.max(0, textRgb.g - 20), Math.max(0, textRgb.b - 20));
+            } else {
+                textAdditional = rgbToHex(Math.min(255, textRgb.r + 30), Math.min(255, textRgb.g + 30), Math.min(255, textRgb.b + 30));
+            }
+        }
+        
+        return {
+            accent,
+            bg,
+            text,
+            bgAdditional,
+            textAdditional
+        };
+    }
+
+    function applyThemeToPreview() {
+        const theme = getCurrentThemeColors();
+        const targets = ['previewContent', 'helpTabsPreview'];
+        targets.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.setProperty('--accent_background_color', theme.accent);
+                el.style.setProperty('--background_main_color', theme.bg);
+                el.style.setProperty('--background_additional_color', theme.bgAdditional);
+                el.style.setProperty('--main_color', theme.text);
+                el.style.setProperty('--additional_color', theme.textAdditional);
+            }
+        });
+    }
+
     const GRID_PC_PRESETS = {
         2: [[6, 6], [4, 8], [8, 4], [3, 9], [9, 3]],
         3: [[4, 4, 4], [3, 6, 3], [6, 3, 3], [3, 3, 6]],
@@ -660,7 +910,8 @@
                 
                 if (!imgUrl) {
                     // Inline SVG placeholder
-                    imgUrl = safeSvgPlaceholder(800, 400, '#F3F2FF', '#5446f8', 'Заглушка: ' + (block.data.src || 'файл не выбран'));
+                    const theme = getCurrentThemeColors();
+                    imgUrl = safeSvgPlaceholder(800, 400, theme.bg, theme.accent, 'Заглушка: ' + (block.data.src || 'файл не выбран'));
                 }
                 
                 let html = `<img alt="${escapeHtml(block.data.alt || 'Изображение')}" class="img-responsive" style="width: 100%;" src="${imgUrl}" loading="lazy">`;
@@ -1259,7 +1510,8 @@
                     }
                     
                     if (!imgUrl) {
-                        imgUrl = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Слайд ' + (i + 1) + ' (' + (item.alt || 'Заглушка') + ')');
+                        const theme = getCurrentThemeColors();
+                        imgUrl = safeSvgPlaceholder(800, 400, theme.bg, theme.accent, 'Слайд ' + (i + 1) + ' (' + (item.alt || 'Заглушка') + ')');
                     }
                     
                     indicators += `<li data-target="#${id}" data-slide-to="${i}" class="${i === 0 ? 'active' : ''}"></li>`;
@@ -1349,10 +1601,12 @@
                 const afterLabel = escapeHtml(block.data.afterLabel || 'После');
                 
                 if (!beforeImg) {
-                    beforeImg = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Изображение ДО (Заглушка)');
+                    const theme = getCurrentThemeColors();
+                    beforeImg = safeSvgPlaceholder(800, 400, theme.bg, theme.accent, 'Изображение ДО (Заглушка)');
                 }
                 if (!afterImg) {
-                    afterImg = safeSvgPlaceholder(800, 400, '#f5f5f5', '#888', 'Изображение ПОСЛЕ (Заглушка)');
+                    const theme = getCurrentThemeColors();
+                    afterImg = safeSvgPlaceholder(800, 400, theme.bg, theme.accent, 'Изображение ПОСЛЕ (Заглушка)');
                 }
                 
                 return `<div class="article-ba-slider" id="${id}">
@@ -1508,7 +1762,8 @@
                 }
                 
                 if (!img) {
-                    img = safeSvgPlaceholder(200, 200, '#f5f5f5', '#888', 'Товар');
+                    const theme = getCurrentThemeColors();
+                    img = safeSvgPlaceholder(200, 200, theme.bg, theme.accent, 'Товар');
                 }
                 
                 return `<div class="article-product-card">
@@ -1693,7 +1948,10 @@
         const headings = allBlocks ? allBlocks.filter(b => b.type === 'heading') : [];
         if (headings.length === 0) return '<p style="color:#aaa;font-style:italic">Добавьте заголовки H2/H3 для генерации оглавления</p>';
         
-        let html = `<div class="blog-content">`;
+        const theme = getCurrentThemeColors();
+        const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
+        
+        let html = `<div class="blog-content" ${styleAttr}>`;
         html += `<div class="bold menu-content-title">Содержание<i class="fa fa-chevron-down"></i></div>`;
         html += `<ul>`;
         headings.forEach((h, idx) => {
@@ -2721,6 +2979,8 @@
         
         const title = titleInput.value || 'Превью статьи';
         const { tocHTML, contentHTML } = renderArticleParts('preview');
+        const theme = getCurrentThemeColors();
+        const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
 
         const html = `<!DOCTYPE html>
 <html lang="ru">
@@ -2737,7 +2997,7 @@
     </style>
 </head>
 <body>
-    <div class="preview-content new-window-preview-container">
+    <div class="preview-content new-window-preview-container" ${styleAttr}>
         ${tocHTML}
         <div class="description">
             ${contentHTML}
@@ -2764,6 +3024,7 @@
             }
             const { tocHTML, contentHTML } = renderArticleParts('preview');
             previewContent.innerHTML = tocHTML + '<div class="description">\n' + contentHTML + '</div>';
+            applyThemeToPreview();
             
             if (previewWindow && !previewWindow.closed) {
                 updateNewWindowContent();
@@ -2771,15 +3032,30 @@
         }, 200);
     }
 
-    // ── Slug auto-update & Domain changes ────────────────────
+    // ── Slug auto-update & Domain changes & Session Sync ─────
+    function syncHeaderToSession() {
+        const session = loadProjectSession() || {};
+        const domainEl = document.getElementById('articleDomain');
+        session.title = titleInput ? titleInput.value : session.title;
+        session.slug = slugInput ? slugInput.value : session.slug;
+        session.siteUrl = domainEl ? domainEl.value : session.siteUrl;
+        saveProjectSession(session);
+    }
+
     titleInput.addEventListener('input', () => {
         slugInput.value = slugify(titleInput.value);
+        syncHeaderToSession();
     });
+
+    if (slugInput) {
+        slugInput.addEventListener('input', syncHeaderToSession);
+    }
 
     const domainInput = $('#articleDomain');
     if (domainInput) {
         domainInput.addEventListener('input', () => {
             updatePreview();
+            syncHeaderToSession();
         });
     }
 
@@ -3027,8 +3303,10 @@
     // ── Copy HTML to Clipboard ───────────────────────────────
     $('#btnCopyHTML').addEventListener('click', () => {
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
+        const theme = getCurrentThemeColors();
+        const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
 
-        const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
+        const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
 
         navigator.clipboard.writeText(cleanHTML).then(() => {
             const btn = $('#btnCopyHTML');
@@ -3072,8 +3350,10 @@
             const slug = slugInput.value || slugify(title) || 'article';
 
             const { tocHTML, contentHTML } = renderArticleParts('toHTML');
+            const theme = getCurrentThemeColors();
+            const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
 
-            const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
+            const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
             downloadFile(cleanHTML, `content-${slug}.txt`, 'text/plain');
         });
     }
@@ -3085,6 +3365,8 @@
         const cssFile = `content-constructor.css`;
 
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
+        const theme = getCurrentThemeColors();
+        const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
 
         const fullHTML = `<!DOCTYPE html>
 <html lang="ru">
@@ -3096,7 +3378,7 @@
     <link rel="stylesheet" href="${cssFile}">
 </head>
 <body>
-${tocHTML}<div class="description">
+${tocHTML}<div class="description" ${styleAttr}>
 ${contentHTML}</div>
 <script type="text/javascript">
 document.addEventListener('click', function(event) {
@@ -3208,9 +3490,23 @@ document.addEventListener('input', function(event) {
     const btnExportJSON = $('#btnExportJSON');
     if (btnExportJSON) {
         btnExportJSON.addEventListener('click', () => {
+            const themeSelectEl = $('#themeSelect');
+            const colorAccentEl = $('#colorAccent');
+            const colorBgEl = $('#colorBg');
+            const colorTextEl = $('#colorText');
+            
             const dataToExport = {
                 title: titleInput.value || '',
                 slug: slugInput.value || '',
+                project: {
+                    siteUrl: (document.getElementById('articleDomain') || {}).value || ''
+                },
+                theme: {
+                    preset: themeSelectEl ? themeSelectEl.value : 'default',
+                    accent: colorAccentEl ? colorAccentEl.value : '#5446f8',
+                    bg: colorBgEl ? colorBgEl.value : '#F3F2FF',
+                    text: colorTextEl ? colorTextEl.value : '#1A1A1A'
+                },
                 blocks: blocks
             };
             const jsonStr = JSON.stringify(dataToExport, null, 2);
@@ -3240,6 +3536,47 @@ document.addEventListener('input', function(event) {
                     if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
                         if (parsed.title !== undefined) titleInput.value = parsed.title;
                         if (parsed.slug !== undefined) slugInput.value = parsed.slug;
+                        if (parsed.project && parsed.project.siteUrl !== undefined) {
+                            const domainEl = document.getElementById('articleDomain');
+                            if (domainEl) domainEl.value = parsed.project.siteUrl;
+                        }
+
+                        // Mark session as started on import so that startScreen is bypassed
+                        const importedSession = {
+                            started: true,
+                            title: parsed.title || '',
+                            slug: parsed.slug || '',
+                            siteUrl: (parsed.project && parsed.project.siteUrl) || '',
+                            theme: (parsed.theme && parsed.theme.preset) || 'default'
+                        };
+                        saveProjectSession(importedSession);
+
+                        // Bypass start screen UI
+                        const startScreen = document.getElementById('startScreen');
+                        if (startScreen) startScreen.style.display = 'none';
+                        const workspaceEmpty = document.getElementById('workspaceEmpty');
+                        if (workspaceEmpty) {
+                            workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
+                        }
+                        
+                        // Import Theme metadata
+                        const themeSelectEl = $('#themeSelect');
+                        const colorAccentEl = $('#colorAccent');
+                        const colorBgEl = $('#colorBg');
+                        const colorTextEl = $('#colorText');
+                        
+                        if (parsed.theme) {
+                            if (themeSelectEl) themeSelectEl.value = parsed.theme.preset || 'default';
+                            if (colorAccentEl) colorAccentEl.value = parsed.theme.accent || '#5446f8';
+                            if (colorBgEl) colorBgEl.value = parsed.theme.bg || '#F3F2FF';
+                            if (colorTextEl) colorTextEl.value = parsed.theme.text || '#1A1A1A';
+                            updateThemeUI();
+                        } else {
+                            if (themeSelectEl) {
+                                themeSelectEl.value = 'default';
+                                updateThemeUI();
+                            }
+                        }
                         
                         blocks = parsed.blocks;
                         blocks.forEach(b => {
@@ -3466,18 +3803,129 @@ document.addEventListener('input', function(event) {
         updatePreview();
     }
 
+    // ── Theme Control Listeners ──────────────────────────────
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', () => {
+            updateThemeUI();
+            updatePreview();
+            const session = loadProjectSession() || {};
+            session.theme = themeSelect.value;
+            saveProjectSession(session);
+        });
+    }
+    
+    const colorAccent = document.getElementById('colorAccent');
+    const colorBg = document.getElementById('colorBg');
+    const colorText = document.getElementById('colorText');
+    
+    const onColorInputChange = () => {
+        applyThemeToPreview();
+        updatePreview();
+    };
+    
+    if (colorAccent) colorAccent.addEventListener('input', onColorInputChange);
+    if (colorBg) colorBg.addEventListener('input', onColorInputChange);
+    if (colorText) colorText.addEventListener('input', onColorInputChange);
+    
+    // Save theme button
+    const btnSaveTheme = document.getElementById('btnSaveTheme');
+    if (btnSaveTheme) {
+        btnSaveTheme.addEventListener('click', () => {
+            const accent = colorAccent ? colorAccent.value : '#5446f8';
+            const bg = colorBg ? colorBg.value : '#F3F2FF';
+            const text = colorText ? colorText.value : '#1A1A1A';
+            
+            const themeName = prompt('Введите название вашей темы:', 'Моя тема');
+            if (themeName === null) return;
+            const trimmedName = themeName.trim();
+            if (!trimmedName) {
+                alert('Название темы не может быть пустым.');
+                return;
+            }
+            
+            if (trimmedName === 'custom' || PRESET_THEMES[trimmedName]) {
+                alert('Нельзя использовать это имя, так как оно совпадает с системным пресетом.');
+                return;
+            }
+            
+            // Calculate additional colors
+            let bgAdditional = bg;
+            const bgRgb = hexToRgb(bg);
+            if (bgRgb) {
+                const brightness = (bgRgb.r * 299 + bgRgb.g * 587 + bgRgb.b * 114) / 1000;
+                if (brightness > 128) {
+                    bgAdditional = rgbToHex(Math.max(0, bgRgb.r - 8), Math.max(0, bgRgb.g - 8), Math.max(0, bgRgb.b - 8));
+                } else {
+                    bgAdditional = rgbToHex(Math.min(255, bgRgb.r + 15), Math.min(255, bgRgb.g + 15), Math.min(255, bgRgb.b + 15));
+                }
+            }
+            
+            let textAdditional = text;
+            const textRgb = hexToRgb(text);
+            if (textRgb) {
+                const brightness = (textRgb.r * 299 + textRgb.g * 587 + textRgb.b * 114) / 1000;
+                if (brightness > 128) {
+                    textAdditional = rgbToHex(Math.max(0, textRgb.r - 20), Math.max(0, textRgb.g - 20), Math.max(0, textRgb.b - 20));
+                } else {
+                    textAdditional = rgbToHex(Math.min(255, textRgb.r + 30), Math.min(255, textRgb.g + 30), Math.min(255, textRgb.b + 30));
+                }
+            }
+            
+            customThemes[trimmedName] = {
+                accent,
+                bg,
+                text,
+                bgAdditional,
+                textAdditional
+            };
+            
+            try {
+                localStorage.setItem('constructor_custom_themes', JSON.stringify(customThemes));
+            } catch (e) {
+                console.error(e);
+            }
+            
+            updateThemeSelectOptions(trimmedName);
+            updateThemeUI();
+            updatePreview();
+        });
+    }
+    
+    // Delete theme button
+    const btnDeleteTheme = document.getElementById('btnDeleteTheme');
+    if (btnDeleteTheme) {
+        btnDeleteTheme.addEventListener('click', () => {
+            const currentTheme = themeSelect ? themeSelect.value : '';
+            if (customThemes[currentTheme] === undefined) return;
+            
+            if (confirm(`Вы уверены, что хотите удалить тему "${currentTheme}"?`)) {
+                delete customThemes[currentTheme];
+                try {
+                    localStorage.setItem('constructor_custom_themes', JSON.stringify(customThemes));
+                } catch (e) {
+                    console.error(e);
+                }
+                updateThemeSelectOptions('default');
+                updateThemeUI();
+                updatePreview();
+            }
+        });
+    }
+
     function getExportedCSS() {
+        const theme = getCurrentThemeColors();
         return `/* content-constructor.css — Стили для разметки */
 /* Генерировано OpenCart Content Constructor */
 
 :root {
     --description-font: 'Venryn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --description-font-bold: 'Venryn Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --background_main_color: #F3F2FF;
-    --background_additional_color: #F9F8FF;
-    --accent_background_color: #5446f8;
-    --main_color: #1A1A1A;
-    --additional_color: #3e3e3e;
+    --background_main_color: ${theme.bg};
+    --background_additional_color: ${theme.bgAdditional};
+    --accent_background_color: ${theme.accent};
+    --main_color: ${theme.text};
+    --additional_color: ${theme.textAdditional};
 }
 
 @font-face {
@@ -4417,10 +4865,10 @@ document.addEventListener('input', function(event) {
     height: 40px;
     border-radius: 50%;
     background: #fff;
-    border: 3px solid #5446f8;
+    border: 3px solid var(--accent_background_color, #5446f8);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     cursor: ew-resize;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%235446f8' d='M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path fill=\'' + theme.accent + '\' d=\'M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z\'/></svg>')}");
     background-position: center;
     background-repeat: no-repeat;
     background-size: 20px;
@@ -4430,10 +4878,10 @@ document.addEventListener('input', function(event) {
     height: 40px;
     border-radius: 50%;
     background: #fff;
-    border: 3px solid #5446f8;
+    border: 3px solid var(--accent_background_color, #5446f8);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     cursor: ew-resize;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%235446f8' d='M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\'><path fill=\'' + theme.accent + '\' d=\'M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z\'/></svg>')}");
     background-position: center;
     background-repeat: no-repeat;
     background-size: 20px;
@@ -4559,7 +5007,7 @@ document.addEventListener('input', function(event) {
     text-decoration: none;
 }
 .description .product-card-title a:hover {
-    color: #5446f8;
+    color: var(--accent_background_color, #5446f8);
 }
 .description .product-card-footer {
     display: flex;
@@ -4577,18 +5025,18 @@ document.addEventListener('input', function(event) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #5446f8;
+    background: var(--accent_background_color, #5446f8);
     color: #fff !important;
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
     text-decoration: none !important;
-    transition: background 0.15s;
+    transition: background 0.15s, filter 0.15s;
     cursor: pointer;
 }
 .description .product-card-btn:hover {
-    background: #4335e6;
+    filter: brightness(0.88);
 }
 
 @media (max-width: 767px) {
@@ -4629,6 +5077,8 @@ document.addEventListener('input', function(event) {
     if (btnHelp && helpModal && btnCloseHelp) {
         btnHelp.addEventListener('click', () => {
             helpModal.style.display = 'flex';
+            // Apply current theme to help modal preview
+            applyThemeToPreview();
         });
 
         btnCloseHelp.addEventListener('click', () => {
@@ -4642,7 +5092,7 @@ document.addEventListener('input', function(event) {
             }
         });
 
-        // Help Modal Tab Switcher
+        // Help Modal Tab Switcher (for .help-tab-btn navigation)
         const helpTabsNav = helpModal.querySelector('.help-tabs-nav');
         if (helpTabsNav) {
             const tabBtns = helpTabsNav.querySelectorAll('.help-tab-btn');
@@ -4667,6 +5117,22 @@ document.addEventListener('input', function(event) {
                 });
             });
         }
+
+        // Tabs demo in help modal — delegated click handler
+        helpModal.addEventListener('click', (e) => {
+            const tabBtn = e.target.closest('.help-example-box .article-tabs-nav [data-tab]');
+            if (!tabBtn) return;
+            const nav = tabBtn.parentNode;
+            const wrapper = nav.parentNode;
+            const panels = wrapper.querySelector('.article-tabs-panels');
+            if (!nav || !panels) return;
+            const idx = parseInt(tabBtn.getAttribute('data-tab'), 10);
+            nav.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+            tabBtn.classList.add('active');
+            Array.from(panels.children).forEach((panel, i) => {
+                panel.style.display = i === idx ? 'block' : 'none';
+            });
+        });
     }
 
     // ── Donate Modal Handlers ────────────────────────────────
@@ -5347,7 +5813,9 @@ document.addEventListener('click', function(event) {
 
                 // Generate clean HTML
                 const { tocHTML, contentHTML } = renderArticlePartsForBlocks(copiedBlocks, 'toHTML');
-                const cleanHTML = `${tocHTML}<div class="description">\n${contentHTML}</div>`;
+                const theme = getCurrentThemeColors();
+                const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
+                const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
 
                 // Add HTML to zip
                 zip.file(`content-${slug}.html`, cleanHTML);
@@ -5407,6 +5875,117 @@ document.addEventListener('click', function(event) {
             }
         }
     });
+
+    // ── Start Screen Onboarding ──────────────────────────────
+    (function initStartScreen() {
+        const startScreen = document.getElementById('startScreen');
+        if (!startScreen) return;
+
+        // Theme definitions for start screen preview cards
+        const themeCardsDef = [
+            { key: 'default', name: 'Фиолетовая', accent: '#5446f8', bg: '#F3F2FF' },
+            { key: 'blue',    name: 'Синяя',       accent: '#2e86de', bg: '#f0f6fc' },
+            { key: 'emerald', name: 'Изумрудная',  accent: '#10ac84', bg: '#e6f4ea' },
+            { key: 'orange',  name: 'Оранжевая',   accent: '#ff9f43', bg: '#fff9f2' },
+            { key: 'red',     name: 'Красная',      accent: '#ee5253', bg: '#fff5f5' },
+            { key: 'dark',    name: 'Тёмная',       accent: '#00d2d3', bg: '#1e272e' }
+        ];
+        let selectedTheme = 'default';
+
+        const cardsContainer = document.getElementById('startThemeCards');
+        if (cardsContainer) {
+            themeCardsDef.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'start-theme-card' + (t.key === 'default' ? ' active' : '');
+                card.style.setProperty('--card-accent', t.accent);
+                card.dataset.theme = t.key;
+                card.innerHTML = `
+                    <div class="start-theme-card-preview" style="background:${t.bg};">
+                        <div class="start-theme-card-btn" style="background:${t.accent};"></div>
+                    </div>
+                    <div class="start-theme-card-name">${t.name}</div>
+                `;
+                card.addEventListener('click', () => {
+                    cardsContainer.querySelectorAll('.start-theme-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    selectedTheme = t.key;
+                });
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        function applyAndHide(title, siteUrl, theme, slug) {
+            const session = {
+                started: true,
+                title: title,
+                slug: slug || slugify(title) || 'article',
+                siteUrl: siteUrl,
+                theme: theme
+            };
+            saveProjectSession(session);
+            applyProjectToHeader(session);
+            
+            // Re-render blocks and sync preview
+            renderBlocks();
+            updatePreview();
+
+            // Set workspaceEmpty back to normal
+            if (workspaceEmpty) {
+                workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
+                workspaceEmpty.style.display = blocks.length === 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Check session first
+        const session = loadProjectSession();
+        if (session && session.started) {
+            applyProjectToHeader(session);
+            if (workspaceEmpty) {
+                workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
+            }
+            return;
+        }
+
+        // Fresh session - fill saved URL from localStorage if any
+        const savedUrl = loadSavedUrl();
+        const startSiteUrl = document.getElementById('startSiteUrl');
+        if (startSiteUrl && savedUrl) {
+            startSiteUrl.value = savedUrl;
+        }
+
+        // Start Creation button
+        const btnStart = document.getElementById('btnStartProject');
+        if (btnStart) {
+            btnStart.addEventListener('click', () => {
+                const startTitleEl = document.getElementById('startTitle');
+                const startSiteUrlEl = document.getElementById('startSiteUrl');
+                const rememberUrlEl = document.getElementById('startRememberUrl');
+                
+                const title = (startTitleEl ? startTitleEl.value.trim() : '') || 'Новая статья';
+                const siteUrl = startSiteUrlEl ? startSiteUrlEl.value.trim() : '';
+                
+                if (rememberUrlEl && rememberUrlEl.checked && siteUrl) {
+                    saveSiteUrl(siteUrl);
+                } else if (rememberUrlEl && !rememberUrlEl.checked) {
+                    saveSiteUrl('');
+                }
+                
+                applyAndHide(title, siteUrl, selectedTheme, slugify(title));
+            });
+        }
+
+        // Skip onboarding button
+        const btnSkip = document.getElementById('btnSkipStart');
+        if (btnSkip) {
+            btnSkip.addEventListener('click', () => {
+                const curTitle = titleInput ? titleInput.value : '';
+                const domainEl = document.getElementById('articleDomain');
+                const curSiteUrl = domainEl ? domainEl.value : '';
+                const curSlug = slugInput ? slugInput.value : '';
+                applyAndHide(curTitle, curSiteUrl, selectedTheme, curSlug);
+            });
+        }
+    })();
 
     // ── Initial Render ───────────────────────────────────────
     renderBlocks();
