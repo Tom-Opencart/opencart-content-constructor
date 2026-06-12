@@ -120,6 +120,8 @@
     <!-- LEFT PANEL: Block palette -->
     <aside class="panel-left" id="blockPalette">
         <div class="block-buttons">
+            <!-- Группа 1: Текст и таблицы -->
+            <div class="palette-group-title">Текст и таблицы</div>
             <button class="block-btn" data-block-type="heading" title="Заголовок H1-H3">
                 <span class="block-btn-icon">H</span>
                 <span class="block-btn-label">Заголовок</span>
@@ -127,14 +129,6 @@
             <button class="block-btn" data-block-type="paragraph" title="Параграф">
                 <span class="block-btn-icon">P</span>
                 <span class="block-btn-label">Параграф</span>
-            </button>
-            <button class="block-btn" data-block-type="quote" title="Цитата">
-                <span class="block-btn-icon">"</span>
-                <span class="block-btn-label">Цитата</span>
-            </button>
-            <button class="block-btn" data-block-type="table" title="Таблица">
-                <span class="block-btn-icon">&#9638;</span>
-                <span class="block-btn-label">Таблица</span>
             </button>
             <button class="block-btn" data-block-type="ordered-list" title="Нумерованный список">
                 <span class="block-btn-icon">1.</span>
@@ -144,45 +138,24 @@
                 <span class="block-btn-icon">&bull;</span>
                 <span class="block-btn-label">Список (маркер.)</span>
             </button>
-            <button class="block-btn" data-block-type="image" title="Изображение">
-                <span class="block-btn-icon">&#9636;</span>
-                <span class="block-btn-label">Изображение</span>
+            <button class="block-btn" data-block-type="quote" title="Цитата">
+                <span class="block-btn-icon">"</span>
+                <span class="block-btn-label">Цитата</span>
             </button>
-            <button class="block-btn" data-block-type="grid" title="Bootstrap 3 сетка из нескольких секций">
-                <span class="block-btn-icon">&#9635;</span>
-                <span class="block-btn-label">Сетка</span>
-            </button>
-            <button class="block-btn" data-block-type="link" title="Ссылка">
-                <span class="block-btn-icon">&#128279;</span>
-                <span class="block-btn-label">Ссылка</span>
-            </button>
-            <button class="block-btn" data-block-type="popup" title="Всплывающее окно OpenCart">
-                <span class="block-btn-icon"><i class="fa fa-window-restore"></i></span>
-                <span class="block-btn-label">Попап окно</span>
-            </button>
-            <button class="block-btn" data-block-type="spoiler" title="Спойлер / Аккордеон">
-                <span class="block-btn-icon">+&minus;</span>
-                <span class="block-btn-label">Спойлер</span>
-            </button>
-            <button class="block-btn" data-block-type="faq" title="Часто задаваемые вопросы (FAQ)">
-                <span class="block-btn-icon">?</span>
-                <span class="block-btn-label">FAQ</span>
-            </button>
-            <button class="block-btn" data-block-type="tabs" title="Вкладки">
-                <span class="block-btn-icon">&#9654;</span>
-                <span class="block-btn-label">Вкладки</span>
-            </button>
-            <button class="block-btn" data-block-type="callout" title="Инфо-блок / Скачивание файла (Bootstrap 3)">
-                <span class="block-btn-icon"><i class="fa fa-info-circle"></i></span>
-                <span class="block-btn-label">Инфо-блок</span>
+            <button class="block-btn" data-block-type="table" title="Таблица">
+                <span class="block-btn-icon">&#9638;</span>
+                <span class="block-btn-label">Таблица</span>
             </button>
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
                 <span class="block-btn-label">Оглавление</span>
             </button>
-            <button class="block-btn" data-block-type="alert" title="Уведомление / Alert (Bootstrap 3)">
-                <span class="block-btn-icon"><i class="fa fa-exclamation-circle"></i></span>
-                <span class="block-btn-label">Alert блок</span>
+
+            <!-- Группа 2: Медиа и слайдеры -->
+            <div class="palette-group-title">Медиа и слайдеры</div>
+            <button class="block-btn" data-block-type="image" title="Изображение">
+                <span class="block-btn-icon">&#9636;</span>
+                <span class="block-btn-label">Изображение</span>
             </button>
             <button class="block-btn" data-block-type="video" title="Адаптивное видео (YouTube/Vimeo)">
                 <span class="block-btn-icon"><i class="fa fa-youtube-play"></i></span>
@@ -195,6 +168,44 @@
             <button class="block-btn" data-block-type="before-after" title="Слайдер До/После">
                 <span class="block-btn-icon"><i class="fa fa-arrows-h"></i></span>
                 <span class="block-btn-label">До / После</span>
+            </button>
+
+            <!-- Группа 3: Интерактив и структура -->
+            <div class="palette-group-title">Интерактив и структура</div>
+            <button class="block-btn" data-block-type="grid" title="Bootstrap 3 сетка из нескольких секций">
+                <span class="block-btn-icon">&#9635;</span>
+                <span class="block-btn-label">Сетка</span>
+            </button>
+            <button class="block-btn" data-block-type="spoiler" title="Спойлер / Аккордеон">
+                <span class="block-btn-icon">+&minus;</span>
+                <span class="block-btn-label">Спойлер</span>
+            </button>
+            <button class="block-btn" data-block-type="tabs" title="Вкладки">
+                <span class="block-btn-icon">&#9654;</span>
+                <span class="block-btn-label">Вкладки</span>
+            </button>
+            <button class="block-btn" data-block-type="faq" title="Часто задаваемые вопросы (FAQ)">
+                <span class="block-btn-icon">?</span>
+                <span class="block-btn-label">FAQ</span>
+            </button>
+            <button class="block-btn" data-block-type="popup" title="Всплывающее окно OpenCart">
+                <span class="block-btn-icon"><i class="fa fa-window-restore"></i></span>
+                <span class="block-btn-label">Попап окно</span>
+            </button>
+
+            <!-- Группа 4: Инфо-блоки и продажи -->
+            <div class="palette-group-title">Инфо-блоки и продажи</div>
+            <button class="block-btn" data-block-type="link" title="Ссылка">
+                <span class="block-btn-icon">&#128279;</span>
+                <span class="block-btn-label">Ссылка</span>
+            </button>
+            <button class="block-btn" data-block-type="callout" title="Инфо-блок / Скачивание файла (Bootstrap 3)">
+                <span class="block-btn-icon"><i class="fa fa-info-circle"></i></span>
+                <span class="block-btn-label">Инфо-блок</span>
+            </button>
+            <button class="block-btn" data-block-type="alert" title="Уведомление / Alert (Bootstrap 3)">
+                <span class="block-btn-icon"><i class="fa fa-exclamation-circle"></i></span>
+                <span class="block-btn-label">Alert блок</span>
             </button>
             <button class="block-btn" data-block-type="messengers" title="Кнопки мессенджеров (Связь)">
                 <span class="block-btn-icon"><i class="fa fa-commenting-o"></i></span>

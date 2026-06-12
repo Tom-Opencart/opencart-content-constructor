@@ -211,6 +211,22 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     letter-spacing: .5px; color: #999;
 }
 .block-buttons { display: flex; flex-direction: column; gap: 4px; }
+.palette-group-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #888;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    padding: 0 4px;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 3px;
+}
+.palette-group-title:first-child,
+.palette-group-title:first-of-type {
+    margin-top: 0;
+}
 .block-btn {
     display: flex; align-items: center; gap: 8px;
     width: 100%; min-height: 34px; padding: 5px 8px; border: 1px solid #e0e0e0;
