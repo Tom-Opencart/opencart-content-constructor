@@ -2514,15 +2514,21 @@ body.preview-hidden .workspace {
     }
 }
 
-/* ── Start Screen ─────────────────────────────────────────── */
-.start-screen {
+/* ── Start Screen Overlay ─────────────────────────────────── */
+.start-screen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    min-height: 100%;
     padding: 24px;
     box-sizing: border-box;
+    z-index: 9999;
 }
 .start-screen-card {
     background: #fff;

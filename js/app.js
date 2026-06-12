@@ -5929,24 +5929,19 @@ document.addEventListener('click', function(event) {
             renderBlocks();
             updatePreview();
 
-            // Set workspaceEmpty back to normal
-            if (workspaceEmpty) {
-                workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
-                workspaceEmpty.style.display = blocks.length === 0 ? 'flex' : 'none';
-            }
+            // Hide start screen overlay
+            startScreen.style.display = 'none';
         }
 
         // Check session first
         const session = loadProjectSession();
         if (session && session.started) {
             applyProjectToHeader(session);
-            if (workspaceEmpty) {
-                workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
-            }
             return;
         }
 
-        // Fresh session - fill saved URL from localStorage if any
+        // Fresh session - show start screen overlay and fill saved URL from localStorage if any
+        startScreen.style.display = 'flex';
         const savedUrl = loadSavedUrl();
         const startSiteUrl = document.getElementById('startSiteUrl');
         if (startSiteUrl && savedUrl) {

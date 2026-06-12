@@ -266,44 +266,7 @@
     <!-- CENTER: Workspace -->
     <main class="workspace" id="workspace">
         <div class="workspace-empty" id="workspaceEmpty">
-            <div id="startScreen" class="start-screen">
-                <div class="start-screen-card">
-                    <div class="start-screen-header">
-                        <i class="fa fa-magic start-screen-icon"></i>
-                        <h2>Новый проект</h2>
-                        <p>Настройте параметры перед началом работы</p>
-                    </div>
-                    <!-- Article title -->
-                    <div class="start-field-group">
-                        <label for="startTitle">Название статьи</label>
-                        <input type="text" id="startTitle" class="start-input" placeholder="Например: Обзор Apple Watch Series 9">
-                    </div>
-                    <!-- Site URL -->
-                    <div class="start-field-group">
-                        <label for="startSiteUrl">Адрес сайта</label>
-                        <div class="start-url-row">
-                            <input type="url" id="startSiteUrl" class="start-input" placeholder="https://example.ru/">
-                            <label class="start-remember-label">
-                                <input type="checkbox" id="startRememberUrl" checked> Запомнить
-                            </label>
-                        </div>
-                    </div>
-                    <!-- Theme selection -->
-                    <div class="start-field-group">
-                        <label>Цветовая тема</label>
-                        <div class="start-theme-cards" id="startThemeCards">
-                            <!-- rendered by JS -->
-                        </div>
-                    </div>
-                    <!-- Actions -->
-                    <div class="start-actions">
-                        <button id="btnStartProject" class="btn btn-primary start-btn-primary">
-                            <i class="fa fa-rocket"></i> Начать создание
-                        </button>
-                        <button id="btnSkipStart" class="start-btn-skip">Пропустить</button>
-                    </div>
-                </div>
-            </div>
+            <p>Добавьте блоки из панели слева</p>
         </div>
         <div class="blocks-container" id="blocksContainer"></div>
     </main>
@@ -1048,6 +1011,46 @@
             <div class="donate-footer-note">
                 <i class="fa fa-info-circle"></i> Нажмите на кнопку копирования рядом с реквизитами для сохранения в буфер обмена.
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Screen Overlay -->
+<div id="startScreen" class="start-screen-overlay" style="display: none;">
+    <div class="start-screen-card">
+        <div class="start-screen-header">
+            <i class="fa fa-magic start-screen-icon"></i>
+            <h2>Новый проект</h2>
+            <p>Настройте параметры перед началом работы</p>
+        </div>
+        <!-- Article title -->
+        <div class="start-field-group">
+            <label for="startTitle">Название статьи</label>
+            <input type="text" id="startTitle" class="start-input" placeholder="Например: Обзор Apple Watch Series 9">
+        </div>
+        <!-- Site URL -->
+        <div class="start-field-group">
+            <label for="startSiteUrl">Адрес сайта</label>
+            <div class="start-url-row">
+                <input type="url" id="startSiteUrl" class="start-input" placeholder="https://example.ru/">
+                <label class="start-remember-label">
+                    <input type="checkbox" id="startRememberUrl" checked> Запомнить
+                </label>
+            </div>
+        </div>
+        <!-- Theme selection -->
+        <div class="start-field-group">
+            <label>Цветовая тема</label>
+            <div class="start-theme-cards" id="startThemeCards">
+                <!-- rendered by JS -->
+            </div>
+        </div>
+        <!-- Actions -->
+        <div class="start-actions">
+            <button id="btnStartProject" class="btn btn-primary start-btn-primary">
+                <i class="fa fa-rocket"></i> Начать создание
+            </button>
+            <button id="btnSkipStart" class="start-btn-skip">Пропустить</button>
         </div>
     </div>
 </div>
