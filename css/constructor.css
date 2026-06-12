@@ -2527,6 +2527,7 @@ body.preview-hidden .workspace {
     padding: 24px;
     box-sizing: border-box;
     z-index: 9999;
+    overflow-y: auto;
 }
 .start-screen-card {
     background: #fff;
@@ -2538,6 +2539,7 @@ body.preview-hidden .workspace {
     animation: startFadeIn 0.35s ease;
     box-sizing: border-box;
     text-align: left;
+    margin: auto;
 }
 @keyframes startFadeIn {
     from { opacity: 0; transform: translateY(16px); }
@@ -2696,6 +2698,63 @@ body.preview-hidden .workspace {
 }
 .start-btn-skip:hover {
     color: #666;
+}
+
+/* ── Mobile Start Screen & Table Guide Overrides ──────────────── */
+@media (max-width: 480px) {
+    .start-screen-overlay {
+        padding: 12px;
+    }
+    .start-screen-card {
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+    .start-screen-header {
+        margin-bottom: 20px;
+    }
+    .start-screen-header h2 {
+        font-size: 18px;
+    }
+    .start-url-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .start-remember-label {
+        margin-top: 2px;
+        align-self: flex-start;
+    }
+    .start-theme-card {
+        flex: 1 1 calc(50% - 6px);
+        max-width: none;
+        min-width: 100px;
+        padding: 10px 6px;
+    }
+    .start-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    .start-btn-primary {
+        width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+    .start-btn-skip {
+        text-align: center;
+        padding: 8px;
+    }
+    .help-modal-body {
+        padding: 12px 14px;
+    }
+    .help-table-guide {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        table-layout: auto;
+    }
 }
 
 
