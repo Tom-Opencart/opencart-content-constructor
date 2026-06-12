@@ -1649,12 +1649,13 @@
                     afterImg = safeSvgPlaceholder(800, 400, theme.bg, theme.accent, 'Изображение ПОСЛЕ (Заглушка)');
                 }
                 
+                const onInputJs = `var c=this.closest('.article-ba-slider'); if(c){ var b=c.querySelector('.ba-before-img'); var h=c.querySelector('.ba-handle-bar'); if(b)b.style.width=this.value+'%'; if(h)h.style.left=this.value+'%'; }`;
                 return `<div class="article-ba-slider" id="${id}">
     <div class="ba-image ba-after-img" style="background-image: url('${escapeHtml(afterImg)}');"></div>
     <div class="ba-image ba-before-img" style="background-image: url('${escapeHtml(beforeImg)}');"></div>
     <div class="ba-label ba-label-before">${beforeLabel}</div>
     <div class="ba-label ba-label-after">${afterLabel}</div>
-    <input type="range" min="0" max="100" value="50" class="ba-handle-slider">
+    <input type="range" min="0" max="100" value="50" class="ba-handle-slider" oninput="${escapeHtml(onInputJs)}" onchange="${escapeHtml(onInputJs)}">
     <div class="ba-handle-bar"></div>
 </div>`;
             }
