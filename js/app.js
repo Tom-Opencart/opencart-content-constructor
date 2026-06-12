@@ -165,6 +165,13 @@
         return bestEmoji;
     }
 
+    function formatOptionText(text, emoji) {
+        const targetLen = 28;
+        const padLen = targetLen - text.length;
+        const spaces = padLen > 0 ? '\u00A0'.repeat(padLen) : '\u00A0\u00A0';
+        return `${text}${spaces}${emoji}`;
+    }
+
     function updateThemeSelectOptions(selectedVal) {
         const themeSelect = document.getElementById('themeSelect');
         if (!themeSelect) return;
@@ -172,12 +179,12 @@
         const activeVal = selectedVal || themeSelect.value || 'default';
         
         const basePresets = [
-            { val: 'default', text: 'Фиолетовая (базовая) 🟪' },
-            { val: 'blue', text: 'Синяя классика 🟦' },
-            { val: 'emerald', text: 'Изумрудный зеленый 🟩' },
-            { val: 'orange', text: 'Теплый оранжевый 🟧' },
-            { val: 'red', text: 'Свежий красный 🟥' },
-            { val: 'dark', text: 'Темная тема ⬛' }
+            { val: 'default', text: 'Фиолетовая (базовая)', emoji: '🟪' },
+            { val: 'blue', text: 'Синяя классика', emoji: '🟦' },
+            { val: 'emerald', text: 'Изумрудный зеленый', emoji: '🟩' },
+            { val: 'orange', text: 'Теплый оранжевый', emoji: '🟧' },
+            { val: 'red', text: 'Свежий красный', emoji: '🟥' },
+            { val: 'dark', text: 'Темная тема', emoji: '⬛' }
         ];
         
         themeSelect.innerHTML = '';
@@ -185,7 +192,7 @@
         basePresets.forEach(preset => {
             const opt = document.createElement('option');
             opt.value = preset.val;
-            opt.textContent = preset.text;
+            opt.textContent = formatOptionText(preset.text, preset.emoji);
             themeSelect.appendChild(opt);
         });
         
@@ -198,7 +205,7 @@
                 opt.value = key;
                 const themeData = customThemes[key];
                 const emoji = themeData ? getClosestColorEmoji(themeData.accent) : '🎨';
-                opt.textContent = `${key} ${emoji}`;
+                opt.textContent = formatOptionText(key, emoji);
                 groupOpt.appendChild(opt);
             });
             themeSelect.appendChild(groupOpt);
@@ -206,7 +213,7 @@
         
         const customOpt = document.createElement('option');
         customOpt.value = 'custom';
-        customOpt.textContent = 'Пользовательская... 🎨';
+        customOpt.textContent = formatOptionText('Пользовательская...', '🎨');
         themeSelect.appendChild(customOpt);
         
         themeSelect.value = activeVal;
