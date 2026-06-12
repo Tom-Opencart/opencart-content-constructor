@@ -1469,7 +1469,12 @@
                     </div>
                     <div class="form-group">
                         <label>Ссылка на страницу товара (URL)</label>
-                        <input type="text" data-field="link" value="${escapeHtml(block.data.link || '#')}">
+                        <div style="display:flex; gap: 8px;">
+                            <input type="text" data-field="link" value="${escapeHtml(block.data.link || '#')}" style="flex: 1; margin-bottom: 0;">
+                            <button class="btn btn-sm btn-ghost" data-action="parse-product-link" type="button" style="white-space: nowrap; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; background: #fff;" title="Получить название, цену и фото автоматически">
+                                <i class="fa fa-refresh"></i> Автозаполнение
+                            </button>
+                        </div>
                     </div>`;
             },
             toHTML(block) {
@@ -2444,6 +2449,155 @@
                 }
             });
         });
+
+        // Product Card Auto-parsing
+        const btnParse = form.querySelector('[data-action="parse-product-link"]');
+        if (btnParse) {
+            btnParse.addEventListener('click', async () => {
+                const linkInput = form.querySelector('[data-field="link"]');
+                const url = linkInput ? linkInput.value.trim() : '';
+                if (!url || url === '#' || !url.startsWith('http')) {
+                    alert('Пожалуйста, укажите корректную ссылку на страницу товара (начиная с http:// или https://).');
+                    return;
+                }
+                
+                const originalText = btnParse.innerHTML;
+                btnParse.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Загрузка...';
+                btnParse.disabled = true;
+                
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    
+                    // 1. Extract Name
+                    let name = '';
+                    const ogTitle = doc.querySelector('meta[property="og:title"]');
+                    if (ogTitle) name = ogTitle.getAttribute('content');
+                    if (!name) {
+                        const h1 = doc.querySelector('h1');
+                        if (h1) name = h1.textContent.trim();
+                    }
+                    
+                    // 2. Extract Price
+                    let price = '';
+                    const ogPrice = doc.querySelector('meta[property="og:price:amount"]') || doc.querySelector('meta[property="product:price:amount"]') || doc.querySelector('meta[itemprop="price"]');
+                    if (ogPrice) {
+                        const amount = ogPrice.getAttribute('content') || ogPrice.getAttribute('value');
+                        if (amount) {
+                            const currency = doc.querySelector('meta[property="og:price:currency"]') || doc.querySelector('meta[property="product:price:currency"]') || doc.querySelector('meta[itemprop="priceCurrency"]');
+                            const curSymbol = currency ? (currency.getAttribute('content') || '') : '';
+                            let displayCurrency = ' руб.';
+                            if (curSymbol === 'RUB' || curSymbol === 'руб') displayCurrency = ' руб.';
+                            else if (curSymbol === 'USD' || curSymbol === '$') displayCurrency = ' $';
+                            else if (curSymbol === 'EUR' || curSymbol === '€') displayCurrency = ' €';
+                            else if (curSymbol) displayCurrency = ' ' + curSymbol;
+                            
+                            price = parseFloat(amount).toLocaleString('ru-RU') + displayCurrency;
+                        }
+                    }
+                    if (!price) {
+                        const priceSelectors = [
+                            '.product-info .price-new', 
+                            '.product-price .price-new',
+                            '.price-new',
+                            '.product-info .price',
+                            '.product-price .price',
+                            '.price',
+                            '[itemprop="price"]'
+                        ];
+                        for (const selector of priceSelectors) {
+                            const priceEl = doc.querySelector(selector);
+                            if (priceEl) {
+                                price = priceEl.textContent.trim().replace(/\s+/g, ' ');
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // 3. Extract Image
+                    let img = '';
+                    const ogImage = doc.querySelector('meta[property="og:image"]');
+                    if (ogImage) img = ogImage.getAttribute('content');
+                    if (!img) {
+                        const imgSelectors = [
+                            '.thumbnails a img',
+                            '.thumbnails img',
+                            '#image',
+                            '.product-info img',
+                            '.product-image img'
+                        ];
+                        for (const selector of imgSelectors) {
+                            const imgEl = doc.querySelector(selector);
+                            if (imgEl) {
+                                img = imgEl.getAttribute('src') || imgEl.getAttribute('data-src');
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (img) {
+                        try {
+                            const urlObj = new URL(url);
+                            const imgUrlObj = new URL(img, url);
+                            if (imgUrlObj.origin === urlObj.origin) {
+                                let relPath = imgUrlObj.pathname + imgUrlObj.search;
+                                if (relPath.startsWith('/')) {
+                                    relPath = relPath.substring(1);
+                                }
+                                img = relPath;
+                            } else {
+                                img = imgUrlObj.href;
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    let updatedAny = false;
+                    if (name) {
+                        const nameInput = form.querySelector('[data-field="name"]');
+                        if (nameInput) {
+                            nameInput.value = name;
+                            block.data.name = name;
+                            updatedAny = true;
+                        }
+                    }
+                    if (price) {
+                        const priceInput = form.querySelector('[data-field="price"]');
+                        if (priceInput) {
+                            priceInput.value = price;
+                            block.data.price = price;
+                            updatedAny = true;
+                        }
+                    }
+                    if (img) {
+                        const imgInput = form.querySelector('[data-field="img"]');
+                        if (imgInput) {
+                            imgInput.value = img;
+                            block.data.img = img;
+                            updatedAny = true;
+                        }
+                    }
+                    
+                    if (updatedAny) {
+                        updatePreview();
+                        alert('Данные товара успешно импортированы!');
+                    } else {
+                        alert('Не удалось автоматически распознать данные на этой странице. Проверьте правильность ссылки.');
+                    }
+                    
+                } catch (err) {
+                    console.error(err);
+                    alert('Не удалось загрузить данные по ссылке.\n\nВозможные причины:\n1. Ограничение CORS (если конструктор запущен не на том же домене, что и сайт магазина).\n2. Страница недоступна или ссылка неверна.');
+                } finally {
+                    btnParse.innerHTML = originalText;
+                    btnParse.disabled = false;
+                }
+            });
+        }
     }
 
     function parseVideoUrl(url) {
