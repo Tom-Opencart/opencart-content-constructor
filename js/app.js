@@ -3127,7 +3127,7 @@
     function setPreviewHidden(hidden) {
         document.body.classList.toggle('preview-hidden', hidden);
 
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 991 || window.innerHeight <= 520) {
             document.body.classList.toggle('preview-mobile-open', !hidden);
         }
 
@@ -3141,7 +3141,7 @@
                 btnHidePreview.classList.add('is-hidden');
                 btnHidePreview.title = 'Показать превью';
             } else {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 991 || window.innerHeight <= 520) {
                     if (icon)  { icon.className = 'fa fa-arrow-left'; }
                     if (label) { label.textContent = 'В конструктор'; }
                 } else {
@@ -3293,7 +3293,7 @@
         btn.addEventListener('click', () => {
             addBlock(btn.dataset.blockType);
 
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 991 || window.innerHeight <= 520) {
                 closePalette();
             }
         });
@@ -6137,7 +6137,7 @@ document.addEventListener('click', function(event) {
     renderBlocks();
     updatePreview();
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 991 || window.innerHeight <= 520) {
         document.body.classList.add('preview-hidden');
     }
 
