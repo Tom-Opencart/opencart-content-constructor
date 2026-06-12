@@ -1097,6 +1097,343 @@
             toHTML(block, allBlocks) { return generateTOC(allBlocks); },
             preview(block, allBlocks) { return generateTOC(allBlocks); },
         },
+
+        alert: {
+            label: 'Alert уведомление',
+            defaults: () => ({
+                style: 'info',
+                text: 'Полезное примечание или совет...'
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Тип предупреждения</label>
+                            <select data-field="style">
+                                <option value="info" ${block.data.style === 'info' ? 'selected' : ''}>Синий (Info)</option>
+                                <option value="success" ${block.data.style === 'success' ? 'selected' : ''}>Зеленый (Success)</option>
+                                <option value="warning" ${block.data.style === 'warning' ? 'selected' : ''}>Желтый (Warning)</option>
+                                <option value="danger" ${block.data.style === 'danger' ? 'selected' : ''}>Красный (Danger)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Текст сообщения (поддерживает Markdown: **жирный**, *курсив*, [ссылка](url))</label>
+                        <textarea data-field="text" rows="3">${escapeHtml(block.data.text)}</textarea>
+                    </div>`;
+            },
+            toHTML(block) {
+                const style = block.data.style || 'info';
+                return `<div class="alert alert-${escapeHtml(style)}">${inlineFormat(block.data.text)}</div>`;
+            },
+            preview(block) {
+                const style = block.data.style || 'info';
+                return `<div class="alert alert-${escapeHtml(style)}">${inlineFormat(block.data.text, true)}</div>`;
+            }
+        },
+
+        video: {
+            label: 'Адаптивное видео',
+            defaults: () => ({
+                type: 'youtube',
+                videoId: 'dQw4w9WgXcQ',
+                url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-group">
+                        <label>Ссылка на видео (YouTube / Vimeo)</label>
+                        <input type="text" class="video-url-input" data-field="url" value="${escapeHtml(block.data.url || '')}" placeholder="Например: https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+                        <small style="color: #666; font-size: 11px;">Поддерживаются ссылки вида youtube.com, youtu.be, vimeo.com</small>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Платформа</label>
+                            <select class="video-type-select" data-field="type">
+                                <option value="youtube" ${block.data.type === 'youtube' ? 'selected' : ''}>YouTube</option>
+                                <option value="vimeo" ${block.data.type === 'vimeo' ? 'selected' : ''}>Vimeo</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>ID видео</label>
+                            <input type="text" class="video-id-input" data-field="videoId" value="${escapeHtml(block.data.videoId || '')}">
+                        </div>
+                    </div>`;
+            },
+            toHTML(block) {
+                const type = block.data.type || 'youtube';
+                const videoId = block.data.videoId || '';
+                let embedUrl = '';
+                if (type === 'youtube') {
+                    embedUrl = `https://www.youtube.com/embed/${escapeHtml(videoId)}`;
+                } else if (type === 'vimeo') {
+                    embedUrl = `https://player.vimeo.com/video/${escapeHtml(videoId)}`;
+                }
+                
+                return `<div class="article-video-wrapper">
+    <div class="embed-responsive embed-responsive-16by9">
+        <iframe class="embed-responsive-item" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</div>`;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
+        carousel: {
+            label: 'Слайдер изображений',
+            defaults: () => ({
+                items: [
+                    { src: 'image/catalog/demo/slide1.jpg', alt: 'Слайд 1', caption: 'Заголовок первого слайда' }
+                ]
+            }),
+            editForm(block) {
+                let html = `<div class="carousel-editor">`;
+                const items = block.data.items || [];
+                items.forEach((item, i) => {
+                    html += `<div class="carousel-editor-item" style="border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 10px; background: #fafafa; position: relative;">
+                        <div style="position: absolute; right: 8px; top: 8px;">
+                            <button class="btn btn-sm btn-danger" data-action="remove-carousel-item" data-index="${i}">&times;</button>
+                        </div>
+                        <div style="font-weight: bold; margin-bottom: 6px;">Слайд ${i + 1}</div>
+                        <div class="form-group">
+                            <label>Путь к картинке</label>
+                            <input type="text" data-carousel-src="${i}" value="${escapeHtml(item.src)}" placeholder="image/catalog/folder/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Alt текст (для SEO)</label>
+                            <input type="text" data-carousel-alt="${i}" value="${escapeHtml(item.alt)}" placeholder="Описание картинки">
+                        </div>
+                        <div class="form-group">
+                            <label>Подпись / Описание</label>
+                            <input type="text" data-carousel-caption="${i}" value="${escapeHtml(item.caption)}" placeholder="Текст на слайде">
+                        </div>
+                    </div>`;
+                });
+                html += `</div><button class="btn btn-sm btn-ghost" data-action="add-carousel-item">+ Добавить слайд</button>`;
+                return html;
+            },
+            toHTML(block) {
+                const id = 'carousel-' + block.id;
+                const items = block.data.items || [];
+                if (items.length === 0) {
+                    return `<div class="alert alert-warning">Слайдер пуст. Добавьте изображения в редакторе.</div>`;
+                }
+                
+                let indicators = '';
+                let slides = '';
+                
+                items.forEach((item, i) => {
+                    indicators += `<li data-target="#${id}" data-slide-to="${i}" class="${i === 0 ? 'active' : ''}"></li>`;
+                    slides += `<div class="item ${i === 0 ? 'active' : ''}">
+                        <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt || '')}" style="width:100%; max-height:450px; object-fit:cover;">
+                        ${item.caption ? `<div class="carousel-caption"><h3>${escapeHtml(item.caption)}</h3></div>` : ''}
+                    </div>`;
+                });
+                
+                return `<div id="${id}" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+        ${indicators}
+    </ol>
+    <div class="carousel-inner" role="listbox">
+        ${slides}
+    </div>
+    <a class="left carousel-control" href="#${id}" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Предыдущий</span>
+    </a>
+    <a class="right carousel-control" href="#${id}" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Следующий</span>
+    </a>
+</div>`;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
+        'before-after': {
+            label: 'Слайдер До/После',
+            defaults: () => ({
+                beforeImg: 'image/catalog/demo/before.jpg',
+                afterImg: 'image/catalog/demo/after.jpg',
+                beforeLabel: 'До',
+                afterLabel: 'После'
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-group">
+                        <label>Изображение ДО</label>
+                        <input type="text" data-field="beforeImg" value="${escapeHtml(block.data.beforeImg || '')}" placeholder="image/catalog/folder/before.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Изображение ПОСЛЕ</label>
+                        <input type="text" data-field="afterImg" value="${escapeHtml(block.data.afterImg || '')}" placeholder="image/catalog/folder/after.jpg">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Ярлык ДО</label>
+                            <input type="text" data-field="beforeLabel" value="${escapeHtml(block.data.beforeLabel || 'До')}">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Ярлык ПОСЛЕ</label>
+                            <input type="text" data-field="afterLabel" value="${escapeHtml(block.data.afterLabel || 'После')}">
+                        </div>
+                    </div>`;
+            },
+            toHTML(block) {
+                const id = 'ba-' + block.id;
+                const beforeImg = escapeHtml(block.data.beforeImg || '');
+                const afterImg = escapeHtml(block.data.afterImg || '');
+                const beforeLabel = escapeHtml(block.data.beforeLabel || 'До');
+                const afterLabel = escapeHtml(block.data.afterLabel || 'После');
+                
+                return `<div class="article-ba-slider" id="${id}">
+    <div class="ba-image ba-after-img" style="background-image: url('${afterImg}');"></div>
+    <div class="ba-image ba-before-img" style="background-image: url('${beforeImg}');"></div>
+    <div class="ba-label ba-label-before">${beforeLabel}</div>
+    <div class="ba-label ba-label-after">${afterLabel}</div>
+    <input type="range" min="0" max="100" value="50" class="ba-handle-slider">
+    <div class="ba-handle-bar"></div>
+</div>`;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
+        messengers: {
+            label: 'Мессенджеры',
+            defaults: () => ({
+                whatsapp: '',
+                telegram: '',
+                viber: '',
+                phone: ''
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-group">
+                        <label>WhatsApp (номер телефона в формате 79991234567)</label>
+                        <input type="text" data-field="whatsapp" value="${escapeHtml(block.data.whatsapp || '')}" placeholder="Например: 79991234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Telegram (имя пользователя без @ или ссылка)</label>
+                        <input type="text" data-field="telegram" value="${escapeHtml(block.data.telegram || '')}" placeholder="Например: username">
+                    </div>
+                    <div class="form-group">
+                        <label>Viber (номер телефона в формате 79991234567 или ссылка)</label>
+                        <input type="text" data-field="viber" value="${escapeHtml(block.data.viber || '')}" placeholder="Например: 79991234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон для прямого вызова (в формате +79991234567)</label>
+                        <input type="text" data-field="phone" value="${escapeHtml(block.data.phone || '')}" placeholder="Например: +79991234567">
+                    </div>`;
+            },
+            toHTML(block) {
+                let html = `<div class="article-messengers-row">`;
+                
+                if (block.data.whatsapp) {
+                    const waClean = block.data.whatsapp.replace(/[^\d]/g, '');
+                    html += `<a href="https://wa.me/${waClean}" class="messenger-btn messenger-wa" target="_blank" rel="noopener">
+                        <i class="fa fa-whatsapp"></i> WhatsApp
+                    </a>`;
+                }
+                
+                if (block.data.telegram) {
+                    let tgLink = block.data.telegram;
+                    if (!tgLink.startsWith('http')) {
+                        tgLink = `https://t.me/${tgLink.replace(/^@/, '')}`;
+                    }
+                    html += `<a href="${tgLink}" class="messenger-btn messenger-tg" target="_blank" rel="noopener">
+                        <i class="fa fa-paper-plane"></i> Telegram
+                    </a>`;
+                }
+                
+                if (block.data.viber) {
+                    let viberLink = block.data.viber;
+                    if (!viberLink.startsWith('viber://') && !viberLink.startsWith('http')) {
+                        const vibClean = viberLink.replace(/[^\d]/g, '');
+                        viberLink = `viber://chat?number=%2B${vibClean}`;
+                    }
+                    html += `<a href="${viberLink}" class="messenger-btn messenger-viber" target="_blank" rel="noopener">
+                        <i class="fa fa-comments"></i> Viber
+                    </a>`;
+                }
+                
+                if (block.data.phone) {
+                    html += `<a href="tel:${block.data.phone}" class="messenger-btn messenger-phone">
+                        <i class="fa fa-phone"></i> Позвонить
+                    </a>`;
+                }
+                
+                html += `</div>`;
+                return html;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
+        'product-card': {
+            label: 'Карточка товара',
+            defaults: () => ({
+                name: 'Название товара',
+                price: '7 500.00р.',
+                img: 'image/catalog/demo/product.jpg',
+                link: '#',
+                btnText: 'Купить'
+            }),
+            editForm(block) {
+                return `
+                    <div class="form-group">
+                        <label>Название товара</label>
+                        <input type="text" data-field="name" value="${escapeHtml(block.data.name || '')}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Цена</label>
+                            <input type="text" data-field="price" value="${escapeHtml(block.data.price || '')}">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Текст кнопки</label>
+                            <input type="text" data-field="btnText" value="${escapeHtml(block.data.btnText || 'Купить')}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Путь к картинке товара</label>
+                        <input type="text" data-field="img" value="${escapeHtml(block.data.img || '')}" placeholder="image/catalog/folder/product.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Ссылка на страницу товара (URL)</label>
+                        <input type="text" data-field="link" value="${escapeHtml(block.data.link || '#')}">
+                    </div>`;
+            },
+            toHTML(block) {
+                const name = escapeHtml(block.data.name || '');
+                const price = escapeHtml(block.data.price || '');
+                const img = escapeHtml(block.data.img || '');
+                const link = escapeHtml(block.data.link || '#');
+                const btnText = escapeHtml(block.data.btnText || 'Купить');
+                
+                return `<div class="article-product-card">
+    <div class="product-card-img-wrap">
+        <a href="${link}"><img src="${img}" alt="${name}"></a>
+    </div>
+    <div class="product-card-info">
+        <h4 class="product-card-title"><a href="${link}">${name}</a></h4>
+        <div class="product-card-footer">
+            <div class="product-card-price">${price}</div>
+            <a href="${link}" class="product-card-btn">${btnText}</a>
+        </div>
+    </div>
+</div>`;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
     };
 
     // ── Inline formatting ────────────────────────────────────
@@ -1965,6 +2302,101 @@
                 updatePreview();
             });
         });
+
+        // Video URL auto-parsing
+        form.querySelectorAll('.video-url-input').forEach(input => {
+            const handleVideoChange = () => {
+                const parsed = parseVideoUrl(input.value);
+                block.data.type = parsed.type;
+                block.data.videoId = parsed.videoId;
+                
+                const typeSelect = form.querySelector('.video-type-select');
+                const idInput = form.querySelector('.video-id-input');
+                if (typeSelect) typeSelect.value = parsed.type;
+                if (idInput) idInput.value = parsed.videoId;
+                
+                updatePreview();
+            };
+            input.addEventListener('input', handleVideoChange);
+            input.addEventListener('change', handleVideoChange);
+        });
+
+        // Carousel Actions
+        form.querySelectorAll('[data-action="add-carousel-item"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!block.data.items) block.data.items = [];
+                const newIdx = block.data.items.length;
+                block.data.items.push({ src: '', alt: `Слайд ${newIdx + 1}`, caption: '' });
+                toggleEdit(block, btn.closest('.block-card'));
+            });
+        });
+        form.querySelectorAll('[data-action="remove-carousel-item"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.index);
+                if (block.data.items) {
+                    block.data.items.splice(idx, 1);
+                }
+                toggleEdit(block, btn.closest('.block-card'));
+            });
+        });
+        form.querySelectorAll('[data-carousel-src]').forEach(input => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.dataset.carouselSrc);
+                if (block.data.items && block.data.items[idx]) {
+                    block.data.items[idx].src = input.value;
+                }
+            });
+        });
+        form.querySelectorAll('[data-carousel-alt]').forEach(input => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.dataset.carouselAlt);
+                if (block.data.items && block.data.items[idx]) {
+                    block.data.items[idx].alt = input.value;
+                }
+            });
+        });
+        form.querySelectorAll('[data-carousel-caption]').forEach(input => {
+            input.addEventListener('input', () => {
+                const idx = parseInt(input.dataset.carouselCaption);
+                if (block.data.items && block.data.items[idx]) {
+                    block.data.items[idx].caption = input.value;
+                }
+            });
+        });
+    }
+
+    function parseVideoUrl(url) {
+        let type = 'youtube';
+        let videoId = '';
+        if (!url) return { type, videoId };
+        
+        // YouTube
+        const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        const ytMatch = url.match(ytRegex);
+        if (ytMatch) {
+            type = 'youtube';
+            videoId = ytMatch[1];
+        } else {
+            // Vimeo
+            const vimeoRegex = /(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i;
+            const vimeoMatch = url.match(vimeoRegex);
+            if (vimeoMatch) {
+                type = 'vimeo';
+                videoId = vimeoMatch[1];
+            } else {
+                if (url.length === 11) {
+                    type = 'youtube';
+                    videoId = url;
+                } else if (/^\d+$/.test(url)) {
+                    type = 'vimeo';
+                    videoId = url;
+                } else {
+                    type = 'youtube';
+                    videoId = url;
+                }
+            }
+        }
+        return { type, videoId };
     }
 
     function readFormData(block, form) {
@@ -1981,6 +2413,16 @@
         form.querySelectorAll('[data-item]').forEach(el => {
             block.data.items[parseInt(el.dataset.item)] = el.value;
         });
+        
+        if (block.type === 'carousel') {
+            block.data.items = [];
+            form.querySelectorAll('.carousel-editor-item').forEach((itemEl, idx) => {
+                const src = itemEl.querySelector('[data-carousel-src]').value;
+                const alt = itemEl.querySelector('[data-carousel-alt]').value;
+                const caption = itemEl.querySelector('[data-carousel-caption]').value;
+                block.data.items.push({ src, alt, caption });
+            });
+        }
     }
 
     // ── Live preview ─────────────────────────────────────────
@@ -2412,6 +2854,55 @@ document.addEventListener('click', function(event) {
       }
     }
   }
+
+  // 3. Carousel Slider Control
+  var control = event.target.closest('.carousel-control');
+  if (control) {
+    event.preventDefault();
+    var targetId = control.getAttribute('href') || control.dataset.target;
+    var carousel = document.querySelector(targetId);
+    if (carousel) {
+      var inner = carousel.querySelector('.carousel-inner');
+      if (inner) {
+        var items = Array.from(inner.querySelectorAll('.item'));
+        var activeIdx = items.findIndex(function(item) { return item.classList.contains('active'); });
+        if (activeIdx !== -1) {
+          var nextIdx = activeIdx;
+          if (control.getAttribute('data-slide') === 'next') {
+            nextIdx = (activeIdx + 1) % items.length;
+          } else {
+            nextIdx = (activeIdx - 1 + items.length) % items.length;
+          }
+          items[activeIdx].classList.remove('active');
+          items[nextIdx].classList.add('active');
+          var indicators = Array.from(carousel.querySelectorAll('.carousel-indicators li'));
+          if (indicators.length) {
+            indicators[activeIdx].classList.remove('active');
+            indicators[nextIdx].classList.add('active');
+          }
+        }
+      }
+    }
+  }
+});
+
+document.addEventListener('input', function(event) {
+  // 4. Before/After Slider Range
+  var slider = event.target;
+  if (slider && slider.classList.contains('ba-handle-slider')) {
+    var container = slider.closest('.article-ba-slider');
+    if (container) {
+      var val = slider.value;
+      var beforeImg = container.querySelector('.ba-before-img');
+      var handleBar = container.querySelector('.ba-handle-bar');
+      if (beforeImg) {
+        beforeImg.style.width = val + '%';
+      }
+      if (handleBar) {
+        handleBar.style.left = val + '%';
+      }
+    }
+  }
 });
 </script>
 </body>
@@ -2425,6 +2916,268 @@ document.addEventListener('click', function(event) {
         const css = getExportedCSS();
         downloadFile(css, `content-constructor.css`, 'text/css');
     });
+
+    // ── Export JSON ──────────────────────────────────────────
+    const btnExportJSON = $('#btnExportJSON');
+    if (btnExportJSON) {
+        btnExportJSON.addEventListener('click', () => {
+            const dataToExport = {
+                title: titleInput.value || '',
+                slug: slugInput.value || '',
+                blocks: blocks
+            };
+            const jsonStr = JSON.stringify(dataToExport, null, 2);
+            const slug = slugInput.value || 'content-template';
+            downloadFile(jsonStr, `constructor-${slug}.json`, 'application/json');
+        });
+    }
+
+    // ── Import JSON ──────────────────────────────────────────
+    const btnImportJSON = $('#btnImportJSON');
+    const importFileInput = $('#importFile');
+    if (btnImportJSON && importFileInput) {
+        btnImportJSON.addEventListener('click', () => {
+            importFileInput.click();
+        });
+        importFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (!parsed || !Array.isArray(parsed.blocks)) {
+                        throw new Error('Неверный формат JSON-файла. Должно быть поле blocks в виде массива.');
+                    }
+                    if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
+                        if (parsed.title !== undefined) titleInput.value = parsed.title;
+                        if (parsed.slug !== undefined) slugInput.value = parsed.slug;
+                        
+                        blocks = parsed.blocks;
+                        blocks.forEach(b => {
+                            if (b.type === 'grid' && b.data.columns) {
+                                b.data.columns.forEach(col => {
+                                    if (!col.id) col.id = uuid();
+                                });
+                            }
+                            refreshBlockIds(b);
+                        });
+                        
+                        renderBlocks();
+                        updatePreview();
+                    }
+                } catch (err) {
+                    alert('Ошибка при импорте JSON: ' + err.message);
+                }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    // ── Presets Dropdown ─────────────────────────────────────
+    const presetDropdown = $('#presetDropdown');
+    if (presetDropdown) {
+        presetDropdown.addEventListener('change', (e) => {
+            if (confirm('Вы уверены, что хотите загрузить этот шаблон? Текущие блоки в конструкторе будут заменены.')) {
+                loadPresetTemplate(e.target.value);
+            }
+            e.target.value = '';
+        });
+    }
+
+    function loadPresetTemplate(presetName) {
+        let newBlocks = [];
+        if (presetName === 'review') {
+            newBlocks = [
+                {
+                    type: 'heading',
+                    data: { level: 2, text: 'Обзор и ключевые особенности товара' }
+                },
+                {
+                    type: 'toc',
+                    data: {}
+                },
+                {
+                    type: 'paragraph',
+                    data: { text: 'В данном обзоре мы подробно рассмотрим технические характеристики, преимущества и практический опыт использования устройства. Вы узнаете все важные нюансы перед покупкой.' }
+                },
+                {
+                    type: 'product-card',
+                    data: {
+                        name: 'Беспроводные наушники SoundPro Max',
+                        price: '12 990.00р.',
+                        img: 'image/catalog/demo/soundpro.jpg',
+                        link: '#',
+                        btnText: 'Купить со скидкой'
+                    }
+                },
+                {
+                    type: 'grid',
+                    data: {
+                        pcPattern: [6, 6],
+                        mobilePerRow: 1,
+                        columns: [
+                            {
+                                blocks: [
+                                    {
+                                        type: 'image',
+                                        data: {
+                                            srcType: 'path',
+                                            src: 'image/catalog/demo/soundpro-details.jpg',
+                                            alt: 'Комплектация и детали',
+                                            caption: 'Комплект поставки SoundPro Max'
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                blocks: [
+                                    {
+                                        type: 'paragraph',
+                                        data: { text: '### Превосходное звучание и автономность\n\n*   **Активное шумоподавление (ANC)** блокирует до 98% внешних шумов.\n*   **До 40 часов работы** на одном заряде с отключенным шумоподавлением.\n*   Быстрая зарядка за 10 минут обеспечивает еще 5 часов прослушивания.' }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    type: 'faq',
+                    data: {
+                        title: 'Часто задаваемые вопросы о SoundPro Max',
+                        items: [
+                            { question: 'Какая гарантия на устройство?', answer: 'На оригинальные наушники SoundPro Max предоставляется официальная гарантия 12 месяцев с момента покупки.' },
+                            { question: 'Совместимы ли они с Android/iOS?', answer: 'Да, наушники используют Bluetooth 5.2 и работают с любыми смартфонами, планшетами и компьютерами.' }
+                        ]
+                    }
+                },
+                {
+                    type: 'callout',
+                    data: {
+                        style: 'info',
+                        title: 'Акционное предложение',
+                        text: 'До конца недели при покупке наушников вы получаете защитный чехол в подарок!',
+                        btnText: 'Перейти к акции',
+                        btnLink: '#',
+                        btnIcon: 'fa-link'
+                    }
+                }
+            ];
+        } else if (presetName === 'instructions') {
+            newBlocks = [
+                {
+                    type: 'heading',
+                    data: { level: 2, text: 'Инструкция по установке и настройке оборудования' }
+                },
+                {
+                    type: 'paragraph',
+                    data: { text: 'Внимательно ознакомьтесь с данным руководством перед началом монтажа. Несоблюдение правил может привести к выходу устройства из строя.' }
+                },
+                {
+                    type: 'grid',
+                    data: {
+                        pcPattern: [6, 6],
+                        mobilePerRow: 1,
+                        columns: [
+                            {
+                                blocks: [
+                                    {
+                                        type: 'before-after',
+                                        data: {
+                                            beforeImg: 'image/catalog/demo/before.jpg',
+                                            afterImg: 'image/catalog/demo/after.jpg',
+                                            beforeLabel: 'До установки',
+                                            afterLabel: 'После установки'
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                blocks: [
+                                    {
+                                        type: 'paragraph',
+                                        data: { text: '### Шаги установки\n\n1.  **Подготовка**: Отключите питание на щитке.\n2.  **Монтаж**: Закрепите кронштейн на стене.\n3.  **Подключение**: Подсоедините провода по схеме.\n4.  **Проверка**: Включите питание и проверьте индикацию.' }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    type: 'alert',
+                    data: {
+                        style: 'warning',
+                        text: '**Внимание:** Все работы по электрическому подключению должны производиться квалифицированным специалистом.'
+                    }
+                },
+                {
+                    type: 'callout',
+                    data: {
+                        style: 'well',
+                        title: 'Скачать руководство пользователя PDF',
+                        text: 'Полная инструкция со спецификациями и схемами подключения в формате PDF.',
+                        btnText: 'Скачать PDF (4.2 МБ)',
+                        btnLink: '#',
+                        btnIcon: 'fa-file-pdf-o'
+                    }
+                }
+            ];
+        } else if (presetName === 'faq') {
+            newBlocks = [
+                {
+                    type: 'heading',
+                    data: { level: 2, text: 'Услуги и ответы на вопросы' }
+                },
+                {
+                    type: 'paragraph',
+                    data: { text: 'Мы предоставляем широкий спектр услуг по установке, диагностике и модернизации автомобильной оптики. Ниже приведены подробные ответы на часто задаваемые вопросы.' }
+                },
+                {
+                    type: 'image',
+                    data: {
+                        srcType: 'path',
+                        src: 'image/catalog/demo/services.jpg',
+                        alt: 'Наши услуги',
+                        caption: 'Профессиональная установка в специализированном сервисе'
+                    }
+                },
+                {
+                    type: 'faq',
+                    data: {
+                        title: 'Популярные вопросы',
+                        items: [
+                            { question: 'Сколько времени занимает замена линз?', answer: 'В среднем процедура установки линз занимает от 6 до 12 часов. В некоторых случаях срок может увеличиться до 2–3 дней.' },
+                            { question: 'Предоставляется ли гарантия на работу?', answer: 'Да, на работу и компоненты предоставляется гарантия до 2-х лет. Регулировка света корректируется на стенде по ГОСТ.' }
+                        ]
+                    }
+                },
+                {
+                    type: 'messengers',
+                    data: {
+                        whatsapp: '+79991234567',
+                        telegram: 'username',
+                        viber: '+79991234567',
+                        phone: '+79991234567'
+                    }
+                }
+            ];
+        }
+
+        newBlocks.forEach(block => {
+            if (block.type === 'grid' && block.data.columns) {
+                block.data.columns.forEach(col => {
+                    if (!col.id) col.id = uuid();
+                });
+            }
+            refreshBlockIds(block);
+        });
+
+        blocks = newBlocks;
+        renderBlocks();
+        updatePreview();
+    }
 
     function getExportedCSS() {
         return `/* content-constructor.css — Стили для разметки */
@@ -3115,6 +3868,456 @@ document.addEventListener('click', function(event) {
         justify-content: center;
         width: 100%;
     }
+}
+
+/* --- Alert Box Block --- */
+.description .alert {
+    padding: 15px 20px;
+    margin-bottom: 22px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-family: var(--description-font), sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    border-left: 4px solid transparent;
+}
+.description .alert-info {
+    background-color: #ebf5ff;
+    border-color: #d0e7ff;
+    border-left-color: #3182ce;
+    color: #2b6cb0;
+}
+.description .alert-success {
+    background-color: #f0fdf4;
+    border-color: #dcfce7;
+    border-left-color: #22c55e;
+    color: #15803d;
+}
+.description .alert-warning {
+    background-color: #fffbeb;
+    border-color: #fef3c7;
+    border-left-color: #f59e0b;
+    color: #b45309;
+}
+.description .alert-danger {
+    background-color: #fef2f2;
+    border-color: #fee2e2;
+    border-left-color: #ef4444;
+    color: #b91c1c;
+}
+
+/* --- Responsive Video Block --- */
+.description .article-video-wrapper {
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.description .embed-responsive {
+    position: relative;
+    display: block;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.description .embed-responsive-16by9 {
+    padding-bottom: 56.25%;
+}
+.description .embed-responsive .embed-responsive-item,
+.description .embed-responsive iframe,
+.description .embed-responsive embed,
+.description .embed-responsive object,
+.description .embed-responsive video {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* --- Image Gallery Carousel Block --- */
+.description .carousel {
+    position: relative;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.description .carousel-inner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+.description .carousel-inner > .item {
+    position: relative;
+    display: none;
+    transition: .6s ease-in-out left;
+}
+.description .carousel-inner > .item > img {
+    line-height: 1;
+}
+.description .carousel-inner > .active {
+    display: block;
+}
+.description .carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    z-index: 15;
+    width: 60%;
+    padding-left: 0;
+    margin-left: -30%;
+    text-align: center;
+    list-style: none;
+    margin-bottom: 0;
+}
+.description .carousel-indicators li {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 1px;
+    text-indent: -999px;
+    cursor: pointer;
+    background-color: rgba(0,0,0,0);
+    border: 1px solid #fff;
+    border-radius: 10px;
+    transition: background-color .15s;
+}
+.description .carousel-indicators .active {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    background-color: #fff;
+}
+.description .carousel-control {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 15%;
+    font-size: 20px;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+    background-color: rgba(0,0,0,0);
+    filter: alpha(opacity=50);
+    opacity: .5;
+    transition: opacity .15s;
+    cursor: pointer;
+}
+.description .carousel-control:hover {
+    color: #fff;
+    text-decoration: none;
+    filter: alpha(opacity=90);
+    opacity: .9;
+}
+.description .carousel-control .glyphicon-chevron-left,
+.description .carousel-control .glyphicon-chevron-right {
+    display: none !important;
+}
+.description .carousel-control::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+    width: 20px;
+    height: 20px;
+    border-top: 3px solid #fff;
+    border-left: 3px solid #fff;
+}
+.description .carousel-control.left::before {
+    left: 50%;
+    margin-left: -10px;
+    transform: rotate(-45deg);
+}
+.description .carousel-control.right::before {
+    right: 50%;
+    margin-right: -10px;
+    transform: rotate(135deg);
+}
+.description .carousel-control.right {
+    right: 0;
+    left: auto;
+}
+.description .carousel-caption {
+    position: absolute;
+    right: 15%;
+    bottom: 20px;
+    left: 15%;
+    z-index: 10;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+.description .carousel-caption h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.4);
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 4px;
+}
+
+/* --- Interactive Before/After Image Slider Block --- */
+.description .article-ba-slider {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    user-select: none;
+}
+.description .ba-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+.description .ba-before-img {
+    width: 50%;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+}
+.description .ba-after-img {
+    z-index: 1;
+}
+.description .ba-label {
+    position: absolute;
+    bottom: 12px;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 4;
+}
+.description .ba-label-before {
+    left: 12px;
+}
+.description .ba-label-after {
+    right: 12px;
+}
+.description .ba-handle-slider {
+    position: absolute;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    outline: none;
+    margin: 0;
+    z-index: 5;
+    cursor: ew-resize;
+}
+.description .ba-handle-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #5446f8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: ew-resize;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%235446f8' d='M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+}
+.description .ba-handle-slider::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #5446f8;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    cursor: ew-resize;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%235446f8' d='M16 17.01V14h-8v3.01L4 13l4-4.01V12h8V8.99L20 13l-4 4.01z'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+}
+.description .ba-handle-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: #fff;
+    margin-left: -1px;
+    z-index: 3;
+    pointer-events: none;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+
+/* --- Messenger Quick Buttons Block --- */
+.description .article-messengers-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+    font-family: var(--description-font), sans-serif;
+}
+.description .messenger-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff !important;
+    text-decoration: none !important;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 130px;
+    cursor: pointer;
+}
+.description .messenger-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    color: #fff !important;
+}
+.description .messenger-btn:active {
+    transform: translateY(0);
+}
+.description .messenger-btn i {
+    font-size: 16px;
+}
+.description .messenger-wa {
+    background: #25d366;
+}
+.description .messenger-wa:hover {
+    background: #20ba5a;
+}
+.description .messenger-tg {
+    background: #0088cc;
+}
+.description .messenger-tg:hover {
+    background: #0077b5;
+}
+.description .messenger-viber {
+    background: #7360f2;
+}
+.description .messenger-viber:hover {
+    background: #5e4be6;
+}
+.description .messenger-phone {
+    background: #2d3e50;
+}
+.description .messenger-phone:hover {
+    background: #212f3d;
+}
+
+/* --- OpenCart Product Card Block --- */
+.description .article-product-card {
+    display: flex;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    padding: 16px;
+    margin-bottom: 25px;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.25s;
+    font-family: var(--description-font), sans-serif;
+}
+.description .article-product-card:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+.description .product-card-img-wrap {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.description .product-card-img-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+.description .product-card-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.description .product-card-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    font-family: var(--description-font-bold), sans-serif;
+}
+.description .product-card-title a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+.description .product-card-title a:hover {
+    color: #5446f8;
+}
+.description .product-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.description .product-card-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+.description .product-card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #5446f8;
+    color: #fff !important;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+.description .product-card-btn:hover {
+    background: #4335e6;
+}
+
+@media (max-width: 767px) {
+    .description .article-product-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .description .product-card-img-wrap {
+        width: 100%;
+        height: 140px;
+    }
+    .description .product-card-footer {
+        flex-direction: row;
+        width: 100%;
+    }
+}
 }`;
     }
 

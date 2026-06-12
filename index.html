@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.4.4">
+    <link rel="stylesheet" href="css/constructor.css?v=1.5.0">
 </head>
 <body>
 
@@ -46,6 +46,22 @@
         <button id="btnToggleHeaderFields" class="btn btn-secondary btn-mobile-fields" title="Поля статьи">
             <span class="btn-icon"><i class="fa fa-sliders"></i></span>
         </button>
+        <select id="presetDropdown" class="header-preset-select" title="Загрузить готовый шаблон">
+            <option value="" disabled selected>Шаблоны</option>
+            <option value="review">«Обзор товара»</option>
+            <option value="instructions">«Инструкция»</option>
+            <option value="faq">«Услуги и FAQ»</option>
+        </select>
+
+        <button id="btnImportJSON" class="btn btn-secondary" title="Импортировать JSON-шаблон">
+            <span class="btn-icon"><i class="fa fa-upload"></i></span>
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+
+        <button id="btnExportJSON" class="btn btn-secondary" title="Экспортировать в JSON">
+            <span class="btn-icon"><i class="fa fa-download"></i></span>
+        </button>
+
         <button id="btnHelp" class="btn btn-secondary" title="Справка — как пользоваться конструктором">
             <span class="btn-icon"><i class="fa fa-question-circle"></i></span>
         </button>
@@ -87,6 +103,12 @@
                 </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportCSS">
                     <i class="fa fa-css3"></i><span>Скачать CSS</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnImportJSON">
+                    <i class="fa fa-upload"></i><span>Импорт JSON</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportJSON">
+                    <i class="fa fa-download"></i><span>Экспорт JSON</span>
                 </button>
             </div>
         </div>
@@ -157,6 +179,30 @@
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
                 <span class="block-btn-label">Оглавление</span>
+            </button>
+            <button class="block-btn" data-block-type="alert" title="Уведомление / Alert (Bootstrap 3)">
+                <span class="block-btn-icon"><i class="fa fa-exclamation-circle"></i></span>
+                <span class="block-btn-label">Alert блок</span>
+            </button>
+            <button class="block-btn" data-block-type="video" title="Адаптивное видео (YouTube/Vimeo)">
+                <span class="block-btn-icon"><i class="fa fa-youtube-play"></i></span>
+                <span class="block-btn-label">Видео</span>
+            </button>
+            <button class="block-btn" data-block-type="carousel" title="Слайдер изображений (Bootstrap 3)">
+                <span class="block-btn-icon"><i class="fa fa-sliders"></i></span>
+                <span class="block-btn-label">Слайдер</span>
+            </button>
+            <button class="block-btn" data-block-type="before-after" title="Слайдер До/После">
+                <span class="block-btn-icon"><i class="fa fa-arrows-h"></i></span>
+                <span class="block-btn-label">До / После</span>
+            </button>
+            <button class="block-btn" data-block-type="messengers" title="Кнопки мессенджеров (Связь)">
+                <span class="block-btn-icon"><i class="fa fa-commenting-o"></i></span>
+                <span class="block-btn-label">Мессенджеры</span>
+            </button>
+            <button class="block-btn" data-block-type="product-card" title="Карточка товара OpenCart">
+                <span class="block-btn-icon"><i class="fa fa-shopping-cart"></i></span>
+                <span class="block-btn-label">Карточка товара</span>
             </button>
         </div>
         <div class="panel-divider" style="height: 1px; background: #eee; margin: 15px 0;"></div>
