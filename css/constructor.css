@@ -241,6 +241,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 }
 .theme-select {
     width: 100%;
+    font-family: Consolas, Monaco, "Lucida Console", "Liberation Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New", monospace;
     font-size: 12px;
     font-weight: 500;
     padding: 6px;
