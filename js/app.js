@@ -2570,6 +2570,10 @@
                                 img = imgUrlObj.href;
                             }
                         } catch (e) {}
+                        
+                        // Clean OpenCart cache path to get the original image path
+                        img = img.replace(/image\/cache\//g, 'image/');
+                        img = img.replace(/-(\d+)x(\d+)\.([a-zA-Z0-9]+)$/i, '.$3');
                     }
                     
                     let updatedAny = false;
