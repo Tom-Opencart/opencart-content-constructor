@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.5.1">
+    <link rel="stylesheet" href="css/constructor.css?v=1.5.2">
 </head>
 <body>
 
@@ -43,15 +43,24 @@
         </div>
     </div>
     <div class="header-right">
+        <button id="btnHelp" class="btn btn-secondary btn-help-header" title="Справка — как пользоваться конструктором">
+            <span class="btn-icon"><i class="fa fa-question-circle"></i></span>
+            <span class="btn-text">Справка</span>
+        </button>
+
         <button id="btnToggleHeaderFields" class="btn btn-secondary btn-mobile-fields" title="Поля статьи">
             <span class="btn-icon"><i class="fa fa-sliders"></i></span>
         </button>
-        <select id="presetDropdown" class="header-preset-select" title="Загрузить готовый шаблон">
-            <option value="" disabled selected>Шаблоны</option>
-            <option value="review">«Обзор товара»</option>
-            <option value="instructions">«Инструкция»</option>
-            <option value="faq">«Услуги и FAQ»</option>
-        </select>
+
+        <div class="header-preset-wrapper">
+            <span class="header-preset-label"><i class="fa fa-magic"></i> Шаблон страницы:</span>
+            <select id="presetDropdown" class="header-preset-select" title="Загрузить готовый шаблон">
+                <option value="" disabled selected>Выбрать...</option>
+                <option value="review">«Обзор товара»</option>
+                <option value="instructions">«Инструкция»</option>
+                <option value="faq">«Услуги и FAQ»</option>
+            </select>
+        </div>
 
         <button id="btnImportJSON" class="btn btn-secondary" title="Импортировать JSON-шаблон">
             <span class="btn-icon"><i class="fa fa-upload"></i></span>
@@ -60,10 +69,6 @@
 
         <button id="btnExportJSON" class="btn btn-secondary" title="Экспортировать в JSON">
             <span class="btn-icon"><i class="fa fa-download"></i></span>
-        </button>
-
-        <button id="btnHelp" class="btn btn-secondary" title="Справка — как пользоваться конструктором">
-            <span class="btn-icon"><i class="fa fa-question-circle"></i></span>
         </button>
 
         <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60;">

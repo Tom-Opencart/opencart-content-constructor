@@ -3295,7 +3295,7 @@ document.addEventListener('input', function(event) {
                     data: {
                         name: 'Беспроводные наушники SoundPro Max',
                         price: '12 990.00р.',
-                        img: 'image/catalog/demo/soundpro.jpg',
+                        img: '',
                         link: '#',
                         btnText: 'Купить со скидкой'
                     }
@@ -3312,7 +3312,7 @@ document.addEventListener('input', function(event) {
                                         type: 'image',
                                         data: {
                                             srcType: 'path',
-                                            src: 'image/catalog/demo/soundpro-details.jpg',
+                                            src: '',
                                             alt: 'Комплектация и детали',
                                             caption: 'Комплект поставки SoundPro Max'
                                         }
@@ -3373,8 +3373,8 @@ document.addEventListener('input', function(event) {
                                     {
                                         type: 'before-after',
                                         data: {
-                                            beforeImg: 'image/catalog/demo/before.jpg',
-                                            afterImg: 'image/catalog/demo/after.jpg',
+                                            beforeImg: '',
+                                            afterImg: '',
                                             beforeLabel: 'До установки',
                                             afterLabel: 'После установки'
                                         }
@@ -3425,7 +3425,7 @@ document.addEventListener('input', function(event) {
                     type: 'image',
                     data: {
                         srcType: 'path',
-                        src: 'image/catalog/demo/services.jpg',
+                        src: '',
                         alt: 'Наши услуги',
                         caption: 'Профессиональная установка в специализированном сервисе'
                     }
