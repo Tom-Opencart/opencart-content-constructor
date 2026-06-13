@@ -831,6 +831,85 @@
             },
         },
 
+        comparison: {
+            label: 'Сравнение характеристик',
+            defaults: () => ({
+                title: 'Сравнение характеристик',
+                headers: ['Характеристика', 'Модель A', 'Модель B'],
+                rows: [
+                    ['Мощность', '1000 Вт', '1200 Вт'],
+                    ['Вес', '5 кг', '5 кг'],
+                    ['Цена', '5000 руб', '6000 руб']
+                ]
+            }),
+            editForm(block) {
+                let html = `<div class="form-group">
+                    <label>Заголовок блока сравнения</label>
+                    <input type="text" data-field="title" value="${escapeHtml(block.data.title || '')}">
+                </div>`;
+
+                html += `<div class="table-editor"><table class="table table-bordered"><thead><tr>`;
+                block.data.headers.forEach((h, i) => {
+                    html += `<th><input class="th-input" data-col="${i}" value="${escapeHtml(h)}"></th>`;
+                });
+                html += `</tr></thead><tbody>`;
+                block.data.rows.forEach((row, ri) => {
+                    html += `<tr>`;
+                    row.forEach((cell, ci) => {
+                        html += `<td><input data-row="${ri}" data-col="${ci}" value="${escapeHtml(cell)}"></td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += `</tbody></table>`;
+                html += `<div class="table-editor-actions">
+                    <button class="btn btn-sm btn-ghost" data-action="add-col">+ Столбец</button>
+                    <button class="btn btn-sm btn-ghost" data-action="add-row">+ Строка</button>
+                    <button class="btn btn-sm btn-ghost" data-action="remove-col">− Столбец</button>
+                    <button class="btn btn-sm btn-ghost" data-action="remove-row">− Строка</button>
+                </div></div>`;
+
+                return html;
+            },
+            toHTML(block) {
+                let html = `<div class="article-comparison-wrapper">`;
+                if (block.data.title) {
+                    html += `<div class="article-comparison-title">${escapeHtml(block.data.title)}</div>`;
+                }
+                
+                html += `<div class="compare-diff-toggle-wrapper">
+                    <label>
+                        <input type="checkbox" class="compare-diff-toggle"> Подсветить различия
+                    </label>
+                </div>`;
+                
+                html += `<div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>`;
+                block.data.headers.forEach(h => {
+                    html += `<th>${escapeHtml(h)}</th>`;
+                });
+                html += `    </tr>
+                        </thead>
+                        <tbody>`;
+                block.data.rows.forEach(row => {
+                    html += `<tr>`;
+                    row.forEach(cell => {
+                        html += `<td>${escapeHtml(cell)}</td>`;
+                    });
+                    html += `</tr>`;
+                });
+                html += `</tbody>
+                    </table>
+                </div>
+                </div>`;
+                return html;
+            },
+            preview(block) {
+                return this.toHTML(block);
+            }
+        },
+
         'ordered-list': {
             label: 'Нумерованный список',
             defaults: () => ({ items: ['Пункт 1', 'Пункт 2', 'Пункт 3'] }),
@@ -3163,6 +3242,7 @@
         previewTimer = setTimeout(() => {
             if (blocks.length === 0) {
                 previewContent.innerHTML = '<p class="preview-empty">Превью появится после добавления блоков</p>';
+                autosaveProjectState();
                 return;
             }
             const { tocHTML, contentHTML } = renderArticleParts('preview');
@@ -3172,6 +3252,7 @@
             if (previewWindow && !previewWindow.closed) {
                 updateNewWindowContent();
             }
+            autosaveProjectState();
         }, 200);
     }
 
@@ -3183,6 +3264,7 @@
         session.slug = slugInput ? slugInput.value : session.slug;
         session.siteUrl = domainEl ? domainEl.value : session.siteUrl;
         saveProjectSession(session);
+        autosaveProjectState();
     }
 
     titleInput.addEventListener('input', () => {
@@ -3458,6 +3540,42 @@
         }
     });
 
+    // ── Comparison Diff Toggle listener in editor preview ─────
+    document.addEventListener('change', (event) => {
+        const toggle = event.target.closest('.compare-diff-toggle');
+        if (toggle) {
+            const wrapper = toggle.closest('.article-comparison-wrapper');
+            if (wrapper) {
+                const table = wrapper.querySelector('table');
+                if (table) {
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        if (toggle.checked) {
+                            const cells = Array.from(row.querySelectorAll('td'));
+                            let isDifferent = false;
+                            if (cells.length > 2) {
+                                const firstVal = cells[1].textContent.trim();
+                                for (let i = 2; i < cells.length; i++) {
+                                    if (cells[i].textContent.trim() !== firstVal) {
+                                        isDifferent = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (isDifferent) {
+                                row.classList.add('row-different');
+                            } else {
+                                row.classList.remove('row-different');
+                            }
+                        } else {
+                            row.classList.remove('row-different');
+                        }
+                    });
+                }
+            }
+        }
+    });
+
     // ── Copy HTML to Clipboard ───────────────────────────────
     $('#btnCopyHTML').addEventListener('click', () => {
         const { tocHTML, contentHTML } = renderArticleParts('toHTML');
@@ -3516,132 +3634,7 @@
         });
     }
 
-    // ── Export HTML ──────────────────────────────────────────
-    $('#btnExportHTML').addEventListener('click', () => {
-        const title = titleInput.value || 'Контент';
-        const slug = slugInput.value || slugify(title) || 'content';
 
-        const { tocHTML, contentHTML } = renderArticleParts('toHTML');
-        const theme = getCurrentThemeColors();
-        const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
-
-        let embeddedCSS = getExportedCSS();
-        // Replace relative font paths with absolute CDN paths for standalone local preview
-        embeddedCSS = embeddedCSS.replace(/url\('fonts\//g, "url('https://tom-opencart.github.io/opencart-content-constructor/css/");
-
-        const fullHTML = `<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(title)}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-${embeddedCSS}
-    </style>
-</head>
-<body>
-${tocHTML}<div class="description" ${styleAttr}>
-${contentHTML}</div>
-<script type="text/javascript">
-document.addEventListener('click', function(event) {
-  // 1. FAQ Accordion Toggle
-  var question = event.target.closest('.article-faq-question');
-  if (question) {
-    var item = question.closest('.article-faq-item');
-    if (item) {
-      var targetEl = item.querySelector('.article-faq-collapse');
-      if (targetEl) {
-        var isCollapsed = targetEl.classList.contains('in');
-        if (isCollapsed) {
-          targetEl.classList.remove('in');
-          question.classList.add('collapsed');
-        } else {
-          targetEl.classList.add('in');
-          question.classList.remove('collapsed');
-        }
-      }
-    }
-  }
-
-  // 2. Tabs Switcher
-  var tabBtn = event.target.closest('.article-tabs-nav button');
-  if (tabBtn) {
-    var nav = tabBtn.parentNode;
-    var wrapper = nav.parentNode;
-    var panels = wrapper.querySelector('.article-tabs-panels');
-    if (nav && panels) {
-      var idx = tabBtn.getAttribute('data-tab');
-      var buttons = nav.querySelectorAll('[data-tab]');
-      for (var i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove('active');
-      }
-      for (var j = 0; j < panels.children.length; j++) {
-        panels.children[j].style.display = 'none';
-      }
-      tabBtn.classList.add('active');
-      var panel = panels.children[parseInt(idx, 10)];
-      if (panel) {
-        panel.style.display = 'block';
-      }
-    }
-  }
-
-  // 3. Carousel Slider Control
-  var control = event.target.closest('.carousel-control');
-  if (control) {
-    event.preventDefault();
-    var targetId = control.getAttribute('href') || control.dataset.target;
-    var carousel = document.querySelector(targetId);
-    if (carousel) {
-      var inner = carousel.querySelector('.carousel-inner');
-      if (inner) {
-        var items = Array.from(inner.querySelectorAll('.item'));
-        var activeIdx = items.findIndex(function(item) { return item.classList.contains('active'); });
-        if (activeIdx !== -1) {
-          var nextIdx = activeIdx;
-          if (control.getAttribute('data-slide') === 'next') {
-            nextIdx = (activeIdx + 1) % items.length;
-          } else {
-            nextIdx = (activeIdx - 1 + items.length) % items.length;
-          }
-          items[activeIdx].classList.remove('active');
-          items[nextIdx].classList.add('active');
-          var indicators = Array.from(carousel.querySelectorAll('.carousel-indicators li'));
-          if (indicators.length) {
-            indicators[activeIdx].classList.remove('active');
-            indicators[nextIdx].classList.add('active');
-          }
-        }
-      }
-    }
-  }
-});
-
-document.addEventListener('input', function(event) {
-  // 4. Before/After Slider Range
-  var slider = event.target;
-  if (slider && slider.classList.contains('ba-handle-slider')) {
-    var container = slider.closest('.article-ba-slider');
-    if (container) {
-      var val = slider.value;
-      var beforeImg = container.querySelector('.ba-before-img');
-      var handleBar = container.querySelector('.ba-handle-bar');
-      if (beforeImg) {
-        beforeImg.style.width = val + '%';
-      }
-      if (handleBar) {
-        handleBar.style.left = val + '%';
-      }
-    }
-  }
-});
-</script>
-</body>
-</html>`;
-
-        downloadFile(fullHTML, `content-${slug}.html`, 'text/html');
-    });
 
     // ── Export CSS ───────────────────────────────────────────
     $('#btnExportCSS').addEventListener('click', () => {
@@ -3653,119 +3646,280 @@ document.addEventListener('input', function(event) {
     const btnExportJSON = $('#btnExportJSON');
     if (btnExportJSON) {
         btnExportJSON.addEventListener('click', () => {
-            const themeSelectEl = $('#themeSelect');
-            const colorAccentEl = $('#colorAccent');
-            const colorBgEl = $('#colorBg');
-            const colorTextEl = $('#colorText');
-            
-            const dataToExport = {
-                title: titleInput.value || '',
-                slug: slugInput.value || '',
-                project: {
-                    siteUrl: (document.getElementById('articleDomain') || {}).value || ''
-                },
-                theme: {
-                    preset: themeSelectEl ? themeSelectEl.value : 'default',
-                    accent: colorAccentEl ? colorAccentEl.value : '#5446f8',
-                    bg: colorBgEl ? colorBgEl.value : '#F3F2FF',
-                    text: colorTextEl ? colorTextEl.value : '#1A1A1A'
-                },
-                ai_specification: {
-                    description: "This JSON defines the layout and content of a web page constructor. You can modify the title, slug, theme, and blocks. When adding or editing blocks, follow the types and data schemas below.",
-                    supported_theme_presets: ["default", "blue", "emerald", "orange", "red", "dark"],
-                    supported_blocks: [
-                        {
-                            type: "heading",
-                            description: "Article headings (H1, H2, H3, H4, H5, H6)",
-                            data_schema: { level: "Integer (1-6)", text: "String (supports markdown)" }
-                        },
-                        {
-                            type: "paragraph",
-                            description: "Standard paragraphs of text",
-                            data_schema: { text: "String (supports markdown formatting like **bold**, *italic*, list items like * item, and links like [text](url))" }
-                        },
-                        {
-                            type: "list",
-                            description: "Bullet or numbered lists",
-                            data_schema: { ordered: "Boolean (true/false)", items: "Array of Strings" }
-                        },
-                        {
-                            type: "quote",
-                            description: "Blockquote element",
-                            data_schema: { text: "String", author: "String (optional)" }
-                        },
-                        {
-                            type: "table",
-                            description: "Data table",
-                            data_schema: { headers: "Array of Strings", rows: "Array of Arrays of Strings" }
-                        },
-                        {
-                            type: "toc",
-                            description: "Table of Contents (autogenerated, place once near the top)",
-                            data_schema: {}
-                        },
-                        {
-                            type: "image",
-                            description: "Single image block",
-                            data_schema: { path: "String (relative path like image/catalog/photo.jpg or absolute URL)", caption: "String (optional)" }
-                        },
-                        {
-                            type: "video",
-                            description: "Responsive video embed (YouTube, Vimeo, VK, RuTube, Kinescope)",
-                            data_schema: { url: "String (valid video page URL)" }
-                        },
-                        {
-                            type: "carousel",
-                            description: "Image gallery slider carousel",
-                            data_schema: { images: "Array of Objects: [ { \"path\": \"url\", \"alt\": \"text\", \"caption\": \"text\" } ]" }
-                        },
-                        {
-                            type: "before-after",
-                            description: "Before/After image slider",
-                            data_schema: { beforeImg: "String (image path)", afterImg: "String (image path)", beforeLabel: "String (default 'До')", afterLabel: "String (default 'После')" }
-                        },
-                        {
-                            type: "grid",
-                            description: "Bootstrap 3 grid layout with columns holding nested blocks",
-                            data_schema: {
-                                pcPattern: "Array of Integers (column widths summing up to 12, e.g. [6, 6] or [4, 4, 4] or [8, 4])",
-                                mobilePerRow: "Integer (columns per row on mobile, e.g. 1 or 2)",
-                                columns: "Array of Objects: [ { \"blocks\": [ { ...nested blocks... } ] } ]"
-                            }
-                        },
-                        {
-                            type: "spoiler",
-                            description: "Accordion FAQ block",
-                            data_schema: { title: "String (Question)", text: "String (Answer, supports markdown)", opened: "Boolean (false by default)" }
-                        },
-                        {
-                            type: "tabs",
-                            description: "Responsive tabs switcher",
-                            data_schema: { tabs: "Array of Objects: [ { \"title\": \"Tab Title\", \"content\": \"Tab text content (supports markdown)\" } ]" }
-                        },
-                        {
-                            type: "alert",
-                            description: "Styled alert message boxes",
-                            data_schema: { style: "String (choose from 'info', 'success', 'warning', 'danger')", text: "String" }
-                        },
-                        {
-                            type: "messengers",
-                            description: "Chat buttons block for messengers",
-                            data_schema: { whatsapp: "String (phone number)", telegram: "String (username)", viber: "String (phone or username)", phone: "String (phone number)" }
-                        },
-                        {
-                            type: "product-card",
-                            description: "Shop product card with title, image, price and buy button",
-                            data_schema: { url: "String (product URL link)", image: "String (image URL path)", name: "String (product name)", price: "String (product price)", buttonText: "String (default 'Купить')" }
-                        }
-                    ]
-                },
-                blocks: blocks
-            };
+            const dataToExport = getCurrentProjectJSON();
             const jsonStr = JSON.stringify(dataToExport, null, 2);
             const slug = slugInput.value || 'content-template';
             downloadFile(jsonStr, `constructor-${slug}.json`, 'application/json');
         });
+    }
+
+    function getCurrentProjectJSON() {
+        const themeSelectEl = $('#themeSelect');
+        const colorAccentEl = $('#colorAccent');
+        const colorBgEl = $('#colorBg');
+        const colorTextEl = $('#colorText');
+        
+        return {
+            title: titleInput.value || '',
+            slug: slugInput.value || '',
+            project: {
+                siteUrl: (document.getElementById('articleDomain') || {}).value || ''
+            },
+            theme: {
+                preset: themeSelectEl ? themeSelectEl.value : 'default',
+                accent: colorAccentEl ? colorAccentEl.value : '#5446f8',
+                bg: colorBgEl ? colorBgEl.value : '#F3F2FF',
+                text: colorTextEl ? colorTextEl.value : '#1A1A1A'
+            },
+            ai_specification: {
+                description: "This JSON defines the layout and content of a web page constructor. You can modify the title, slug, theme, and blocks. When adding or editing blocks, follow the types and data schemas below.",
+                supported_theme_presets: ["default", "blue", "emerald", "orange", "red", "dark"],
+                supported_blocks: [
+                    {
+                        type: "heading",
+                        description: "Article headings (H1, H2, H3, H4, H5, H6)",
+                        data_schema: { level: "Integer (1-6)", text: "String (supports markdown)" }
+                    },
+                    {
+                        type: "paragraph",
+                        description: "Standard paragraphs of text",
+                        data_schema: { text: "String (supports markdown formatting like **bold**, *italic*, list items like * item, and links like [text](url))" }
+                    },
+                    {
+                        type: "list",
+                        description: "Bullet or numbered lists",
+                        data_schema: { ordered: "Boolean (true/false)", items: "Array of Strings" }
+                    },
+                    {
+                        type: "quote",
+                        description: "Blockquote element",
+                        data_schema: { text: "String", author: "String (optional)" }
+                    },
+                    {
+                        type: "table",
+                        description: "Data table",
+                        data_schema: { headers: "Array of Strings", rows: "Array of Arrays of Strings" }
+                    },
+                    {
+                        type: "toc",
+                        description: "Table of Contents (autogenerated, place once near the top)",
+                        data_schema: {}
+                    },
+                    {
+                        type: "image",
+                        description: "Single image block",
+                        data_schema: { path: "String (relative path like image/catalog/photo.jpg or absolute URL)", caption: "String (optional)" }
+                    },
+                    {
+                        type: "video",
+                        description: "Responsive video embed (YouTube, Vimeo, VK, RuTube, Kinescope)",
+                        data_schema: { url: "String (valid video page URL)" }
+                    },
+                    {
+                        type: "carousel",
+                        description: "Image gallery slider carousel",
+                        data_schema: { images: "Array of Objects: [ { \"path\": \"url\", \"alt\": \"text\", \"caption\": \"text\" } ]" }
+                    },
+                    {
+                        type: "before-after",
+                        description: "Before/After image slider",
+                        data_schema: { beforeImg: "String (image path)", afterImg: "String (image path)", beforeLabel: "String (default 'До')", afterLabel: "String (default 'После')" }
+                    },
+                    {
+                        type: "grid",
+                        description: "Bootstrap 3 grid layout with columns holding nested blocks",
+                        data_schema: {
+                            pcPattern: "Array of Integers (column widths summing up to 12, e.g. [6, 6] or [4, 4, 4] or [8, 4])",
+                            mobilePerRow: "Integer (columns per row on mobile, e.g. 1 or 2)",
+                            columns: "Array of Objects: [ { \"blocks\": [ { ...nested blocks... } ] } ]"
+                        }
+                    },
+                    {
+                        type: "spoiler",
+                        description: "Accordion FAQ block",
+                        data_schema: { title: "String (Question)", text: "String (Answer, supports markdown)", opened: "Boolean (false by default)" }
+                    },
+                    {
+                        type: "tabs",
+                        description: "Responsive tabs switcher",
+                        data_schema: { tabs: "Array of Objects: [ { \"title\": \"Tab Title\", \"content\": \"Tab text content (supports markdown)\" } ]" }
+                    },
+                    {
+                        type: "alert",
+                        description: "Styled alert message boxes",
+                        data_schema: { style: "String (choose from 'info', 'success', 'warning', 'danger')", text: "String" }
+                    },
+                    {
+                        type: "messengers",
+                        description: "Chat buttons block for messengers",
+                        data_schema: { whatsapp: "String (phone number)", telegram: "String (username)", viber: "String (phone or username)", phone: "String (phone number)" }
+                    },
+                    {
+                        type: "product-card",
+                        description: "Shop product card with title, image, price and buy button",
+                        data_schema: { url: "String (product URL link)", image: "String (image URL path)", name: "String (product name)", price: "String (product price)", buttonText: "String (default 'Купить')" }
+                    },
+                    {
+                        type: "comparison",
+                        description: "Interactive comparison of characteristics table",
+                        data_schema: { title: "String", headers: "Array of Strings", rows: "Array of Arrays of Strings" }
+                    }
+                ]
+            },
+            blocks: blocks
+        };
+    }
+
+    function extractJSONFromString(text) {
+        text = text.trim();
+        // 1. Try direct JSON parse
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            // Direct parse failed, continue extraction
+        }
+
+        // 2. Try to match markdown code block
+        const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/i;
+        const match = text.match(codeBlockRegex);
+        if (match && match[1]) {
+            try {
+                return JSON.parse(match[1].trim());
+            } catch (e) {
+                // If markdown parsing failed, try extracting from that match below
+                text = match[1].trim();
+            }
+        }
+
+        // 3. Fallback to extracting everything between the first { and the last }
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const extracted = text.substring(firstBrace, lastBrace + 1);
+            try {
+                return JSON.parse(extracted);
+            } catch (e) {
+                // Ignore failure, throw custom error below
+            }
+        }
+
+        throw new Error('Не удалось извлечь корректный JSON из текста.');
+    }
+
+    function importJSONContent(jsonText, isFromClipboard = false) {
+        try {
+            const parsed = extractJSONFromString(jsonText);
+            if (!parsed || !Array.isArray(parsed.blocks)) {
+                throw new Error('Неверный формат JSON. Должно быть поле blocks в виде массива.');
+            }
+            if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
+                if (parsed.title !== undefined) titleInput.value = parsed.title;
+                if (parsed.slug !== undefined) slugInput.value = parsed.slug;
+                if (parsed.project && parsed.project.siteUrl !== undefined) {
+                    const domainEl = document.getElementById('articleDomain');
+                    if (domainEl) domainEl.value = parsed.project.siteUrl;
+                }
+
+                // Mark session as started on import so that startScreen is bypassed
+                const importedSession = {
+                    started: true,
+                    title: parsed.title || '',
+                    slug: parsed.slug || '',
+                    siteUrl: (parsed.project && parsed.project.siteUrl) || '',
+                    theme: (parsed.theme && parsed.theme.preset) || 'default'
+                };
+                saveProjectSession(importedSession);
+
+                // Bypass start screen UI
+                const startScreen = document.getElementById('startScreen');
+                if (startScreen) startScreen.style.display = 'none';
+                const workspaceEmpty = document.getElementById('workspaceEmpty');
+                if (workspaceEmpty) {
+                    workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
+                }
+                
+                // Import Theme metadata
+                const themeSelectEl = $('#themeSelect');
+                const colorAccentEl = $('#colorAccent');
+                const colorBgEl = $('#colorBg');
+                const colorTextEl = $('#colorText');
+                
+                if (parsed.theme) {
+                    if (themeSelectEl) themeSelectEl.value = parsed.theme.preset || 'default';
+                    if (colorAccentEl) colorAccentEl.value = parsed.theme.accent || '#5446f8';
+                    if (colorBgEl) colorBgEl.value = parsed.theme.bg || '#F3F2FF';
+                    if (colorTextEl) colorTextEl.value = parsed.theme.text || '#1A1A1A';
+                    updateThemeUI();
+                } else {
+                    if (themeSelectEl) {
+                        themeSelectEl.value = 'default';
+                        updateThemeUI();
+                    }
+                }
+                
+                blocks = parsed.blocks;
+                blocks.forEach(b => {
+                    if (b.type === 'grid' && b.data.columns) {
+                        b.data.columns.forEach(col => {
+                            if (!col.id) col.id = uuid();
+                        });
+                    }
+                    refreshBlockIds(b);
+                });
+                
+                renderBlocks();
+                updatePreview();
+                
+                if (isFromClipboard) {
+                    showToast('Шаблон успешно вставлен из буфера обмена');
+                } else {
+                    showToast('Шаблон успешно импортирован из файла');
+                }
+                return true;
+            }
+        } catch (err) {
+            alert('Ошибка при импорте JSON: ' + err.message);
+        }
+        return false;
+    }
+
+    function importJSONFromClipboard() {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+            navigator.clipboard.readText().then(text => {
+                if (text && text.trim()) {
+                    importJSONContent(text.trim(), true);
+                } else {
+                    showToast('Буфер обмена пуст');
+                }
+            }).catch(err => {
+                console.warn('Navigator clipboard access denied or failed, falling back to prompt:', err);
+                const fallbackText = prompt('Вставьте JSON-код шаблона:');
+                if (fallbackText && fallbackText.trim()) {
+                    importJSONContent(fallbackText.trim(), true);
+                }
+            });
+        } else {
+            const fallbackText = prompt('Вставьте JSON-код шаблона:');
+            if (fallbackText && fallbackText.trim()) {
+                importJSONContent(fallbackText.trim(), true);
+            }
+        }
+    }
+
+    function exportJSONToClipboard() {
+        const data = getCurrentProjectJSON();
+        const jsonStr = JSON.stringify(data, null, 2);
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                showToast('JSON скопирован в буфер обмена');
+            }).catch(err => {
+                console.error('Failed to copy JSON to clipboard:', err);
+                alert('Не удалось скопировать. Вы можете скачать JSON файлом.');
+            });
+        } else {
+            alert('Буфер обмена недоступен в этом браузере. Вы можете скачать JSON файлом.');
+        }
     }
 
     // ── Import JSON ──────────────────────────────────────────
@@ -3781,76 +3935,123 @@ document.addEventListener('input', function(event) {
             
             const reader = new FileReader();
             reader.onload = function(evt) {
-                try {
-                    const parsed = JSON.parse(evt.target.result);
-                    if (!parsed || !Array.isArray(parsed.blocks)) {
-                        throw new Error('Неверный формат JSON-файла. Должно быть поле blocks в виде массива.');
-                    }
-                    if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
-                        if (parsed.title !== undefined) titleInput.value = parsed.title;
-                        if (parsed.slug !== undefined) slugInput.value = parsed.slug;
-                        if (parsed.project && parsed.project.siteUrl !== undefined) {
-                            const domainEl = document.getElementById('articleDomain');
-                            if (domainEl) domainEl.value = parsed.project.siteUrl;
-                        }
-
-                        // Mark session as started on import so that startScreen is bypassed
-                        const importedSession = {
-                            started: true,
-                            title: parsed.title || '',
-                            slug: parsed.slug || '',
-                            siteUrl: (parsed.project && parsed.project.siteUrl) || '',
-                            theme: (parsed.theme && parsed.theme.preset) || 'default'
-                        };
-                        saveProjectSession(importedSession);
-
-                        // Bypass start screen UI
-                        const startScreen = document.getElementById('startScreen');
-                        if (startScreen) startScreen.style.display = 'none';
-                        const workspaceEmpty = document.getElementById('workspaceEmpty');
-                        if (workspaceEmpty) {
-                            workspaceEmpty.innerHTML = '<p>Добавьте блоки из панели слева</p>';
-                        }
-                        
-                        // Import Theme metadata
-                        const themeSelectEl = $('#themeSelect');
-                        const colorAccentEl = $('#colorAccent');
-                        const colorBgEl = $('#colorBg');
-                        const colorTextEl = $('#colorText');
-                        
-                        if (parsed.theme) {
-                            if (themeSelectEl) themeSelectEl.value = parsed.theme.preset || 'default';
-                            if (colorAccentEl) colorAccentEl.value = parsed.theme.accent || '#5446f8';
-                            if (colorBgEl) colorBgEl.value = parsed.theme.bg || '#F3F2FF';
-                            if (colorTextEl) colorTextEl.value = parsed.theme.text || '#1A1A1A';
-                            updateThemeUI();
-                        } else {
-                            if (themeSelectEl) {
-                                themeSelectEl.value = 'default';
-                                updateThemeUI();
-                            }
-                        }
-                        
-                        blocks = parsed.blocks;
-                        blocks.forEach(b => {
-                            if (b.type === 'grid' && b.data.columns) {
-                                b.data.columns.forEach(col => {
-                                    if (!col.id) col.id = uuid();
-                                });
-                            }
-                            refreshBlockIds(b);
-                        });
-                        
-                        renderBlocks();
-                        updatePreview();
-                    }
-                } catch (err) {
-                    alert('Ошибка при импорте JSON: ' + err.message);
-                }
+                importJSONContent(evt.target.result, false);
                 e.target.value = '';
             };
             reader.readAsText(file);
         });
+    }
+
+    // ── Clipboard JSON Listeners ─────────────────────────────
+    const btnClipboardCopyJSON = $('#btnClipboardCopyJSON');
+    if (btnClipboardCopyJSON) {
+        btnClipboardCopyJSON.addEventListener('click', exportJSONToClipboard);
+    }
+    const btnClipboardPasteJSON = $('#btnClipboardPasteJSON');
+    if (btnClipboardPasteJSON) {
+        btnClipboardPasteJSON.addEventListener('click', importJSONFromClipboard);
+    }
+    const btnAiImport = $('#btnAiImport');
+    if (btnAiImport) {
+        btnAiImport.addEventListener('click', importJSONFromClipboard);
+    }
+
+    // ── Export Dropdown Click Handler ────────────────────────
+    const exportDropdown = $('#exportDropdown');
+    if (exportDropdown) {
+        const toggleBtn = exportDropdown.querySelector('.btn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                exportDropdown.classList.toggle('active');
+            });
+        }
+        document.addEventListener('click', () => {
+            exportDropdown.classList.remove('active');
+        });
+        exportDropdown.querySelectorAll('.header-dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                exportDropdown.classList.remove('active');
+            });
+        });
+    }
+
+    // ── AI Assistant Modal Handlers ──────────────────────────
+    const btnAiAssistant = $('#btnAiAssistant');
+    const aiAssistantModal = $('#aiAssistantModal');
+    const btnCloseAiAssistant = $('#btnCloseAiAssistant');
+    const btnCancelAiAssistant = $('#btnCancelAiAssistant');
+    const btnCopyAiPrompt = $('#btnCopyAiPrompt');
+    const aiInstructionInput = $('#aiInstructionInput');
+
+    if (btnAiAssistant && aiAssistantModal) {
+        btnAiAssistant.addEventListener('click', () => {
+            aiAssistantModal.style.display = 'flex';
+            if (aiInstructionInput) {
+                aiInstructionInput.value = '';
+                aiInstructionInput.focus();
+            }
+        });
+
+        if (btnCloseAiAssistant) {
+            btnCloseAiAssistant.addEventListener('click', () => {
+                aiAssistantModal.style.display = 'none';
+            });
+        }
+
+        if (btnCancelAiAssistant) {
+            btnCancelAiAssistant.addEventListener('click', () => {
+                aiAssistantModal.style.display = 'none';
+            });
+        }
+
+        aiAssistantModal.addEventListener('click', (e) => {
+            if (e.target === aiAssistantModal) {
+                aiAssistantModal.style.display = 'none';
+            }
+        });
+
+        if (btnCopyAiPrompt && aiInstructionInput) {
+            btnCopyAiPrompt.addEventListener('click', () => {
+                const userInstruction = aiInstructionInput.value.trim();
+                if (!userInstruction) {
+                    alert('Пожалуйста, введите инструкцию для AI');
+                    return;
+                }
+                const currentJSON = JSON.stringify(getCurrentProjectJSON(), null, 2);
+                const promptText = `Роль: Вы — профессиональный ассистент по подготовке контента и эксперт по работе с JSON-конструкторами страниц.
+Ваша задача — обработать JSON-структуру страницы согласно инструкции пользователя.
+
+Инструкция пользователя:
+"${userInstruction}"
+
+Правила для ответа:
+1. Вы должны вернуть измененную JSON-структуру страницы.
+2. Строго соблюдайте схему данных, описанную в объекте "ai_specification".
+3. Не удаляйте существующие блоки, если этого прямо не требует инструкция пользователя.
+4. Вы можете изменять тексты, добавлять новые блоки (heading, paragraph, list, quote, table, image, before-after, spoiler, tabs, product-card, grid) в массив "blocks".
+5. У новых блоков поле "id" генерировать не нужно (или оставьте его пустым/пропустите), конструктор присвоит их автоматически при импорте.
+6. В полях текстов вы можете использовать Markdown-разметку (жирный, курсив, ссылки).
+7. Верните ТОЛЬКО валидный JSON-код в вашем ответе (желательно обернуть в \`\`\`json ... \`\`\`). Не добавляйте лишнего текста вне JSON, если это не требуется, но если добавите, конструктор всё равно попробует его отфильтровать.
+
+Исходный JSON страницы для изменения:
+\`\`\`json
+${currentJSON}
+\`\`\`
+`;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(promptText).then(() => {
+                        showToast('Промпт скопирован для ChatGPT!');
+                        aiAssistantModal.style.display = 'none';
+                    }).catch(err => {
+                        console.error('Ошибка при копировании промпта:', err);
+                        alert('Не удалось скопировать промпт автоматически. Вы можете скопировать его вручную.');
+                    });
+                } else {
+                    alert('Ваш браузер не поддерживает автоматическое копирование в буфер обмена.');
+                }
+            });
+        }
     }
 
     // ── Presets Dropdown ─────────────────────────────────────
@@ -6129,6 +6330,140 @@ document.addEventListener('click', function(event) {
         }
     });
 
+    // ── Toast Notifications ──────────────────────────────────
+    function showToast(message) {
+        let toast = document.querySelector('.custom-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        // force reflow
+        toast.offsetHeight;
+        toast.classList.add('show');
+        
+        if (toast.timeoutId) {
+            clearTimeout(toast.timeoutId);
+        }
+        
+        toast.timeoutId = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500);
+    }
+
+    // ── Autosave and Recovery ────────────────────────────────
+    function autosaveProjectState() {
+        try {
+            const titleEl = document.getElementById('articleTitle');
+            const domainEl = document.getElementById('articleDomain');
+            const slugEl = document.getElementById('articleSlug');
+            const themeSelectEl = $('#themeSelect');
+            const colorAccentEl = $('#colorAccent');
+            const colorBgEl = $('#colorBg');
+            const colorTextEl = $('#colorText');
+            
+            const state = {
+                timestamp: Date.now(),
+                title: titleEl ? titleEl.value : '',
+                slug: slugEl ? slugEl.value : '',
+                siteUrl: domainEl ? domainEl.value : '',
+                theme: {
+                    preset: themeSelectEl ? themeSelectEl.value : 'default',
+                    accent: colorAccentEl ? colorAccentEl.value : '#5446f8',
+                    bg: colorBgEl ? colorBgEl.value : '#F3F2FF',
+                    text: colorTextEl ? colorTextEl.value : '#1A1A1A'
+                },
+                blocks: blocks
+            };
+            localStorage.setItem('constructor_autosave', JSON.stringify(state));
+        } catch (e) {
+            console.error('Failed to autosave:', e);
+        }
+    }
+
+    function initAutosaveRecovery() {
+        const recoveryBanner = document.getElementById('recoveryBanner');
+        const recoveryTime = document.getElementById('recoveryTime');
+        const btnRestore = document.getElementById('btnRestoreAutosave');
+        const btnDiscard = document.getElementById('btnDiscardAutosave');
+        
+        if (!recoveryBanner) return;
+        
+        try {
+            const raw = localStorage.getItem('constructor_autosave');
+            if (raw) {
+                const saved = JSON.parse(raw);
+                if (saved && saved.timestamp && Array.isArray(saved.blocks) && saved.blocks.length > 0) {
+                    const date = new Date(saved.timestamp);
+                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
+                    if (recoveryTime) {
+                        recoveryTime.textContent = timeStr;
+                    }
+                    recoveryBanner.style.display = 'flex';
+                    
+                    if (btnRestore) {
+                        btnRestore.onclick = () => {
+                            if (saved.title !== undefined) titleInput.value = saved.title;
+                            if (saved.slug !== undefined) slugInput.value = saved.slug;
+                            const domainEl = document.getElementById('articleDomain');
+                            if (domainEl && saved.siteUrl !== undefined) domainEl.value = saved.siteUrl;
+                            
+                            const themeSelectEl = $('#themeSelect');
+                            const colorAccentEl = $('#colorAccent');
+                            const colorBgEl = $('#colorBg');
+                            const colorTextEl = $('#colorText');
+                            
+                            if (saved.theme) {
+                                if (themeSelectEl) themeSelectEl.value = saved.theme.preset || 'default';
+                                if (colorAccentEl) colorAccentEl.value = saved.theme.accent || '#5446f8';
+                                if (colorBgEl) colorBgEl.value = saved.theme.bg || '#F3F2FF';
+                                if (colorTextEl) colorTextEl.value = saved.theme.text || '#1A1A1A';
+                                updateThemeUI();
+                            }
+                            
+                            const session = {
+                                started: true,
+                                title: saved.title || '',
+                                slug: saved.slug || '',
+                                siteUrl: saved.siteUrl || '',
+                                theme: (saved.theme && saved.theme.preset) || 'default'
+                            };
+                            saveProjectSession(session);
+                            
+                            const startScreen = document.getElementById('startScreen');
+                            if (startScreen) startScreen.style.display = 'none';
+                            
+                            blocks = saved.blocks;
+                            blocks.forEach(b => {
+                                if (b.type === 'grid' && b.data.columns) {
+                                    b.data.columns.forEach(col => {
+                                        if (!col.id) col.id = uuid();
+                                    });
+                                }
+                                refreshBlockIds(b);
+                            });
+                            
+                            renderBlocks();
+                            updatePreview();
+                            recoveryBanner.style.display = 'none';
+                            showToast('Проект успешно восстановлен из автосохранения');
+                        };
+                    }
+                    
+                    if (btnDiscard) {
+                        btnDiscard.onclick = () => {
+                            localStorage.removeItem('constructor_autosave');
+                            recoveryBanner.style.display = 'none';
+                        };
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Failed to init autosave recovery:', e);
+        }
+    }
+
     // ── Start Screen Onboarding ──────────────────────────────
     (function initStartScreen() {
         const startScreen = document.getElementById('startScreen');
@@ -6238,6 +6573,7 @@ document.addEventListener('click', function(event) {
     // ── Initial Render ───────────────────────────────────────
     renderBlocks();
     updatePreview();
+    initAutosaveRecovery();
 
     if (window.innerWidth <= 991 || window.innerHeight <= 520) {
         document.body.classList.add('preview-hidden');

@@ -1499,7 +1499,7 @@ body.preview-hidden .workspace {
 /* ============================================================
    Mobile Responsive Styles
    ============================================================ */
-@media (max-width: 991px), (max-height: 520px) {
+@media (max-width: 991px) {
     .header {
         height: auto;
         min-height: 56px;
@@ -1569,6 +1569,8 @@ body.preview-hidden .workspace {
     #btnExportCSS,
     #btnImportJSON,
     #btnExportJSON,
+    #btnClipboardPasteJSON,
+    #btnClipboardCopyJSON,
     .header-preset-wrapper {
         display: none !important;
     }
@@ -1869,7 +1871,7 @@ body.preview-hidden .workspace {
 .preview-content .article-callout.style-warning .article-callout-btn:hover,
 .block-preview .article-callout.style-warning .article-callout-btn:hover { background: #c05621; }
 
-@media (max-width: 991px), (max-height: 520px) {
+@media (max-width: 991px) {
     .preview-content .article-callout-row,
     .block-preview .article-callout-row {
         display: block !important;
@@ -2495,7 +2497,7 @@ body.preview-hidden .workspace {
     filter: brightness(90%);
 }
 
-@media (max-width: 991px), (max-height: 520px) {
+@media (max-width: 991px) {
     .article-product-card,
     .preview-content .article-product-card,
     .block-preview .article-product-card {
@@ -2762,7 +2764,7 @@ body.preview-hidden .workspace {
 }
 
 /* ── Landscape Mobile viewport optimizations (height-based) ───── */
-@media (max-height: 520px) and (min-width: 480px) {
+@media (max-height: 520px) and (min-width: 480px) and (max-width: 991px) {
     .start-screen-overlay {
         padding: 12px;
         align-items: flex-start;
@@ -2885,5 +2887,166 @@ body.preview-hidden .workspace {
     }
 }
 
+/* ── Recovery Banner ──────────────────────────────────────── */
+.recovery-banner {
+    background: #f0f9ff;
+    border-bottom: 1px solid #bae6fd;
+    padding: 10px 20px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 10001;
+    font-size: 13px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    font-family: sans-serif;
+}
+.recovery-text {
+    color: #0369a1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.recovery-text i {
+    font-size: 15px;
+    color: #0284c7;
+}
+.recovery-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.recovery-actions .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
 
+@media (max-width: 991px) {
+    .recovery-banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        text-align: center;
+        padding: 8px 12px;
+    }
+    .recovery-text {
+        justify-content: center;
+    }
+    .recovery-actions {
+        justify-content: center;
+    }
+}
 
+/* ── Custom Toast Notification ────────────────────────────── */
+.custom-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translate(-50%, 100px);
+    background: #2d3748;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 99999;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    pointer-events: none;
+    font-family: sans-serif;
+}
+.custom-toast.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+/* ── Comparison Block Table ───────────────────────────────── */
+.article-comparison-wrapper {
+    margin: 20px 0;
+}
+.article-comparison-title {
+    font-family: var(--description-font-bold), sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: left;
+}
+.article-comparison-wrapper table {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.article-comparison-wrapper table tbody tr.row-different td {
+    background-color: #fff5f5 !important;
+    font-weight: 600;
+}
+.compare-diff-toggle-wrapper {
+    margin-bottom: 12px;
+    text-align: right;
+}
+.compare-diff-toggle-wrapper label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4a5568;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+
+/* ── Export Dropdown ───────────────────────────────────────── */
+.header-dropdown {
+    position: relative;
+    display: inline-block;
+}
+.header-dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #ffffff;
+    min-width: 260px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
+    z-index: 10002;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    margin-top: 5px;
+    padding: 6px 0;
+}
+.header-dropdown:hover .header-dropdown-menu,
+.header-dropdown.active .header-dropdown-menu {
+    display: block;
+}
+.header-dropdown-item {
+    color: #2d3748;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    box-sizing: border-box;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+}
+.header-dropdown-item:hover {
+    background-color: #f7fafc;
+    color: #5446f8;
+}
+.header-dropdown-item i {
+    width: 16px;
+    text-align: center;
+    color: #718096;
+}
+.header-dropdown-item:hover i {
+    color: #5446f8;
+}

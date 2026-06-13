@@ -5,9 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.6.0">
+    <link rel="stylesheet" href="css/constructor.css?v=1.6.2">
 </head>
 <body>
+
+<!-- Recovery Banner -->
+<div id="recoveryBanner" class="recovery-banner" style="display: none;">
+    <div class="recovery-text">
+        <i class="fa fa-life-ring"></i>
+        <span>Найдена автосохраненная копия проекта от <strong id="recoveryTime"></strong>. Восстановить работу?</span>
+    </div>
+    <div class="recovery-actions">
+        <button id="btnRestoreAutosave" class="btn btn-primary">Восстановить</button>
+        <button id="btnDiscardAutosave" class="btn btn-ghost">Скрыть</button>
+    </div>
+</div>
 
 <header class="header">
     <div class="header-left">
@@ -65,27 +77,48 @@
         <button id="btnImportJSON" class="btn btn-secondary" title="Импортировать JSON-шаблон">
             <span class="btn-icon"><i class="fa fa-upload"></i></span>
         </button>
+        <button id="btnClipboardPasteJSON" class="btn btn-secondary" title="Вставить JSON из буфера обмена">
+            <span class="btn-icon"><i class="fa fa-paste"></i></span>
+        </button>
         <input type="file" id="importFile" accept=".json" style="display: none;">
 
         <button id="btnExportJSON" class="btn btn-secondary" title="Экспортировать в JSON">
             <span class="btn-icon"><i class="fa fa-download"></i></span>
         </button>
+        <button id="btnClipboardCopyJSON" class="btn btn-secondary" title="Скопировать JSON в буфер обмена">
+            <span class="btn-icon"><i class="fa fa-copy"></i></span>
+        </button>
+        <button id="btnAiAssistant" class="btn btn-primary" title="AI Запрос (сформировать промпт)" style="background: #5446f8; border-color: #5446f8;">
+            <span class="btn-icon"><i class="fa fa-magic"></i></span>
+        </button>
+        <button id="btnAiImport" class="btn btn-primary" title="AI Импорт (вставить ответ от ИИ)" style="background: #2f80ed; border-color: #2f80ed;">
+            <span class="btn-icon"><i class="fa fa-magic"></i></span>
+        </button>
 
-        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60;">
-            <span class="btn-icon"><i class="fa fa-clipboard"></i></span>
+        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60; border-color: #27ae60;">
+            <span class="btn-icon"><i class="fa fa-code"></i></span>
         </button>
-        <button id="btnExportTXT" class="btn btn-primary" title="Скачать HTML-код в TXT-файле" style="background: #e67e22; border-color: #d35400;">
-            <span class="btn-icon"><i class="fa fa-file-text-o"></i></span>
-        </button>
-        <button id="btnExportZIP" class="btn btn-primary" title="Скачать ZIP-архив (HTML + картинки)" style="background: #9b59b6; border-color: #8e44ad;">
-            <span class="btn-icon"><i class="fa fa-file-archive-o"></i></span>
-        </button>
-        <button id="btnExportHTML" class="btn btn-primary" title="Скачать HTML-файл для просмотра">
-            <span class="btn-icon">&#60;/&#62;</span>
-        </button>
-        <button id="btnExportCSS" class="btn btn-secondary" title="Скачать CSS-файл стилей">
-            <span class="btn-icon">{ }</span>
-        </button>
+
+        <div class="header-dropdown" id="exportDropdown">
+            <button class="btn btn-secondary" title="Экспортировать файлы" style="display: flex; align-items: center; gap: 6px;">
+                <span class="btn-icon"><i class="fa fa-download"></i></span>
+                <i class="fa fa-caret-down" style="font-size: 11px; margin-left: 2px;"></i>
+            </button>
+            <div class="header-dropdown-menu">
+                <button type="button" id="btnExportZIP" class="header-dropdown-item">
+                    <i class="fa fa-file-archive-o" style="color: #9b59b6;"></i>
+                    <span>ZIP-архив (HTML + картинки)</span>
+                </button>
+                <button type="button" id="btnExportTXT" class="header-dropdown-item">
+                    <i class="fa fa-file-text-o" style="color: #e67e22;"></i>
+                    <span>TXT-файл (HTML-код)</span>
+                </button>
+                <button type="button" id="btnExportCSS" class="header-dropdown-item">
+                    <span style="font-weight: bold; font-family: monospace; color: #718096; font-size: 11px; width: 16px; text-align: center; display: inline-block;">{ }</span>
+                    <span>CSS-файл (стили)</span>
+                </button>
+            </div>
+        </div>
         <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать или скрыть превью">
             <span class="btn-icon"><i class="fa fa-eye"></i></span>
         </button>
@@ -95,7 +128,7 @@
             </button>
             <div id="mobileActionsMenu" class="mobile-actions-menu">
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnCopyHTML">
-                    <i class="fa fa-clipboard"></i><span>Копировать HTML</span>
+                    <i class="fa fa-code"></i><span>Копировать HTML</span>
                 </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportTXT">
                     <i class="fa fa-file-text-o"></i><span>Скачать TXT</span>
@@ -103,17 +136,26 @@
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportZIP">
                     <i class="fa fa-file-archive-o"></i><span>Скачать ZIP статьи</span>
                 </button>
-                <button type="button" class="mobile-actions-item" data-forward-click="#btnExportHTML">
-                    <i class="fa fa-code"></i><span>Скачать HTML</span>
-                </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportCSS">
                     <i class="fa fa-css3"></i><span>Скачать CSS</span>
                 </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnImportJSON">
                     <i class="fa fa-upload"></i><span>Импорт JSON</span>
                 </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnClipboardPasteJSON">
+                    <i class="fa fa-paste"></i><span>Вставить JSON</span>
+                </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportJSON">
                     <i class="fa fa-download"></i><span>Экспорт JSON</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnClipboardCopyJSON">
+                    <i class="fa fa-copy"></i><span>Копировать JSON</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnAiAssistant" style="color: #5446f8; font-weight: bold;">
+                    <i class="fa fa-magic"></i><span>AI Запрос</span>
+                </button>
+                <button type="button" class="mobile-actions-item" data-forward-click="#btnAiImport" style="color: #2f80ed; font-weight: bold;">
+                    <i class="fa fa-magic"></i><span>AI Импорт</span>
                 </button>
             </div>
         </div>
@@ -150,6 +192,10 @@
             <button class="block-btn" data-block-type="table" title="Таблица">
                 <span class="block-btn-icon">&#9638;</span>
                 <span class="block-btn-label">Таблица</span>
+            </button>
+            <button class="block-btn" data-block-type="comparison" title="Сравнение характеристик">
+                <span class="block-btn-icon" style="font-size:14px; font-weight:bold;">VS</span>
+                <span class="block-btn-label">Сравнение</span>
             </button>
             <button class="block-btn" data-block-type="toc" title="Оглавление (авто)">
                 <span class="block-btn-icon">&#9776;</span>
@@ -940,15 +986,27 @@
             <div class="help-tab-content" id="help-ai" style="display: none;">
                 <h3 style="margin-top: 0; color: #333;"><i class="fa fa-magic"></i> Совместная работа с искусственным интеллектом</h3>
                 <p>
-                    Конструктор поддерживает <strong>двустороннюю интеграцию с ИИ (ChatGPT, Claude, Gemini)</strong> через файлы импорта и экспорта в формате JSON. Каждый экспортированный файл содержит встроенную самодокументируемую схему <code>ai_specification</code>. Она сообщает нейросети все технические возможности конструктора и правила генерации блоков, гарантируя безошибочную работу при обратном импорте.
+                    Конструктор поддерживает <strong>интеграцию с ИИ (ChatGPT, Claude, Gemini)</strong>. Каждый экспортированный проект содержит встроенную схему <code>ai_specification</code>, которая сообщает нейросети технические возможности конструктора и правила генерации блоков для безошибочного импорта.
                 </p>
 
-                <h3 style="color: #333; margin-top: 18px;"><strong>Как это работает (Пошагово)</strong></h3>
+                <h3 style="color: #333; margin-top: 18px;"><strong>Новый способ: AI Ассистент (Рекомендуется)</strong></h3>
+                <p>
+                    Теперь не обязательно вручную скачивать файлы. Вы можете использовать встроенный промпт-генератор:
+                </p>
                 <ol class="help-steps-list">
-                    <li><strong>Экспорт JSON:</strong> Нажмите кнопку экспорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-download"></i></span> в шапке конструктора, чтобы сохранить текущую структуру статьи.</li>
-                    <li><strong>Передача в ИИ:</strong> Загрузите полученный файл (например, <code>constructor-article.json</code>) в чат с ChatGPT, Claude или Gemini. Либо просто скопируйте его текстовое содержимое и отправьте в чат.</li>
-                    <li><strong>Промпт (Запрос):</strong> Опишите ИИ задачу на русском языке (перевод, добавление блоков, оптимизация, переформулирование). <em>ИИ сам прочитает спецификацию внутри файла и создаст корректную структуру JSON.</em></li>
-                    <li><strong>Импорт JSON:</strong> Сохраните ответ ИИ как <code>.json</code> файл, вернитесь в конструктор, нажмите кнопку импорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-upload"></i></span> и выберите этот файл. Ваша статья мгновенно обновится на экране!</li>
+                    <li><strong>Запуск ассистента:</strong> Нажмите на кнопку **«AI Запрос»** <span class="btn btn-primary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#5446f8; border-color:#5446f8;"><i class="fa fa-magic"></i></span> в шапке конструктора.</li>
+                    <li><strong>Ввод задачи:</strong> Напишите своими словами, что нужно сделать (например: <em>«Переведи статью на английский язык»</em>, <em>«Добавь в конец блок FAQ с ответами»</em> или <em>«Исправь орфографию во всех блоках»</em>).</li>
+                    <li><strong>Копирование промпта:</strong> Нажмите кнопку <strong>«Скопировать промпт с JSON»</strong>. В буфер обмена будет скопирован готовый запрос для нейросети, содержащий роль, правила безопасности и всю структуру вашей статьи в формате JSON.</li>
+                    <li><strong>Запрос к ИИ:</strong> Вставьте скопированный текст (Ctrl+V) в окно ChatGPT, Claude или Gemini и отправьте.</li>
+                    <li><strong>Вставка результата:</strong> Скопируйте весь ответ нейросети целиком. Вернитесь в конструктор и нажмите кнопку **«AI Импорт»** <span class="btn btn-primary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#2f80ed; border-color:#2f80ed;"><i class="fa fa-magic"></i></span>. Конструктор автоматически найдет и извлечет JSON-код из текста ответа (даже если ИИ добавил свои рассуждения или оформил код в markdown-блоки).</li>
+                </ol>
+
+                <h3 style="color: #333; margin-top: 18px;"><strong>Классический способ: Импорт/Экспорт файлов</strong></h3>
+                <ol class="help-steps-list">
+                    <li><strong>Экспорт JSON:</strong> Нажмите кнопку экспорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-download"></i></span>, чтобы сохранить текущую структуру статьи в файл <code>.json</code>.</li>
+                    <li><strong>Передача в ИИ:</strong> Загрузите полученный файл в чат с ChatGPT, Claude или Gemini или скопируйте его содержимое.</li>
+                    <li><strong>Промпт (Запрос):</strong> Опишите ИИ задачу на русском языке (ИИ сам прочитает спецификацию внутри файла и создаст корректную структуру JSON).</li>
+                    <li><strong>Импорт JSON:</strong> Сохраните ответ ИИ как <code>.json</code> файл, вернитесь в конструктор, нажмите кнопку импорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-upload"></i></span> и выберите этот файл.</li>
                 </ol>
 
                 <h3 style="color: #333; margin-top: 18px;"><strong>Спецификация блоков (ai_specification)</strong></h3>
@@ -1141,6 +1199,30 @@
     </div>
 </div>
 
+<!-- AI ASSISTANT MODAL -->
+<div id="aiAssistantModal" class="modal-overlay" style="display: none;">
+    <div class="modal-window" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2><i class="fa fa-magic"></i> AI Ассистент (промпт-генератор)</h2>
+            <button class="modal-close" id="btnCloseAiAssistant">&times;</button>
+        </div>
+        <div class="modal-body" style="padding-top: 15px;">
+            <p style="font-size: 13px; color: #555; margin-bottom: 12px; line-height: 1.5;">
+                Напишите своими словами, что нужно сделать с содержанием всей страницы (например: <i>«Переведи на английский язык»</i>, <i>«Исправь ошибки в тексте»</i>, <i>«Добавь 3 преимущества товара»</i> или <i>«Сделай текст более профессиональным»</i>).
+            </p>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <textarea id="aiInstructionInput" rows="4" placeholder="Введите инструкцию для AI..." style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: sans-serif; resize: vertical;"></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button id="btnCancelAiAssistant" class="btn btn-secondary">Отмена</button>
+                <button id="btnCopyAiPrompt" class="btn btn-primary" style="background: #5446f8; border-color: #4338ca;">
+                    <i class="fa fa-copy"></i> Скопировать промпт с JSON
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Start Screen Overlay -->
 <div id="startScreen" class="start-screen-overlay" style="display: none;">
     <div class="start-screen-card">
@@ -1182,6 +1264,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.6.0"></script>
+<script src="js/app.js?v=1.6.2"></script>
 </body>
 </html>
