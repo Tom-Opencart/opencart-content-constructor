@@ -1309,9 +1309,13 @@
                 text: 'Описание файла или полезные инструкции к действию.',
                 btnText: 'Скачать',
                 btnLink: '#',
-                btnIcon: 'fa-download'
+                btnIcon: 'fa-download',
+                btnLinkType: 'regular',
+                infoId: '5'
             }),
             editForm(block) {
+                const btnLinkType = block.data.btnLinkType || 'regular';
+                const infoId = block.data.infoId || '5';
                 return `
                     <div class="form-row">
                         <div class="form-group" style="flex:0 0 150px">
@@ -1348,8 +1352,30 @@
                             <input type="text" data-field="btnText" value="${escapeHtml(block.data.btnText)}">
                         </div>
                         <div class="form-group">
+                            <label>Тип действия кнопки</label>
+                            <select data-field="btnLinkType" class="callout-link-type-select">
+                                <option value="regular" ${btnLinkType === 'regular' ? 'selected' : ''}>Обычная ссылка</option>
+                                <option value="popup" ${btnLinkType === 'popup' ? 'selected' : ''}>Всплывающее окно OpenCart (agree)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="callout-regular-link-group" style="display: ${btnLinkType === 'regular' ? 'block' : 'none'}; margin-bottom: 8px;">
+                        <div class="form-group">
                             <label>Ссылка кнопки (URL)</label>
-                            <input type="text" data-field="btnLink" value="${escapeHtml(block.data.btnLink)}">
+                            <input type="text" data-field="btnLink" value="${escapeHtml(block.data.btnLink || '#')}">
+                        </div>
+                    </div>
+                    
+                    <div class="callout-popup-link-group" style="display: ${btnLinkType === 'popup' ? 'block' : 'none'}; margin-bottom: 8px;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>ID статьи OpenCart (information_id)</label>
+                                <input type="number" data-field="infoId" value="${escapeHtml(infoId)}" placeholder="Например: 5">
+                                <small style="color: #666; font-size: 11px; margin-top: 4px; display: block;">
+                                    Ссылка для OpenCart: <code class="generated-callout-popup-link">/index.php?route=information/information/agree&information_id=${infoId}</code>
+                                </small>
+                            </div>
                         </div>
                     </div>`;
             },
@@ -1367,6 +1393,18 @@
                     iconHTML = `<i class="fa ${escapeHtml(btnIcon)}"></i> `;
                 }
 
+                let href = block.data.btnLink || '#';
+                let classList = 'article-callout-btn';
+                let target = ' target="_blank"';
+                
+                const btnLinkType = block.data.btnLinkType || 'regular';
+                if (btnLinkType === 'popup') {
+                    const infoId = block.data.infoId || '5';
+                    href = `/index.php?route=information/information/agree&information_id=${infoId}`;
+                    classList += ' agree';
+                    target = '';
+                }
+
                 return `<div class="article-callout style-${escapeHtml(styleClass)}">
     <div class="article-callout-row">
         <div class="article-callout-text-col">
@@ -1374,13 +1412,50 @@
             <p class="article-callout-desc">${escapeHtml(block.data.text)}</p>
         </div>
         ${hasBtn ? `<div class="article-callout-btn-col">
-            <a href="${escapeHtml(block.data.btnLink)}" class="article-callout-btn" target="_blank">${btnIconHTML}${escapeHtml(block.data.btnText)}</a>
+            <a href="${escapeHtml(href)}" class="${classList}"${target}>${btnIconHTML}${escapeHtml(block.data.btnText)}</a>
         </div>` : ''}
     </div>
 </div>`;
             },
             preview(block) {
-                return this.toHTML(block);
+                const styleClass = block.data.style || 'well';
+                const btnIcon = block.data.btnIcon || 'fa-download';
+                const hasBtn = block.data.btnText ? true : false;
+                
+                let iconHTML = '';
+                let btnIconHTML = '';
+                
+                if (styleClass === 'well') {
+                    btnIconHTML = `<i class="fa ${escapeHtml(btnIcon)}"></i> `;
+                } else {
+                    iconHTML = `<i class="fa ${escapeHtml(btnIcon)}"></i> `;
+                }
+
+                let href = block.data.btnLink || '#';
+                let classList = 'article-callout-btn';
+                let target = ' target="_blank"';
+                let onclick = '';
+                
+                const btnLinkType = block.data.btnLinkType || 'regular';
+                if (btnLinkType === 'popup') {
+                    const infoId = block.data.infoId || '5';
+                    href = `/index.php?route=information/information/agree&information_id=${infoId}`;
+                    classList += ' agree';
+                    target = '';
+                    onclick = ` onclick="alert('Эмуляция OpenCart: Открытие статьи с ID = ${infoId} в модальном окне (через AJAX/Bootstrap modal). В реальности сработает автоматически благодаря встроенному скрипту OpenCart.'); return false;"`;
+                }
+
+                return `<div class="article-callout style-${escapeHtml(styleClass)}">
+    <div class="article-callout-row">
+        <div class="article-callout-text-col">
+            <h4 class="article-callout-title">${iconHTML}${escapeHtml(block.data.title)}</h4>
+            <p class="article-callout-desc">${escapeHtml(block.data.text)}</p>
+        </div>
+        ${hasBtn ? `<div class="article-callout-btn-col">
+            <a href="${escapeHtml(href)}" class="${classList}"${target}${onclick}>${btnIconHTML}${escapeHtml(block.data.btnText)}</a>
+        </div>` : ''}
+    </div>
+</div>`;
             }
         },
 
@@ -2671,12 +2746,39 @@
             });
         });
 
+        // Callout button action type change handler
+        form.querySelectorAll('.callout-link-type-select').forEach(select => {
+            select.addEventListener('change', () => {
+                const type = select.value;
+                block.data.btnLinkType = type;
+                
+                const regularGroup = form.querySelector('.callout-regular-link-group');
+                const popupGroup = form.querySelector('.callout-popup-link-group');
+                
+                if (regularGroup && popupGroup) {
+                    regularGroup.style.display = type === 'regular' ? 'block' : 'none';
+                    popupGroup.style.display = type === 'popup' ? 'block' : 'none';
+                }
+                
+                if (type === 'popup' && !block.data.infoId) {
+                    block.data.infoId = '5';
+                    const infoInput = form.querySelector('[data-field="infoId"]');
+                    if (infoInput) infoInput.value = '5';
+                }
+                updatePreview();
+            });
+        });
+
         // Popup ID input live link preview generator helper
         form.querySelectorAll('[data-field="infoId"]').forEach(input => {
             input.addEventListener('input', () => {
                 const codeEl = form.querySelector('.generated-popup-link');
                 if (codeEl) {
                     codeEl.textContent = `/index.php?route=information/information/agree&information_id=${input.value || 'ID'}`;
+                }
+                const calloutCodeEl = form.querySelector('.generated-callout-popup-link');
+                if (calloutCodeEl) {
+                    calloutCodeEl.textContent = `/index.php?route=information/information/agree&information_id=${input.value || 'ID'}`;
                 }
             });
         });
