@@ -3636,7 +3636,7 @@
         });
     }
 
-    // ── Export TXT (Clean HTML for OpenCart) ─────────────────
+    // ── Export HTML for Summernote (Clean HTML for OpenCart + embedded JSON backup) ──
     const btnExportTXT = $('#btnExportTXT');
     if (btnExportTXT) {
         btnExportTXT.addEventListener('click', () => {
@@ -3647,8 +3647,9 @@
             const theme = getCurrentThemeColors();
             const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
 
-            const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
-            downloadFile(cleanHTML, `content-${slug}.txt`, 'text/plain');
+            const projectJSON = JSON.stringify(getCurrentProjectJSON());
+            const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
+            downloadFile(cleanHTML, `content-${slug}.html`, 'text/html');
         });
     }
 
@@ -3797,7 +3798,18 @@
             // Direct parse failed, continue extraction
         }
 
-        // 2. Try to match markdown code block
+        // 2. Try to match comment CONSTRUCTOR_JSON (if embedded in HTML)
+        const commentRegex = /<!--\s*CONSTRUCTOR_JSON:\s*([\s\S]*?)\s*-->/i;
+        const commentMatch = text.match(commentRegex);
+        if (commentMatch && commentMatch[1]) {
+            try {
+                return JSON.parse(commentMatch[1].trim());
+            } catch (e) {
+                // Ignore comment parse failure, try other matches
+            }
+        }
+
+        // 3. Try to match markdown code block
         const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/i;
         const match = text.match(codeBlockRegex);
         if (match && match[1]) {
@@ -3809,7 +3821,7 @@
             }
         }
 
-        // 3. Fallback to extracting everything between the first { and the last }
+        // 4. Fallback to extracting everything between the first { and the last }
         const firstBrace = text.indexOf('{');
         const lastBrace = text.lastIndexOf('}');
         if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
@@ -6353,7 +6365,12 @@ document.addEventListener('click', function(event) {
                 const { tocHTML, contentHTML } = renderArticlePartsForBlocks(copiedBlocks, 'toHTML');
                 const theme = getCurrentThemeColors();
                 const styleAttr = `style="--accent_background_color: ${theme.accent}; --background_main_color: ${theme.bg}; --background_additional_color: ${theme.bgAdditional}; --main_color: ${theme.text}; --additional_color: ${theme.textAdditional};"`;
-                const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
+                
+                // Embed project JSON data into the HTML as a backup/source
+                const projectJSONData = getCurrentProjectJSON();
+                projectJSONData.blocks = copiedBlocks;
+                const projectJSON = JSON.stringify(projectJSONData);
+                const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
 
                 // Add HTML to zip
                 zip.file(`content-${slug}.html`, cleanHTML);

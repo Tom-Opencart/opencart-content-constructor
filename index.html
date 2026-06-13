@@ -74,7 +74,7 @@
             </select>
         </div>
 
-        <input type="file" id="importFile" accept=".json" style="display: none;">
+        <input type="file" id="importFile" accept=".json,.html,.txt" style="display: none;">
 
         <div class="header-dropdown" id="importAiDropdown">
             <button class="btn btn-secondary" title="Загрузка проекта и AI-функции" style="display: flex; align-items: center; gap: 6px;">
@@ -84,12 +84,12 @@
             </button>
             <div class="header-dropdown-menu wide-menu">
                 <div class="dropdown-section">
-                    <div class="dropdown-section-title"><i class="fa fa-file-code-o"></i> Проект (JSON)</div>
+                    <div class="dropdown-section-title"><i class="fa fa-file-code-o"></i> Проект (JSON, HTML)</div>
                     <button type="button" id="btnImportJSON" class="header-dropdown-item">
                         <i class="fa fa-upload" style="color: #2980b9;"></i>
                         <div class="item-text">
-                            <div class="item-title">Импортировать файл (.json)</div>
-                            <div class="item-desc">Загрузить копию проекта с компьютера</div>
+                            <div class="item-title">Импортировать файл (.json, .html)</div>
+                            <div class="item-desc">Загрузить копию проекта или файл импорта Summernote</div>
                         </div>
                     </button>
                     <button type="button" id="btnClipboardPasteJSON" class="header-dropdown-item">
@@ -133,8 +133,8 @@
                     <button type="button" id="btnExportTXT" class="header-dropdown-item">
                         <i class="fa fa-file-text-o" style="color: #e67e22;"></i>
                         <div class="item-text">
-                            <div class="item-title">Скачать HTML-код (.txt)</div>
-                            <div class="item-desc">Сохранить готовый HTML-код статьи в текстовом файле на компьютер</div>
+                            <div class="item-title">Скачать файл для Summernote (.html)</div>
+                            <div class="item-desc">Сохранить готовый HTML-файл для прямой загрузки через кнопку импорта в редакторе</div>
                         </div>
                     </button>
                 </div>
@@ -205,7 +205,7 @@
                     <i class="fa fa-code"></i><span>Копировать HTML</span>
                 </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportTXT">
-                    <i class="fa fa-file-text-o"></i><span>Скачать TXT</span>
+                    <i class="fa fa-file-text-o"></i><span>Скачать для Summernote</span>
                 </button>
                 <button type="button" class="mobile-actions-item" data-forward-click="#btnExportZIP">
                     <i class="fa fa-file-archive-o"></i><span>Скачать ZIP статьи</span>
@@ -471,7 +471,7 @@
                             <td>
                                 Главное меню для сохранения результатов работы в файлы:
                                 <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
-                                    <li><strong>Скачать TXT-файл</strong> (иконка <i class="fa fa-file-text-o"></i>) — сохраняет HTML-код статьи в текстовом файле (.txt) на компьютер</li>
+                                    <li><strong>Скачать файл для Summernote (.html)</strong> (иконка <i class="fa fa-file-text-o"></i>) — сохраняет HTML-файл для импорта напрямую в редактор</li>
                                     <li><strong>Скачать ZIP-архив статьи</strong> (иконка <i class="fa fa-file-archive-o"></i>) — собирает HTML-код и картинки в один архив для загрузки на сайт (рекомендуемый способ)</li>
                                     <li><strong>Скачать ZIP-модификатор стилей</strong> (иконка <i class="fa fa-cloud-download"></i>) — скачивает установочный модификатор для автоматического подключения стилей к сайту</li>
                                     <li><strong>Скачать файл проекта (.json)</strong> — сохраняет проект для редактирования в будущем</li>
@@ -547,7 +547,7 @@
                         <li>Откройте админ-панель сайта и перейдите к редактированию товара или статьи, куда хотите вставить контент.</li>
                         <li>Найдите текстовый редактор (Summernote). В его панели инструментов нажмите группу <strong>«Вставить»</strong> (последняя иконка в ряду).</li>
                         <li>Среди иконок найдите <span style="color: #27ae60; font-weight: bold;">зелёную иконку файла</span> (<i class="fa fa-file-text-o" style="color:#27ae60;"></i>). Нажмите на неё.</li>
-                        <li>Выберите скачанный TXT-файл из конструктора (или ZIP — откроется файл <code>content-{slug}.html</code>).</li>
+                        <li>Выберите скачанный HTML-файл из конструктора (или ZIP — откроется файл <code>content-{slug}.html</code>).</li>
                         <li>Контент автоматически загрузится в редактор!</li>
                         <li>Нажмите <strong>«Сохранить»</strong>.</li>
                     </ol>
@@ -1004,7 +1004,7 @@
                 <h3 style="color: #333; margin-top: 18px;"><strong>Что делать с готовой картинкой:</strong></h3>
                 <ul>
                     <li><strong>«Скачать ZIP-архив статьи»</strong> (в меню «Скачать / Экспорт») — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
-                    <li><strong>«Копировать код»</strong> (зелёная кнопка в шапке) или <strong>«Скачать TXT-файл»</strong> (в меню «Скачать / Экспорт») — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
+                    <li><strong>«Копировать код»</strong> (зелёная кнопка в шапке) или <strong>«Скачать файл для Summernote»</strong> (в меню «Скачать / Экспорт») — скопирует или скачает HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
                 </ul>
 
                 <h3 style="color: #27ae60; margin-top: 24px;"><i class="fa fa-window-restore"></i> Кнопки-ссылки для открытых статей (agree)</h3>
