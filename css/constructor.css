@@ -124,7 +124,6 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .header-domain-input:focus { color: #333; }
 .header-right { display: flex; flex-shrink: 0; gap: 5px; }
 .header-right .btn { padding: 0 12px; min-width: 36px; }
-.btn-mobile-fields { display: none; }
 .mobile-actions { display: none; position: relative; }
 .mobile-actions-menu {
     position: absolute;
@@ -186,6 +185,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     transition: background .15s, border-color .15s, transform .1s;
 }
 .btn:active { transform: scale(0.97); }
+.btn-mobile-fields { display: none; }
 .btn-primary { background: #4a90d9; color: #fff; }
 .btn-primary:hover { background: #3a7bc8; }
 .btn-secondary { background: #e8ecf1; color: #333; border-color: transparent; }
