@@ -3995,13 +3995,17 @@
     dropdowns.forEach(dropdown => {
         if (dropdown.el && dropdown.btn) {
             dropdown.btn.addEventListener('click', (e) => {
-                e.stopPropagation();
                 dropdowns.forEach(other => {
                     if (other.el && other.el !== dropdown.el) {
                         other.el.classList.remove('active');
                     }
                 });
                 dropdown.el.classList.toggle('active');
+            });
+
+            // Prevent clicks inside the dropdown container from bubbling to document (which closes active dropdowns)
+            dropdown.el.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
 
             dropdown.el.querySelectorAll('.header-dropdown-item').forEach(item => {

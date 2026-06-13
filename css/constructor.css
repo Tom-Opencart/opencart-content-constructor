@@ -2990,6 +2990,15 @@ body.preview-hidden .workspace {
     margin-top: 5px;
     padding: 6px 0;
 }
+.header-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: transparent;
+}
 .header-dropdown:hover .header-dropdown-menu,
 .header-dropdown.active .header-dropdown-menu {
     display: block;
