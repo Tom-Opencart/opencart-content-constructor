@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Constructor — Конструктор контента</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/constructor.css?v=1.6.5">
+    <link rel="stylesheet" href="css/constructor.css?v=1.6.6">
 </head>
 <body>
 
@@ -439,15 +439,11 @@
                             <td>Открывает это руководство — вы сейчас здесь</td>
                         </tr>
                         <tr>
-                            <td><i class="fa fa-magic"></i> <strong>Шаблон страницы</strong></td>
-                            <td>Выпадающий список с готовыми структурами страниц («Обзор товара», «Инструкция», «Услуги и FAQ») для быстрого старта</td>
-                        </tr>
-                        <tr>
                             <td><i class="fa fa-bars"></i> <strong>Импорт / AI</strong></td>
                             <td>
                                 Выпадающее меню для загрузки данных в конструктор:
                                 <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
-                                    <li><strong>Импортировать файл (.json)</strong> — загрузить сохраненную резервную копию проекта с компьютера</li>
+                                    <li><strong>Импортировать файл (.json, .html)</strong> — загрузить сохраненную копию проекта (.json) или файл импорта Summernote (.html)</li>
                                     <li><strong>Вставить JSON из буфера</strong> — загрузить JSON структуры из буфера обмена</li>
                                     <li><strong>Сформировать AI-запрос</strong> — создать и скопировать промпт с JSON для ChatGPT/Gemini</li>
                                     <li><strong>Вставить ответ от AI</strong> — распознать и импортировать ответ от нейросети из буфера</li>
@@ -455,11 +451,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td><i class="fa fa-code" style="color:#27ae60;"></i> <strong>Копировать код</strong></td>
-                            <td>Зелёная кнопка для мгновенного копирования HTML-кода статьи в буфер обмена (для вставки в текстовый редактор OpenCart через кнопку &lt;/&gt;)</td>
+                            <td><i class="fa fa-code" style="color:#4a90d9;"></i> <strong>Копировать код</strong></td>
+                            <td>Синяя кнопка для мгновенного копирования HTML-кода статьи в буфер обмена (для вставки в текстовый редактор OpenCart через кнопку &lt;/&gt;)</td>
                         </tr>
                         <tr>
-                            <td><i class="fa fa-download" style="color:#27ae60;"></i> <strong>Скачать / Экспорт</strong></td>
+                            <td><i class="fa fa-download" style="color:#4a90d9;"></i> <strong>Скачать / Экспорт</strong></td>
                             <td>
                                 Главное меню для сохранения результатов работы в файлы:
                                 <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
@@ -549,7 +545,7 @@
                 <div class="help-example-box">
                     <p style="margin: 0 0 8px 0;">Если кнопка импорта не появилась или вы предпочитаете вставлять код сами:</p>
                     <ol class="help-steps-list" style="margin: 0;">
-                        <li>В конструкторе нажмите зелёную кнопку <i class="fa fa-code" style="color:#27ae60;"></i> <strong>«Копировать код»</strong>.</li>
+                        <li>В конструкторе нажмите синюю кнопку <i class="fa fa-code" style="color:#4a90d9;"></i> <strong>«Копировать код»</strong>.</li>
                         <li>Откройте редактор товара или статьи в админке OpenCart.</li>
                         <li>Переключите редактор в режим <strong>HTML</strong> (обычно это кнопка <strong>«&lt;&gt;»</strong> или <strong>«Исходный код»</strong> на панели инструментов).</li>
                         <li>Удалите всё, что есть в поле, и вставьте скопированный код (<code>Ctrl+V</code>).</li>
@@ -996,7 +992,7 @@
                 <h3 style="color: #333; margin-top: 18px;"><strong>Что делать с готовой картинкой:</strong></h3>
                 <ul>
                     <li><strong>«Скачать ZIP-архив статьи»</strong> (в меню «Скачать / Экспорт») — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
-                    <li><strong>«Копировать код»</strong> (зелёная кнопка в шапке) или <strong>«Скачать файл для Summernote»</strong> (в меню «Скачать / Экспорт») — скопирует или скачает HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
+                    <li><strong>«Копировать код»</strong> (синяя кнопка в шапке) или <strong>«Скачать файл для Summernote»</strong> (в меню «Скачать / Экспорт») — скопирует или скачает HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
                 </ul>
 
                 <h3 style="color: #27ae60; margin-top: 24px;"><i class="fa fa-window-restore"></i> Кнопки-ссылки для открытых статей (agree)</h3>
@@ -1062,19 +1058,19 @@
                     Теперь не обязательно вручную скачивать файлы. Вы можете использовать встроенный промпт-генератор:
                 </p>
                 <ol class="help-steps-list">
-                    <li><strong>Запуск ассистента:</strong> Нажмите на кнопку **«AI Запрос»** <span class="btn btn-primary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#5446f8; border-color:#5446f8;"><i class="fa fa-magic"></i></span> в шапке конструктора.</li>
+                    <li><strong>Запуск ассистента:</strong> В выпадающем меню **«Импорт / AI»** в шапке конструктора выберите пункт **«Сформировать AI-запрос»** <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#e8ecf1; border-color:transparent; color:#333;"><i class="fa fa-commenting-o" style="color:#5446f8;"></i></span>.</li>
                     <li><strong>Ввод задачи:</strong> Напишите своими словами, что нужно сделать (например: <em>«Переведи статью на английский язык»</em>, <em>«Добавь в конец блок FAQ с ответами»</em> или <em>«Исправь орфографию во всех блоках»</em>).</li>
                     <li><strong>Копирование промпта:</strong> Нажмите кнопку <strong>«Скопировать промпт с JSON»</strong>. В буфер обмена будет скопирован готовый запрос для нейросети, содержащий роль, правила безопасности и всю структуру вашей статьи в формате JSON.</li>
                     <li><strong>Запрос к ИИ:</strong> Вставьте скопированный текст (Ctrl+V) в окно ChatGPT, Claude или Gemini и отправьте.</li>
-                    <li><strong>Вставка результата:</strong> Скопируйте весь ответ нейросети целиком. Вернитесь в конструктор и нажмите кнопку **«AI Импорт»** <span class="btn btn-primary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#2f80ed; border-color:#2f80ed;"><i class="fa fa-magic"></i></span>. Конструктор автоматически найдет и извлечет JSON-код из текста ответа (даже если ИИ добавил свои рассуждения или оформил код в markdown-блоки).</li>
+                    <li><strong>Вставка результата:</strong> Скопируйте весь ответ нейросети целиком. Вернитесь в конструктор, откройте меню **«Импорт / AI»** и выберите пункт **«Вставить ответ от AI»** <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#e8ecf1; border-color:transparent; color:#333;"><i class="fa fa-check-circle-o" style="color:#2f80ed;"></i></span>. Конструктор автоматически найдет и извлечет JSON-код из текста ответа (даже если ИИ добавил свои рассуждения или оформил код в markdown-блоки).</li>
                 </ol>
 
                 <h3 style="color: #333; margin-top: 18px;"><strong>Классический способ: Импорт/Экспорт файлов</strong></h3>
                 <ol class="help-steps-list">
-                    <li><strong>Экспорт JSON:</strong> Нажмите кнопку экспорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-download"></i></span>, чтобы сохранить текущую структуру статьи в файл <code>.json</code>.</li>
+                    <li><strong>Экспорт JSON:</strong> В меню **«Скачать / Экспорт»** выберите пункт **«Скачать файл проекта (.json)»** <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#e8ecf1; border-color:transparent; color:#333;"><i class="fa fa-download" style="color:#7f8c8d;"></i></span>, чтобы сохранить текущую структуру статьи в файл <code>.json</code>.</li>
                     <li><strong>Передача в ИИ:</strong> Загрузите полученный файл в чат с ChatGPT, Claude или Gemini или скопируйте его содержимое.</li>
                     <li><strong>Промпт (Запрос):</strong> Опишите ИИ задачу на русском языке (ИИ сам прочитает спецификацию внутри файла и создаст корректную структуру JSON).</li>
-                    <li><strong>Импорт JSON:</strong> Сохраните ответ ИИ как <code>.json</code> файл, вернитесь в конструктор, нажмите кнопку импорта <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default;"><i class="fa fa-upload"></i></span> и выберите этот файл.</li>
+                    <li><strong>Импорт JSON:</strong> Сохраните ответ ИИ как <code>.json</code> файл, вернитесь в конструктор, откройте меню **«Импорт / AI»**, выберите пункт **«Импортировать файл (.json, .html)»** <span class="btn btn-secondary" style="padding:4px 8px; font-size:11px; pointer-events:none; cursor:default; background:#e8ecf1; border-color:transparent; color:#333;"><i class="fa fa-upload" style="color:#2980b9;"></i></span> и выберите этот файл.</li>
                 </ol>
 
                 <h3 style="color: #333; margin-top: 18px;"><strong>Спецификация блоков (ai_specification)</strong></h3>
@@ -1332,6 +1328,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="js/app.js?v=1.6.5"></script>
+<script src="js/app.js?v=1.6.6"></script>
 </body>
 </html>
