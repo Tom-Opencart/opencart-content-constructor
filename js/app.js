@@ -3585,14 +3585,32 @@
         const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>`;
 
         navigator.clipboard.writeText(cleanHTML).then(() => {
+            showToast('HTML-код статьи скопирован!');
             const btn = $('#btnCopyHTML');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<span class="btn-icon"><i class="fa fa-check"></i></span> Скопировано!';
-            btn.style.background = '#2ecc71';
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.style.background = '#27ae60';
-            }, 2000);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                const title = btn.querySelector('.item-title');
+                if (icon && title) {
+                    const originalIconClass = icon.className;
+                    const originalTitle = title.textContent;
+                    icon.className = 'fa fa-check';
+                    icon.style.color = '#27ae60';
+                    title.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        icon.className = originalIconClass;
+                        icon.style.color = '#27ae60';
+                        title.textContent = originalTitle;
+                    }, 2000);
+                } else {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<span class="btn-icon"><i class="fa fa-check"></i></span> Скопировано!';
+                    btn.style.background = '#2ecc71';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.style.background = '#27ae60';
+                    }, 2000);
+                }
+            }
         }).catch(err => {
             console.error('Не удалось скопировать текст: ', err);
             alert('Не удалось скопировать автоматически. Скопируйте код из экспортированного файла.');
@@ -3956,25 +3974,37 @@
         btnAiImport.addEventListener('click', importJSONFromClipboard);
     }
 
-    // ── Export Dropdown Click Handler ────────────────────────
-    const exportDropdown = $('#exportDropdown');
-    if (exportDropdown) {
-        const toggleBtn = exportDropdown.querySelector('.btn');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', (e) => {
+    // ── Dropdowns Click Handlers ─────────────────────────────
+    const dropdowns = [
+        { el: $('#importAiDropdown'), btn: $('#importAiDropdown .btn') },
+        { el: $('#downloadDropdown'), btn: $('#downloadDropdown .btn') }
+    ];
+
+    dropdowns.forEach(dropdown => {
+        if (dropdown.el && dropdown.btn) {
+            dropdown.btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                exportDropdown.classList.toggle('active');
+                dropdowns.forEach(other => {
+                    if (other.el && other.el !== dropdown.el) {
+                        other.el.classList.remove('active');
+                    }
+                });
+                dropdown.el.classList.toggle('active');
+            });
+
+            dropdown.el.querySelectorAll('.header-dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    dropdown.el.classList.remove('active');
+                });
             });
         }
-        document.addEventListener('click', () => {
-            exportDropdown.classList.remove('active');
+    });
+
+    document.addEventListener('click', () => {
+        dropdowns.forEach(dropdown => {
+            if (dropdown.el) dropdown.el.classList.remove('active');
         });
-        exportDropdown.querySelectorAll('.header-dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                exportDropdown.classList.remove('active');
-            });
-        });
-    }
+    });
 
     // ── AI Assistant Modal Handlers ──────────────────────────
     const btnAiAssistant = $('#btnAiAssistant');
@@ -5663,14 +5693,42 @@ ${currentJSON}
 
     // Dynamic downloads of OCMOD files
     const btnDownloadZip = $('#btnDownloadZip');
-    if (btnDownloadZip) {
-        btnDownloadZip.addEventListener('click', () => {
-            if (typeof JSZip === 'undefined') {
-                alert('Библиотека JSZip не загружена. Проверьте подключение к интернету.');
-                return;
-            }
+    const btnDownloadZipDropdown = $('#btnDownloadZipDropdown');
 
-            const zip = new JSZip();
+    const updateZipButtonsState = (disabled, loading) => {
+        [btnDownloadZip, btnDownloadZipDropdown].forEach(btn => {
+            if (btn) {
+                btn.disabled = disabled;
+                if (btn === btnDownloadZipDropdown) {
+                    const title = btn.querySelector('.item-title');
+                    const icon = btn.querySelector('i');
+                    if (title && icon) {
+                        if (loading) {
+                            icon.className = 'fa fa-spinner fa-spin';
+                            title.textContent = 'Сборка архива...';
+                        } else {
+                            icon.className = 'fa fa-cloud-download';
+                            title.textContent = 'Скачать ZIP-модификатор стилей';
+                        }
+                    }
+                } else {
+                    if (loading) {
+                        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
+                    } else {
+                        btn.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip';
+                    }
+                }
+            }
+        });
+    };
+
+    const handleZipDownload = () => {
+        if (typeof JSZip === 'undefined') {
+            alert('Библиотека JSZip не загружена. Проверьте подключение к интернету.');
+            return;
+        }
+
+        const zip = new JSZip();
 
             // 1. Add install.xml (combined modification)
             const installXmlContent = `<?xml version="1.0" encoding="utf-8"?>
@@ -5840,8 +5898,7 @@ document.addEventListener('click', function(event) {
             zip.file("install.xml", installXmlContent);
             zip.file("upload/catalog/view/theme/default/stylesheet/content-constructor.css", getExportedCSS());
 
-            btnDownloadZip.disabled = true;
-            btnDownloadZip.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Сборка...';
+            updateZipButtonsState(true, true);
 
             const fontPaths = [
                 { zip: "upload/catalog/view/theme/default/stylesheet/fonts/VenrynSans-Regular.woff", local: "css/VenrynSans-Regular.woff?v=1.0.3" },
@@ -5881,16 +5938,20 @@ document.addEventListener('click', function(event) {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
                 
-                btnDownloadZip.disabled = false;
-                btnDownloadZip.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip';
+                updateZipButtonsState(false, false);
             }).catch((err) => {
                 console.error('Ошибка генерации архива:', err);
                 alert('Не удалось сгенерировать ZIP-архив.');
-                btnDownloadZip.disabled = false;
-                btnDownloadZip.innerHTML = '<i class="fa fa-file-archive-o"></i> Скачать .ocmod.zip';
+                updateZipButtonsState(false, false);
             });
-        });
-    }
+        };
+
+        if (btnDownloadZip) {
+            btnDownloadZip.addEventListener('click', handleZipDownload);
+        }
+        if (btnDownloadZipDropdown) {
+            btnDownloadZipDropdown.addEventListener('click', handleZipDownload);
+        }
 
     const btnDownloadImportXml = $('#btnDownloadImportXml');
     if (btnDownloadImportXml) {
@@ -6092,6 +6153,30 @@ document.addEventListener('click', function(event) {
         return 'png';
     }
 
+    const updateZipExportBtnState = (loading) => {
+        const btn = $('#btnExportZIP');
+        if (btn) {
+            btn.disabled = loading;
+            const icon = btn.querySelector('i');
+            const titleText = btn.querySelector('.item-title');
+            if (icon && titleText) {
+                if (loading) {
+                    icon.className = 'fa fa-spinner fa-spin';
+                    titleText.textContent = 'Экспорт архива...';
+                } else {
+                    icon.className = 'fa fa-file-archive-o';
+                    titleText.textContent = 'Скачать ZIP-архив статьи';
+                }
+            } else {
+                if (loading) {
+                    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
+                } else {
+                    btn.innerHTML = '<span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи';
+                }
+            }
+        }
+    };
+
     const btnExportZIP = $('#btnExportZIP');
     if (btnExportZIP) {
         btnExportZIP.addEventListener('click', () => {
@@ -6103,8 +6188,7 @@ document.addEventListener('click', function(event) {
             const title = titleInput ? titleInput.value : 'Статья';
             const slug = slugInput ? slugInput.value.trim() : slugify(title) || 'article';
 
-            btnExportZIP.disabled = true;
-            btnExportZIP.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Экспорт...';
+            updateZipExportBtnState(true);
 
             const copiedBlocks = JSON.parse(JSON.stringify(blocks));
             
@@ -6285,13 +6369,11 @@ document.addEventListener('click', function(event) {
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
 
-                btnExportZIP.disabled = false;
-                btnExportZIP.innerHTML = '<span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи';
+                updateZipExportBtnState(false);
             }).catch(err => {
                 console.error('Ошибка при экспорте ZIP статьи:', err);
                 alert('Не удалось экспортировать статью в ZIP-архив.');
-                btnExportZIP.disabled = false;
-                btnExportZIP.innerHTML = '<span class="btn-icon"><i class="fa fa-file-archive-o"></i></span> Скачать ZIP статьи';
+                updateZipExportBtnState(false);
             });
         });
     }

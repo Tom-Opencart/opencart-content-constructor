@@ -3050,3 +3050,74 @@ body.preview-hidden .workspace {
 .header-dropdown-item:hover i {
     color: #5446f8;
 }
+
+/* ── Wide Dropdown Menu and Sections ───────────────────────── */
+.header-dropdown-menu.wide-menu {
+    min-width: 420px;
+    padding: 0;
+}
+.dropdown-section {
+    border-bottom: 1px solid #edf2f7;
+    padding: 8px 0;
+}
+.dropdown-section:last-child {
+    border-bottom: none;
+}
+.dropdown-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #a0aec0;
+    padding: 8px 16px 4px 16px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+.header-dropdown-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 16px;
+    gap: 12px;
+}
+.header-dropdown-item i, 
+.header-dropdown-item .css-icon-dropdown {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+.header-dropdown-item .item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.header-dropdown-item .item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d3748;
+    line-height: 1.3;
+}
+.header-dropdown-item .item-desc {
+    font-size: 11px;
+    color: #718096;
+    line-height: 1.4;
+    font-weight: 400;
+}
+.header-dropdown-item:hover .item-title {
+    color: #5446f8;
+}
+.header-dropdown-item:hover .item-desc {
+    color: #4a5568;
+}
+.css-icon-dropdown {
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 13px;
+    width: 16px;
+    text-align: center;
+    display: inline-block;
+    color: #718096;
+}
+.header-dropdown-item:hover .css-icon-dropdown {
+    color: #5446f8;
+}

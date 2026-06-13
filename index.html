@@ -74,51 +74,127 @@
             </select>
         </div>
 
-        <button id="btnImportJSON" class="btn btn-secondary" title="Импортировать JSON-шаблон">
-            <span class="btn-icon"><i class="fa fa-upload"></i></span>
-        </button>
-        <button id="btnClipboardPasteJSON" class="btn btn-secondary" title="Вставить JSON из буфера обмена">
-            <span class="btn-icon"><i class="fa fa-paste"></i></span>
-        </button>
         <input type="file" id="importFile" accept=".json" style="display: none;">
 
-        <button id="btnExportJSON" class="btn btn-secondary" title="Экспортировать в JSON">
-            <span class="btn-icon"><i class="fa fa-download"></i></span>
-        </button>
-        <button id="btnClipboardCopyJSON" class="btn btn-secondary" title="Скопировать JSON в буфер обмена">
-            <span class="btn-icon"><i class="fa fa-copy"></i></span>
-        </button>
-        <button id="btnAiAssistant" class="btn btn-primary" title="AI Запрос (сформировать промпт)" style="background: #5446f8; border-color: #5446f8;">
-            <span class="btn-icon"><i class="fa fa-magic"></i></span>
-        </button>
-        <button id="btnAiImport" class="btn btn-primary" title="AI Импорт (вставить ответ от ИИ)" style="background: #2f80ed; border-color: #2f80ed;">
-            <span class="btn-icon"><i class="fa fa-magic"></i></span>
-        </button>
-
-        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60; border-color: #27ae60;">
-            <span class="btn-icon"><i class="fa fa-code"></i></span>
-        </button>
-
-        <div class="header-dropdown" id="exportDropdown">
-            <button class="btn btn-secondary" title="Экспортировать файлы" style="display: flex; align-items: center; gap: 6px;">
-                <span class="btn-icon"><i class="fa fa-download"></i></span>
+        <div class="header-dropdown" id="importAiDropdown">
+            <button class="btn btn-secondary" title="Загрузка проекта и AI-функции" style="display: flex; align-items: center; gap: 6px;">
+                <span class="btn-icon"><i class="fa fa-bars"></i></span>
+                <span class="btn-text">Импорт / AI</span>
                 <i class="fa fa-caret-down" style="font-size: 11px; margin-left: 2px;"></i>
             </button>
-            <div class="header-dropdown-menu">
-                <button type="button" id="btnExportZIP" class="header-dropdown-item">
-                    <i class="fa fa-file-archive-o" style="color: #9b59b6;"></i>
-                    <span>ZIP-архив (HTML + картинки)</span>
-                </button>
-                <button type="button" id="btnExportTXT" class="header-dropdown-item">
-                    <i class="fa fa-file-text-o" style="color: #e67e22;"></i>
-                    <span>TXT-файл (HTML-код)</span>
-                </button>
-                <button type="button" id="btnExportCSS" class="header-dropdown-item">
-                    <span style="font-weight: bold; font-family: monospace; color: #718096; font-size: 11px; width: 16px; text-align: center; display: inline-block;">{ }</span>
-                    <span>CSS-файл (стили)</span>
-                </button>
+            <div class="header-dropdown-menu wide-menu">
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><i class="fa fa-file-code-o"></i> Проект (JSON)</div>
+                    <button type="button" id="btnImportJSON" class="header-dropdown-item">
+                        <i class="fa fa-upload" style="color: #2980b9;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Импортировать файл (.json)</div>
+                            <div class="item-desc">Загрузить копию проекта с компьютера</div>
+                        </div>
+                    </button>
+                    <button type="button" id="btnClipboardPasteJSON" class="header-dropdown-item">
+                        <i class="fa fa-paste" style="color: #27ae60;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Вставить JSON из буфера</div>
+                            <div class="item-desc">Загрузить JSON проекта из буфера обмена</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><i class="fa fa-magic" style="color: #5446f8;"></i> Интеграция с ИИ</div>
+                    <button type="button" id="btnAiAssistant" class="header-dropdown-item">
+                        <i class="fa fa-commenting-o" style="color: #5446f8;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Сформировать AI-запрос</div>
+                            <div class="item-desc">Создать и скопировать промпт с JSON для ИИ</div>
+                        </div>
+                    </button>
+                    <button type="button" id="btnAiImport" class="header-dropdown-item">
+                        <i class="fa fa-check-circle-o" style="color: #2f80ed;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Вставить ответ от AI</div>
+                            <div class="item-desc">Распознать и импортировать ответ от ИИ</div>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
+
+        <div class="header-dropdown" id="downloadDropdown">
+            <button class="btn btn-primary" title="Скачать или копировать результаты" style="display: flex; align-items: center; gap: 6px; background: #27ae60; border-color: #27ae60;">
+                <span class="btn-icon"><i class="fa fa-download"></i></span>
+                <span class="btn-text">Скачать / Экспорт</span>
+                <i class="fa fa-caret-down" style="font-size: 11px; margin-left: 2px;"></i>
+            </button>
+            <div class="header-dropdown-menu wide-menu">
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><i class="fa fa-code" style="color: #27ae60;"></i> Вставка в OpenCart (HTML)</div>
+                    <button type="button" id="btnCopyHTML" class="header-dropdown-item">
+                        <i class="fa fa-code" style="color: #27ae60;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Копировать HTML-код</div>
+                            <div class="item-desc">Быстро скопировать готовый HTML-код статьи в буфер обмена</div>
+                        </div>
+                    </button>
+                    <button type="button" id="btnExportTXT" class="header-dropdown-item">
+                        <i class="fa fa-file-text-o" style="color: #e67e22;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Скачать TXT-файл</div>
+                            <div class="item-desc">Сохранить готовый HTML-код статьи в текстовом файле (.txt)</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><i class="fa fa-file-archive-o" style="color: #9b59b6;"></i> Автоматическая загрузка (ZIP)</div>
+                    <button type="button" id="btnExportZIP" class="header-dropdown-item">
+                        <i class="fa fa-file-archive-o" style="color: #9b59b6;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Скачать ZIP-архив статьи</div>
+                            <div class="item-desc">HTML-код статьи и картинки одним архивом (рекомендуется)</div>
+                        </div>
+                    </button>
+                    <button type="button" id="btnDownloadZipDropdown" class="header-dropdown-item">
+                        <i class="fa fa-cloud-download" style="color: #2980b9;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Скачать ZIP-модификатор стилей</div>
+                            <div class="item-desc">ZIP-архив расширения для автоматического подключения стилей (нужен 1 раз)</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><i class="fa fa-file-code-o" style="color: #34495e;"></i> Резервная копия (JSON проекта)</div>
+                    <button type="button" id="btnExportJSON" class="header-dropdown-item">
+                        <i class="fa fa-download" style="color: #7f8c8d;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Скачать файл проекта (.json)</div>
+                            <div class="item-desc">Сохранить копию проекта на компьютер для последующего редактирования</div>
+                        </div>
+                    </button>
+                    <button type="button" id="btnClipboardCopyJSON" class="header-dropdown-item">
+                        <i class="fa fa-copy" style="color: #34495e;"></i>
+                        <div class="item-text">
+                            <div class="item-title">Скопировать JSON-код</div>
+                            <div class="item-desc">Скопировать JSON-код структуры в буфер обмена</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="dropdown-section">
+                    <div class="dropdown-section-title"><span class="css-icon-dropdown" style="color: #7f8c8d;">{ }</span> Настройка стилей (CSS)</div>
+                    <button type="button" id="btnExportCSS" class="header-dropdown-item">
+                        <span class="css-icon-dropdown" style="color: #7f8c8d;">{ }</span>
+                        <div class="item-text">
+                            <div class="item-title">Скачать CSS-стили</div>
+                            <div class="item-desc">Скачать файл со стилями оформления страниц для ручного подключения</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать или скрыть превью">
             <span class="btn-icon"><i class="fa fa-eye"></i></span>
         </button>
@@ -363,7 +439,7 @@
                 <table class="help-table-guide" style="margin: 12px 0;">
                     <thead>
                         <tr>
-                            <th style="width: 40%;">Кнопка</th>
+                            <th style="width: 40%;">Меню / Кнопка</th>
                             <th>Что делает</th>
                         </tr>
                     </thead>
@@ -373,36 +449,35 @@
                             <td>Открывает это руководство — вы сейчас здесь</td>
                         </tr>
                         <tr>
-                            <td><i class="fa fa-clipboard" style="color:#27ae60;"></i> <strong>Копировать код</strong></td>
-                            <td>Копирует готовый HTML-код статьи в буфер обмена. Подходит, если вы хотите вставить код вручную в редактор OpenCart</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-file-text-o" style="color:#e67e22;"></i> <strong>Скачать TXT</strong></td>
-                            <td>Скачивает готовый HTML-код в текстовом файле. Удобно сохранить для себя или передать кому-то</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-file-archive-o" style="color:#9b59b6;"></i> <strong>Скачать ZIP статьи</strong></td>
-                            <td>Самая полезная кнопка! Собирает HTML-код + все картинки в один ZIP-архив. Этот архив можно загрузить на сайт</td>
-                        </tr>
-                        <tr>
-                            <td><strong>&lt;/&gt;</strong> <strong>Export HTML</strong></td>
-                            <td>Скачивает полноценный HTML-файл для просмотра в браузере. Удобно проверить, как статья будет выглядеть на сайте</td>
-                        </tr>
-                        <tr>
-                            <td><strong>{ }</strong> <strong>Export CSS</strong></td>
-                            <td>Скачивает файл стилей. Нужен один раз для подключения стилей к сайту (см. инструкцию ниже)</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-upload"></i> <strong>Импорт JSON</strong></td>
-                            <td>Загружает ранее сохраненный JSON-файл шаблона, полностью восстанавливая все блоки и настройки в конструкторе</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-download"></i> <strong>Экспорт JSON</strong></td>
-                            <td>Скачивает резервную копию вашей текущей статьи в формате JSON. Полезно для переноса на другой ПК или сохранения черновика</td>
-                        </tr>
-                        <tr>
-                            <td><i class="fa fa-magic"></i> <strong>Шаблоны</strong></td>
+                            <td><i class="fa fa-magic"></i> <strong>Шаблон страницы</strong></td>
                             <td>Выпадающий список с готовыми структурами страниц («Обзор товара», «Инструкция», «Услуги и FAQ») для быстрого старта</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa fa-bars"></i> <strong>Импорт / AI</strong></td>
+                            <td>
+                                Выпадающее меню для загрузки данных в конструктор:
+                                <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
+                                    <li><strong>Импортировать файл (.json)</strong> — загрузить сохраненную резервную копию проекта с компьютера</li>
+                                    <li><strong>Вставить JSON из буфера</strong> — загрузить JSON структуры из буфера обмена</li>
+                                    <li><strong>Сформировать AI-запрос</strong> — создать и скопировать промпт с JSON для ChatGPT/Gemini</li>
+                                    <li><strong>Вставить ответ от AI</strong> — распознать и импортировать ответ от нейросети из буфера</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa fa-download" style="color:#27ae60;"></i> <strong>Скачать / Экспорт</strong></td>
+                            <td>
+                                Главное меню для сохранения результатов работы:
+                                <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
+                                    <li><strong>Копировать HTML-код</strong> (иконка <i class="fa fa-code"></i>) — копирует готовый HTML-код в буфер для вставки в текстовый редактор OpenCart (кнопка &lt;/&gt; в Summernote)</li>
+                                    <li><strong>Скачать TXT-файл</strong> (иконка <i class="fa fa-file-text-o"></i>) — сохраняет HTML-код статьи на компьютер</li>
+                                    <li><strong>Скачать ZIP-архив статьи</strong> (иконка <i class="fa fa-file-archive-o"></i>) — собирает HTML-код и картинки в один архив для загрузки на сайт (рекомендуемый способ)</li>
+                                    <li><strong>Скачать ZIP-модификатор стилей</strong> (иконка <i class="fa fa-cloud-download"></i>) — скачивает установочный модификатор для автоматического подключения стилей к сайту</li>
+                                    <li><strong>Скачать файл проекта (.json)</strong> — сохраняет проект для редактирования в будущем</li>
+                                    <li><strong>Скопировать JSON-код</strong> — копирует JSON проекта в буфер обмена</li>
+                                    <li><strong>Скачать CSS-стили</strong> (иконка { }) — скачивает файл стилей для ручного подключения</li>
+                                </ul>
+                            </td>
                         </tr>
                         <tr>
                             <td><i class="fa fa-eye"></i> <strong>Превью</strong></td>
@@ -451,7 +526,7 @@
                 <p><strong>Способ Б: Ручной</strong></p>
                 <div class="help-example-box">
                     <ol class="help-steps-list">
-                        <li>Нажмите кнопку <strong>{ }</strong> <strong>Export CSS</strong> в шапке конструктора — скачается файл <code>content-constructor.css</code>.</li>
+                        <li>В меню <strong>«Скачать / Экспорт»</strong> выберите <strong>«Скачать CSS-стили»</strong> — скачется файл <code>content-constructor.css</code>.</li>
                         <li>Откройте этот файл любым текстовым редактором (Блокнот, Notepad++). Выделите весь текст (<code>Ctrl+A</code>) и скопируйте (<code>Ctrl+C</code>).</li>
                         <li>Подключитесь к вашему сайту по FTP (или через файловый менеджер в админке).</li>
                         <li>Найдите файл стилей вашей темы: <code>catalog/view/theme/название_темы/stylesheet/stylesheet.css</code></li>
@@ -467,7 +542,7 @@
                 <div class="help-example-box" style="background: #eef9f0; border-color: #c3e6cb;">
                     <p style="margin: 0 0 8px 0;"><strong>Этот вариант работает, если вы установили ZIP-файл (Способ А выше).</strong></p>
                     <ol class="help-steps-list" style="margin: 0;">
-                        <li>В конструкторе нажмите <i class="fa fa-file-archive-o" style="color:#9b59b6;"></i> <strong>«Скачать ZIP статьи»</strong>. Скачается ZIP-архив с HTML-кодом и картинками.</li>
+                        <li>В меню <strong>«Скачать / Экспорт»</strong> выберите <strong>«Скачать ZIP-архив статьи»</strong>. Скачается ZIP-архив с HTML-кодом и картинками.</li>
                         <li>Откройте админ-панель сайта и перейдите к редактированию товара или статьи, куда хотите вставить контент.</li>
                         <li>Найдите текстовый редактор (Summernote). В его панели инструментов нажмите группу <strong>«Вставить»</strong> (последняя иконка в ряду).</li>
                         <li>Среди иконок найдите <span style="color: #27ae60; font-weight: bold;">зелёную иконку файла</span> (<i class="fa fa-file-text-o" style="color:#27ae60;"></i>). Нажмите на неё.</li>
@@ -481,7 +556,7 @@
                 <div class="help-example-box">
                     <p style="margin: 0 0 8px 0;">Если кнопка импорта не появилась или вы предпочитаете вставлять код сами:</p>
                     <ol class="help-steps-list" style="margin: 0;">
-                        <li>В конструкторе нажмите <i class="fa fa-clipboard" style="color:#27ae60;"></i> <strong>«Копировать код»</strong>.</li>
+                        <li>В меню <strong>«Скачать / Экспорт»</strong> выберите <strong>«Копировать HTML-код»</strong>.</li>
                         <li>Откройте редактор товара или статьи в админке OpenCart.</li>
                         <li>Переключите редактор в режим <strong>HTML</strong> (обычно это кнопка <strong>«&lt;&gt;»</strong> или <strong>«Исходный код»</strong> на панели инструментов).</li>
                         <li>Удалите всё, что есть в поле, и вставьте скопированный код (<code>Ctrl+V</code>).</li>
@@ -927,8 +1002,8 @@
 
                 <h3 style="color: #333; margin-top: 18px;"><strong>Что делать с готовой картинкой:</strong></h3>
                 <ul>
-                    <li><strong>«Скачать ZIP статьи»</strong> — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
-                    <li><strong>«Копировать код»</strong> или <strong>«Скачать TXT»</strong> — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
+                    <li><strong>«Скачать ZIP-архив статьи»</strong> (в меню «Скачать / Экспорт») — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
+                    <li><strong>«Копировать HTML-код»</strong> или <strong>«Скачать TXT-файл»</strong> (в меню «Скачать / Экспорт») — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
                 </ul>
 
                 <h3 style="color: #27ae60; margin-top: 24px;"><i class="fa fa-window-restore"></i> Кнопки-ссылки для открытых статей (agree)</h3>
