@@ -130,18 +130,11 @@
             <div class="header-dropdown-menu wide-menu">
                 <div class="dropdown-section">
                     <div class="dropdown-section-title"><i class="fa fa-code" style="color: #27ae60;"></i> Вставка в OpenCart (HTML)</div>
-                    <button type="button" id="btnCopyHTML" class="header-dropdown-item">
-                        <i class="fa fa-code" style="color: #27ae60;"></i>
-                        <div class="item-text">
-                            <div class="item-title">Копировать HTML-код</div>
-                            <div class="item-desc">Быстро скопировать готовый HTML-код статьи в буфер обмена</div>
-                        </div>
-                    </button>
                     <button type="button" id="btnExportTXT" class="header-dropdown-item">
                         <i class="fa fa-file-text-o" style="color: #e67e22;"></i>
                         <div class="item-text">
-                            <div class="item-title">Скачать TXT-файл</div>
-                            <div class="item-desc">Сохранить готовый HTML-код статьи в текстовом файле (.txt)</div>
+                            <div class="item-title">Скачать HTML-код (.txt)</div>
+                            <div class="item-desc">Сохранить готовый HTML-код статьи в текстовом файле на компьютер</div>
                         </div>
                     </button>
                 </div>
@@ -194,6 +187,11 @@
                 </div>
             </div>
         </div>
+
+        <button id="btnCopyHTML" class="btn btn-primary" title="Копировать HTML-код статьи" style="background: #27ae60; border-color: #27ae60; display: flex; align-items: center; gap: 6px;">
+            <span class="btn-icon"><i class="fa fa-code"></i></span>
+            <span class="btn-text">Копировать код</span>
+        </button>
 
         <button id="btnShowPreview" class="btn btn-secondary btn-preview-toggle" title="Показать или скрыть превью">
             <span class="btn-icon"><i class="fa fa-eye"></i></span>
@@ -465,12 +463,15 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><i class="fa fa-code" style="color:#27ae60;"></i> <strong>Копировать код</strong></td>
+                            <td>Зелёная кнопка для мгновенного копирования HTML-кода статьи в буфер обмена (для вставки в текстовый редактор OpenCart через кнопку &lt;/&gt;)</td>
+                        </tr>
+                        <tr>
                             <td><i class="fa fa-download" style="color:#27ae60;"></i> <strong>Скачать / Экспорт</strong></td>
                             <td>
-                                Главное меню для сохранения результатов работы:
+                                Главное меню для сохранения результатов работы в файлы:
                                 <ul style="margin: 4px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
-                                    <li><strong>Копировать HTML-код</strong> (иконка <i class="fa fa-code"></i>) — копирует готовый HTML-код в буфер для вставки в текстовый редактор OpenCart (кнопка &lt;/&gt; в Summernote)</li>
-                                    <li><strong>Скачать TXT-файл</strong> (иконка <i class="fa fa-file-text-o"></i>) — сохраняет HTML-код статьи на компьютер</li>
+                                    <li><strong>Скачать TXT-файл</strong> (иконка <i class="fa fa-file-text-o"></i>) — сохраняет HTML-код статьи в текстовом файле (.txt) на компьютер</li>
                                     <li><strong>Скачать ZIP-архив статьи</strong> (иконка <i class="fa fa-file-archive-o"></i>) — собирает HTML-код и картинки в один архив для загрузки на сайт (рекомендуемый способ)</li>
                                     <li><strong>Скачать ZIP-модификатор стилей</strong> (иконка <i class="fa fa-cloud-download"></i>) — скачивает установочный модификатор для автоматического подключения стилей к сайту</li>
                                     <li><strong>Скачать файл проекта (.json)</strong> — сохраняет проект для редактирования в будущем</li>
@@ -556,7 +557,7 @@
                 <div class="help-example-box">
                     <p style="margin: 0 0 8px 0;">Если кнопка импорта не появилась или вы предпочитаете вставлять код сами:</p>
                     <ol class="help-steps-list" style="margin: 0;">
-                        <li>В меню <strong>«Скачать / Экспорт»</strong> выберите <strong>«Копировать HTML-код»</strong>.</li>
+                        <li>В конструкторе нажмите зелёную кнопку <i class="fa fa-code" style="color:#27ae60;"></i> <strong>«Копировать код»</strong>.</li>
                         <li>Откройте редактор товара или статьи в админке OpenCart.</li>
                         <li>Переключите редактор в режим <strong>HTML</strong> (обычно это кнопка <strong>«&lt;&gt;»</strong> или <strong>«Исходный код»</strong> на панели инструментов).</li>
                         <li>Удалите всё, что есть в поле, и вставьте скопированный код (<code>Ctrl+V</code>).</li>
@@ -1003,7 +1004,7 @@
                 <h3 style="color: #333; margin-top: 18px;"><strong>Что делать с готовой картинкой:</strong></h3>
                 <ul>
                     <li><strong>«Скачать ZIP-архив статьи»</strong> (в меню «Скачать / Экспорт») — лучший вариант. Конструктор соберёт все картинки и HTML-код в один ZIP-файл. После загрузки на сервер через «Установку расширений» всё будет работать.</li>
-                    <li><strong>«Копировать HTML-код»</strong> или <strong>«Скачать TXT-файл»</strong> (в меню «Скачать / Экспорт») — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
+                    <li><strong>«Копировать код»</strong> (зелёная кнопка в шапке) или <strong>«Скачать TXT-файл»</strong> (в меню «Скачать / Экспорт») — скопирует HTML-код. Вам нужно будет вручную загрузить картинки на сервер через FTP или файловый менеджер OpenCart.</li>
                 </ul>
 
                 <h3 style="color: #27ae60; margin-top: 24px;"><i class="fa fa-window-restore"></i> Кнопки-ссылки для открытых статей (agree)</h3>
