@@ -1982,6 +1982,14 @@
         });
     }
 
+    function renderBlocksWithAnimation() {
+        blocksContainer.classList.add('animate-fade');
+        renderBlocks();
+        setTimeout(() => {
+            blocksContainer.classList.remove('animate-fade');
+        }, 1000);
+    }
+
     function bindGridWorkspaceEvents(gridBlock, card) {
         card.querySelectorAll('.grid-column-drop').forEach(zone => {
             zone.addEventListener('dragover', (e) => {
@@ -2881,6 +2889,7 @@
             }
             if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
                 projectStore.setState(parsed);
+                applyStoreToDom();
 
                 // Mark session as started on import so that startScreen is bypassed
                 const importedSession = {
@@ -2918,7 +2927,7 @@
                     refreshBlockIds(b);
                 });
                 
-                renderBlocks();
+                renderBlocksWithAnimation();
                 updatePreview();
                 
                 if (isFromClipboard) {
@@ -3413,7 +3422,7 @@
                             
                             hydrateStoreFromDom();
                             
-                            renderBlocks();
+                            renderBlocksWithAnimation();
                             updatePreview();
                             recoveryBanner.style.display = 'none';
                             showToast('Проект успешно восстановлен из автосохранения');
