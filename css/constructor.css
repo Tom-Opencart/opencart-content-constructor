@@ -1455,20 +1455,6 @@ body.preview-hidden .workspace {
     font-size: 12.5px;
 }
 
-.help-table-guide th:nth-child(1),
-.help-table-guide td:nth-child(1) {
-    width: 42%;
-}
-
-.help-table-guide th:nth-child(2),
-.help-table-guide td:nth-child(2) {
-    width: 28%;
-}
-
-.help-table-guide th:nth-child(3),
-.help-table-guide td:nth-child(3) {
-    width: 30%;
-}
 
 .help-table-guide th, 
 .help-table-guide td {
