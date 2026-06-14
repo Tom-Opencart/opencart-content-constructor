@@ -2641,6 +2641,23 @@ body.preview-hidden .workspace {
     color: #555;
     font-weight: 500;
 }
+.start-theme-card[data-theme="dark"] {
+    background: #1e272e;
+    border-color: #2f3640;
+}
+.start-theme-card[data-theme="dark"] .start-theme-card-name {
+    color: #dcdde1;
+}
+.start-theme-card[data-theme="dark"] .start-theme-card-preview {
+    background: #2f3640 !important;
+}
+.start-theme-card[data-theme="dark"]:hover {
+    border-color: #00d2d3;
+}
+.start-theme-card[data-theme="dark"].active {
+    border-color: #00d2d3;
+    box-shadow: 0 0 0 3px rgba(0, 210, 211, 0.25);
+}
 .start-actions {
     display: flex;
     align-items: center;
