@@ -1,6 +1,11 @@
 (function () {
     'use strict';
 
+    window.CONTENT_CONSTRUCTOR_BUILD = {
+        version: '1.6.6',
+        builtAt: '2026-06-14 08:34:27 UTC'
+    };
+
 /* ============================================================
    Content Constructor — core/utils.js
    Чистые хелперы общего назначения (без побочных эффектов)
@@ -1525,6 +1530,7 @@ function serializeProject(projectState, schemaSpec) {
     return {
         title: projectState.title || '',
         slug: projectState.slug || '',
+        siteUrl: projectState.siteUrl || '',
         project: {
             siteUrl: projectState.siteUrl || ''
         },
@@ -3560,7 +3566,23 @@ function initGlobalDragDrop(options) {
    Центр инициализации shell-логики приложения
    ============================================================ */
 
+function initBuildIndicator() {
+    const indicator = document.getElementById('buildIndicator');
+
+    if (!indicator) {
+        return;
+    }
+
+    const buildMeta = window.CONTENT_CONSTRUCTOR_BUILD || {};
+    const version = buildMeta.version || 'unknown';
+    const builtAt = buildMeta.builtAt || 'unknown';
+
+    indicator.textContent = 'build: ' + version;
+    indicator.title = 'Версия: ' + version + '\nСобрано: ' + builtAt;
+}
+
 function bootstrapAppShell(options) {
+    initBuildIndicator();
     initHeaderDropdowns();
 
     const mobileLayout = initMobileLayout({
@@ -6543,12 +6565,33 @@ function initDonateModalShell() {
     // Removed extractJSONFromString (moved to modules)
 
 
+    function normalizeProjectForComparison(project) {
+        return JSON.stringify({
+            title: project && project.title ? project.title : '',
+            slug: project && project.slug ? project.slug : '',
+            siteUrl: project && project.siteUrl !== undefined
+                ? project.siteUrl
+                : ((project && project.project && project.project.siteUrl !== undefined) ? project.project.siteUrl : ''),
+            theme: {
+                preset: (project && project.theme && project.theme.preset) || 'default',
+                accent: (project && project.theme && project.theme.accent) || '#5446f8',
+                bg: (project && project.theme && project.theme.bg) || '#F3F2FF',
+                text: (project && project.theme && project.theme.text) || '#1A1A1A'
+            },
+            blocks: Array.isArray(project && project.blocks) ? project.blocks : []
+        });
+    }
+
     function importJSONContent(jsonText, isFromClipboard = false) {
         try {
+            hydrateStoreFromDom();
+            const currentStateFingerprint = normalizeProjectForComparison(projectStore.getState());
             const parsed = extractJSONFromString(jsonText);
             if (!parsed || !Array.isArray(parsed.blocks)) {
                 throw new Error('Неверный формат JSON. Должно быть поле blocks в виде массива.');
             }
+            const importedStateFingerprint = normalizeProjectForComparison(parsed);
+            const isIdenticalProject = currentStateFingerprint === importedStateFingerprint;
             if (confirm('Импортировать шаблон? Текущие блоки будут полностью заменены.')) {
                 projectStore.setState(parsed);
                 applyStoreToDom();
@@ -6558,7 +6601,7 @@ function initDonateModalShell() {
                     started: true,
                     title: parsed.title || '',
                     slug: parsed.slug || '',
-                    siteUrl: (parsed.project && parsed.project.siteUrl) || '',
+                    siteUrl: parsed.siteUrl !== undefined ? parsed.siteUrl : ((parsed.project && parsed.project.siteUrl) || ''),
                     theme: (parsed.theme && parsed.theme.preset) || 'default'
                 };
                 saveProjectSession(importedSession);
@@ -6592,7 +6635,9 @@ function initDonateModalShell() {
                 renderBlocksWithAnimation();
                 updatePreview();
                 
-                if (isFromClipboard) {
+                if (isIdenticalProject) {
+                    showToast('Шаблон импортирован, но он совпадает с текущим проектом');
+                } else if (isFromClipboard) {
                     showToast('Шаблон успешно вставлен из буфера обмена');
                 } else {
                     showToast('Шаблон успешно импортирован из файла');

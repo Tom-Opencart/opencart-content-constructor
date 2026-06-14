@@ -8,6 +8,7 @@ function serializeProject(projectState, schemaSpec) {
     return {
         title: projectState.title || '',
         slug: projectState.slug || '',
+        siteUrl: projectState.siteUrl || '',
         project: {
             siteUrl: projectState.siteUrl || ''
         },

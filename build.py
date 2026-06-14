@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
+from datetime import datetime, timezone
+
+BUILD_VERSION = "1.6.6"
 
 def build():
     # Order of concatenation
@@ -48,8 +51,21 @@ def build():
             content = f.read()
             concatenated_code.append(content)
             
+    build_meta = {
+        "version": BUILD_VERSION,
+        "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    }
+
+    build_meta_js = (
+        "    window.CONTENT_CONSTRUCTOR_BUILD = {\n"
+        f"        version: '{build_meta['version']}',\n"
+        f"        builtAt: '{build_meta['built_at']}'\n"
+        "    };\n\n"
+    )
+
     # Wrap in IIFE
     final_output = "(function () {\n    'use strict';\n\n"
+    final_output += build_meta_js
     for code in concatenated_code:
         final_output += code + "\n\n"
     final_output += "})();\n"

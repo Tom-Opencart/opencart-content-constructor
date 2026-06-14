@@ -3,7 +3,23 @@
    Центр инициализации shell-логики приложения
    ============================================================ */
 
+function initBuildIndicator() {
+    const indicator = document.getElementById('buildIndicator');
+
+    if (!indicator) {
+        return;
+    }
+
+    const buildMeta = window.CONTENT_CONSTRUCTOR_BUILD || {};
+    const version = buildMeta.version || 'unknown';
+    const builtAt = buildMeta.builtAt || 'unknown';
+
+    indicator.textContent = 'build: ' + version;
+    indicator.title = 'Версия: ' + version + '\nСобрано: ' + builtAt;
+}
+
 function bootstrapAppShell(options) {
+    initBuildIndicator();
     initHeaderDropdowns();
 
     const mobileLayout = initMobileLayout({
