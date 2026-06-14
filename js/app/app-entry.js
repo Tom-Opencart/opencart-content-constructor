@@ -120,9 +120,6 @@
                 column.blocks.forEach(child => refreshBlockIds(child));
             });
         }
-        html += '</div></div>';
-
-        return html;
     }
 
     // ── State ────────────────────────────────────────────────
