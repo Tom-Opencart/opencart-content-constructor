@@ -1101,15 +1101,15 @@ body.preview-hidden .workspace {
 }
 
 /* --- Вкладки (Tabs) --- */
-.preview-content .article-tabs {
+.article-tabs {
     margin: 20px 0;
 }
-.preview-content .article-tabs-nav {
+.article-tabs-nav {
     display: flex;
     gap: 4px;
     border-bottom: 2px solid #eee;
 }
-.preview-content .article-tabs-nav button {
+.article-tabs-nav button {
     padding: 10px 20px;
     border: 1px solid transparent;
     border-bottom: none;
@@ -1121,19 +1121,19 @@ body.preview-hidden .workspace {
     color: #666;
     transition: all .15s;
 }
-.preview-content .article-tabs-nav button.active {
+.article-tabs-nav button.active {
     background: #fff;
     color: #4a90d9;
     border-color: #ddd;
     border-bottom-color: #fff;
     margin-bottom: -2px;
 }
-.preview-content .article-tabs-panels {
+.article-tabs-panels {
     border: 1px solid #ddd;
     border-top: none;
     border-radius: 0 0 6px 6px;
 }
-.preview-content .article-tabs-panel {
+.article-tabs-panel {
     padding: 16px 20px;
 }
 
@@ -1779,7 +1779,7 @@ body.preview-hidden .workspace {
         margin-right: 4px;
     }
 
-    .preview-content .article-tabs-nav [data-tab] {
+    .article-tabs-nav [data-tab] {
         flex: 1 1 auto;
         text-align: center;
         padding: 8px 12px;
