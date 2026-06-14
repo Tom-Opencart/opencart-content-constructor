@@ -3,7 +3,7 @@
 
     window.CONTENT_CONSTRUCTOR_BUILD = {
         version: '1.6.6',
-        builtAt: '2026-06-14 09:14:12 UTC'
+        builtAt: '2026-06-14 09:19:25 UTC'
     };
 
 /* ============================================================
@@ -2210,7 +2210,7 @@ function compileExportHtml(projectState, ctx) {
     const schemaSpec = (ctx && ctx.schemaSpec) || CC_SCHEMA_SPEC;
     const projectJSON = JSON.stringify(serializeProject(projectState, schemaSpec));
     
-    const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}\n<div class="constructor-json-container" style="display:none !important;">${projectJSON}</div>\n</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
+    const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
     
     const slug = projectState.slug || 'article';
 
