@@ -43,6 +43,25 @@ function extractJSONFromString(text) {
         }
     }
 
+    // 3. Try to match hidden div class="constructor-json-container"
+    const divRegex = /<div\s+class="constructor-json-container"[^>]*>([\s\S]*?)<\/div>/i;
+    const divMatch = text.match(divRegex);
+    if (divMatch && divMatch[1]) {
+        try {
+            let decoded = divMatch[1].trim()
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'")
+                .replace(/&#039;/g, "'")
+                .replace(/&apos;/g, "'");
+            return JSON.parse(decoded);
+        } catch (e) {
+            // Ignore div parse failure, try other matches
+        }
+    }
+
     // 3. Try to match markdown code block
     const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/i;
     const match = text.match(codeBlockRegex);

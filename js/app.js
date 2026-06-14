@@ -3,7 +3,7 @@
 
     window.CONTENT_CONSTRUCTOR_BUILD = {
         version: '1.6.6',
-        builtAt: '2026-06-14 08:34:27 UTC'
+        builtAt: '2026-06-14 09:14:12 UTC'
     };
 
 /* ============================================================
@@ -1565,6 +1565,25 @@ function extractJSONFromString(text) {
         }
     }
 
+    // 3. Try to match hidden div class="constructor-json-container"
+    const divRegex = /<div\s+class="constructor-json-container"[^>]*>([\s\S]*?)<\/div>/i;
+    const divMatch = text.match(divRegex);
+    if (divMatch && divMatch[1]) {
+        try {
+            let decoded = divMatch[1].trim()
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'")
+                .replace(/&#039;/g, "'")
+                .replace(/&apos;/g, "'");
+            return JSON.parse(decoded);
+        } catch (e) {
+            // Ignore div parse failure, try other matches
+        }
+    }
+
     // 3. Try to match markdown code block
     const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```/i;
     const match = text.match(codeBlockRegex);
@@ -2191,7 +2210,7 @@ function compileExportHtml(projectState, ctx) {
     const schemaSpec = (ctx && ctx.schemaSpec) || CC_SCHEMA_SPEC;
     const projectJSON = JSON.stringify(serializeProject(projectState, schemaSpec));
     
-    const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
+    const cleanHTML = `${tocHTML}<div class="description" ${styleAttr}>\n${contentHTML}\n<div class="constructor-json-container" style="display:none !important;">${projectJSON}</div>\n</div>\n<!-- CONSTRUCTOR_JSON:\n${projectJSON}\n-->`;
     
     const slug = projectState.slug || 'article';
 
