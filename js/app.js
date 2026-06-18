@@ -5751,9 +5751,12 @@ function initDonateModalShell() {
             return;
         }
 
+        openEditForm(block, body);
+    }
+
+    function openEditForm(block, body) {
         body.innerHTML = renderEditForm(block);
 
-        // Bind form events
         const form = body.querySelector('.edit-form');
         bindFormEvents(block, form, body);
 
@@ -5765,7 +5768,15 @@ function initDonateModalShell() {
         body.querySelector('[data-action="cancel"]').addEventListener('click', () => renderBlocks());
     }
 
+    function refreshEditForm(block, card) {
+        const body = card.querySelector('.block-body');
+        if (body && body.querySelector('.edit-form')) {
+            openEditForm(block, body);
+        }
+    }
+
     function bindFormEvents(block, form, body) {
+        const card = body.closest('.block-card');
         // Generic field bindings
         form.querySelectorAll('[data-field]').forEach(el => {
             const updateField = () => {
@@ -5820,14 +5831,14 @@ function initDonateModalShell() {
         form.querySelectorAll('[data-action="add-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.items.push('Новый пункт');
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="remove-item"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.items.splice(idx, 1);
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
 
@@ -5836,13 +5847,13 @@ function initDonateModalShell() {
             btn.addEventListener('click', () => {
                 block.data.headers.push('Новый столбец');
                 block.data.rows.forEach(row => row.push(''));
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="add-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.rows.push(new Array(block.data.headers.length).fill(''));
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="remove-col"]').forEach(btn => {
@@ -5850,14 +5861,14 @@ function initDonateModalShell() {
                 if (block.data.headers.length <= 1) return;
                 block.data.headers.pop();
                 block.data.rows.forEach(row => row.pop());
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="remove-row"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (block.data.rows.length <= 1) return;
                 block.data.rows.pop();
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
 
@@ -5865,14 +5876,14 @@ function initDonateModalShell() {
         form.querySelectorAll('[data-action="add-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 block.data.tabs.push({ title: 'Новая вкладка', text: '' });
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="remove-tab"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.dataset.index);
                 block.data.tabs.splice(idx, 1);
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
 
@@ -6104,7 +6115,7 @@ function initDonateModalShell() {
                 if (!block.data.items) block.data.items = [];
                 const newIdx = block.data.items.length;
                 block.data.items.push({ src: '', alt: `Слайд ${newIdx + 1}`, caption: '' });
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-action="remove-carousel-item"]').forEach(btn => {
@@ -6113,7 +6124,7 @@ function initDonateModalShell() {
                 if (block.data.items) {
                     block.data.items.splice(idx, 1);
                 }
-                toggleEdit(block, btn.closest('.block-card'));
+                refreshEditForm(block, card);
             });
         });
         form.querySelectorAll('[data-carousel-src]').forEach(input => {
