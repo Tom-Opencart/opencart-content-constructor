@@ -2,7 +2,7 @@
     'use strict';
 
     window.CONTENT_CONSTRUCTOR_BUILD = {
-        version: '1.6.6',
+        version: '1.6.7',
         builtAt: '2026-06-14 09:19:25 UTC'
     };
 
